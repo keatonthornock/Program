@@ -117,7 +117,8 @@ async function run(){
       return;
     }
     csvUrl = buildCsvUrl(sheetId, adminGid);
-    $('#sheet-link').href = `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=${adminGid}`;
+    const sheetLink = $('#sheet-link');
+    if (sheetLink) sheetLink.href = `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=${adminGid}`;
     console.log('[app] built csvUrl from sheet_id/admin_gid:', csvUrl);
   }
 
