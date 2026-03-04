@@ -4,7 +4,9 @@
 
 // Utility
 const $ = sel => document.querySelector(sel);
-const cfgPath = 'config.json';
+const cfgPath = window.location.pathname.includes('/Program/')
+  ? '/Program/config.json'
+  : './config.json';
 
 async function loadConfig(){
   try {
