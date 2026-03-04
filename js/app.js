@@ -21,7 +21,7 @@ async function loadConfig(){
 
 function buildCsvUrl(sheetId, gid){
   // CSV export: ensure sheet is shared publicly
-  return `https://docs.google.com/spreadsheets/d/e/2PACX-1vRc9q9Jjs8H2JPQGZMDAAluqiJ2IOjjs2stLdZghdmA2qGS2sWnce9fyuTAeejWHeF4sU9rB4pzFNmG/pubhtml`;
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
 function parseCSV(text){
