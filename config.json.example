@@ -1,5 +1,0 @@
-{
-  "sheet_id": "YOUR_GOOGLE_SHEET_ID_HERE",
-  "admin_gid": "GID_FOR_ADMIN_SHEET",
-  "notes": "Rename this file to config.json and fill the values. admin_gid is the numeric gid for the Administrative tab (see README)."
-}
