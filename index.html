@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sacrament Meeting — Ward Program</title>
+
+  <!-- Fonts (serif for headings, sans for UI) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main id="app" class="app">
+    <header class="hero">
+      <!-- Replace src with your logo file or remove <img> if you prefer text heading -->
+      <img id="church-logo" src="logo.png" alt="Church logo" onerror="this.style.display='none'">
+      <h1 id="title" class="title">Loading…</h1>
+      <div id="submeta" class="submeta"> </div>
+    </header>
+
+    <section class="program card" aria-live="polite">
+      <h2 class="section-heading">Sacrament Meeting</h2>
+      <div class="meta-row">
+        <div><strong>Presiding:</strong> <span id="presiding">—</span></div>
+        <div><strong>Conducting:</strong> <span id="conducting">—</span></div>
+      </div>
+
+      <div id="meeting-type" class="meta-small">Type: <span>-</span></div>
+
+      <div id="notice" class="notice" hidden></div>
+    </section>
+
+    <section class="card actions" id="admin-values">
+      <table class="values">
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Title</td><td id="val-title">—</td></tr>
+        <tr><td>Ward</td><td id="val-ward">—</td></tr>
+        <tr><td>Stake</td><td id="val-stake">—</td></tr>
+        <tr><td>Upcoming Sunday</td><td id="val-date">—</td></tr>
+        <tr><td>Presiding</td><td id="val-presiding">—</td></tr>
+        <tr><td>Conducting</td><td id="val-conducting">—</td></tr>
+        <tr><td>Meeting Type</td><td id="val-meetingtype">—</td></tr>
+      </table>
+    </section>
+
+    <footer class="footer">
+      <small>Powered by a public Google Sheet — <a id="sheet-link" href="#" target="_blank" rel="noopener">Open sheet</a></small>
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
