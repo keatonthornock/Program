@@ -50,11 +50,15 @@ function parseCSVtoRows(text){
 
 // slug helper
 function slugify(text){
-  return (text || '').toString().trim()
+  if(!text) return '';
+  // normalize diacritics, remove punctuation, strip leading numbers like "123. "
+  return text.toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')   // remove accents
+    .trim()
+    .replace(/^[0-9]+\.\s*/,'')                        // strip leading "123. "
+    .replace(/[’'"\.:,;!?\(\)\[\]]/g,'')              // remove punctuation
+    .replace(/[^a-zA-Z0-9\s-]/g,'')                   // remove other non-safe chars
     .toLowerCase()
-    .replace(/^[0-9]+\.\s*/,'')            // strip leading "123. "
-    .replace(/[’'"]/g,'')                  // remove smart quotes
-    .replace(/[^a-z0-9\s-]/g,'')           // remove non-safe chars
     .replace(/\s+/g,'-')
     .replace(/-+/g,'-')
     .replace(/^-|-$/g,'');
@@ -62,32 +66,66 @@ function slugify(text){
 
 // hymn URL generator
 function getHymnUrl(title, hymnNumber, extraInfo){
-  // prefer numeric hymnNumber if present:
-  const n = Number(hymnNumber);
+  // normalize inputs
+  const extra = (extraInfo || '').toString().toLowerCase();
+  const t = (title || '').toString().trim();
+  const titleSlug = slugify(t);
+
+  // parse numeric if present
+  const n = Number((hymnNumber !== undefined && hymnNumber !== null) ? String(hymnNumber).replace(/[^\d]/g,'') : NaN);
+
+  // 1) If Extra Info explicitly mentions Children's Songbook / Songbook -> use songbook path
+  if(extra.includes('child') || extra.includes('children') || extra.includes('songbook')) {
+    if(titleSlug) {
+      return `https://www.churchofjesuschrist.org/study/music/songbook/${titleSlug}?lang=eng`;
+    }
+    // fallback to search if no title slug
+    if(!isNaN(n) && n > 0) {
+      // still try search by number if no slug
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
+    }
+  }
+
+  // 2) If Extra Info explicitly mentions Hymns-for-Home (or 'home and church') -> use that path
+  if(extra.includes('hymns for home') || extra.includes('home and church') || extra.includes('hymns-for-home')) {
+    if(titleSlug) {
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+    }
+    if(!isNaN(n) && n >= 1000) {
+      // fallback: we don't always have direct numeric slug mapping, so search by number
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
+    }
+  }
+
+  // 3) If numeric hymn number present - choose classical hymnal vs for-home
   if(!isNaN(n) && n > 0){
     if(n <= 341){
+      // classic hymnbook numeric route
       return `https://www.churchofjesuschrist.org/music/library/hymns/${n}`;
     }
     if(n >= 1000){
-      // hymns for home and church path uses slug based on title
-      const slug = slugify(title);
-      if(slug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${slug}?lang=eng`;
-      // fallback: sometimes site uses numeric id; try search fallback
-      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng`;
+      // treat as Hymns-for-Home numeric id; use slug if we have title, otherwise search fallback
+      if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
     }
-    // fallback
+    // numbers between 342 and 999 are rare — fallback to classic hymn path
     return `https://www.churchofjesuschrist.org/music/library/hymns/${n}`;
   }
 
-  // If no numeric hymn, try to infer from extraInfo label "Hymns for Home and Church"
-  if((extraInfo||'').toLowerCase().includes('hymns for home')) {
-    const slug = slugify(title);
-    if(slug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${slug}?lang=eng`;
+  // 4) If no numeric value, but extra info hints at source, use title slug with that source
+  if(extra.includes('hymn') && extra.includes('home')) {
+    if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+  }
+  if(extra.includes('hymn') && (extra.includes('child') || extra.includes('songbook'))) {
+    if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/songbook/${titleSlug}?lang=eng`;
   }
 
-  // last resort: try search by title
-  const q = encodeURIComponent(title || '');
-  if(q) return `https://www.churchofjesuschrist.org/search?q=${q}`;
+  // 5) Last resort: search by title
+  if(t) {
+    return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
+  }
+
+  // nothing to link
   return null;
 }
 
