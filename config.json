@@ -1,5 +1,6 @@
 {
   "sheet_id": "1-85YBuMWFVscnSn8Ie7LfuxC0k6Eeh0uygFO1dlQYwQ",
   "admin_gid": "0",
+  "agenda_gid": "1110042208",
   "notes": "Rename this file to config.json and fill the values within the quotation marks (do not remove beginning and end quote marks). admin_gid is the numeric gid for the Administrative tab (see README if you are lost)."
 }
