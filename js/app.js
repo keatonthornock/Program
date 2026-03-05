@@ -207,6 +207,12 @@ async function run(){
       const name = (r[1]||'').toString().trim();   // B: Name or hymn title with number
       const extra = (r[2]||'').toString().trim();  // C: Extra Info (e.g. "Hymns", "Hymns for Home and Church")
 
+      // Skip any row where the Name column (B) is empty — prevents rendering empty optional rows
+      if(!name) {
+        console.log(`[app] skipping empty agenda row ${i+1} (no name/title in column B)`);
+        continue;
+      }
+
       const key = normalizeItemKey(item);
 
       // handle hymns which may be in the "Name" column with leading number
