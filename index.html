@@ -2,52 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  
-    <!-- ensure relative paths work correctly when hosted in a subpath (GitHub Pages) -->
   <base href="./">
-  
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sacrament Meeting — Ward Program</title>
 
-  <!-- Fonts (serif for headings, sans for UI) -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <main id="app" class="app">
+    <!-- Top hero / header -->
     <header class="hero">
-      <!-- Replace src with your logo file or remove <img> if you prefer text heading -->
-      <img id="church-logo" src="logo.png" alt="Church logo" onerror="this.style.display='none'">
-      <h1 id="title" class="title">Loading…</h1>
-      <div id="submeta" class="submeta"> </div>
+      <div class="hero-inner">
+        <!-- you can add logo.png in repo root; if missing it will collapse gracefully -->
+        <img id="church-logo" src="logo.png" alt="Church logo" onerror="this.style.display='none'">
+        <div class="hero-text">
+          <div class="org">The Church of Jesus Christ<br><span class="suborg">of Latter-day Saints</span></div>
+          <h1 id="meeting-heading" class="meeting-heading">Sacrament Meeting</h1>
+          <div id="meeting-date" class="meeting-date">Loading…</div>
+        </div>
+      </div>
     </header>
 
-    <section class="program card" aria-live="polite">
-      <h2 class="section-heading">Sacrament Meeting</h2>
-      <div class="meta-row">
+    <!-- Presiding / Conducting -->
+    <section class="meta card">
+      <div class="meta-row-2">
         <div><strong>Presiding:</strong> <span id="presiding">—</span></div>
         <div><strong>Conducting:</strong> <span id="conducting">—</span></div>
       </div>
-
-      <div id="meeting-type" class="meta-small">Type: <span>-</span></div>
-
-      <div id="notice" class="notice" hidden></div>
     </section>
 
-    <section class="card actions" id="admin-values">
-      <table class="values">
-        <tr><th>Field</th><th>Value</th></tr>
-        <tr><td>Title</td><td id="val-title">—</td></tr>
-        <tr><td>Ward</td><td id="val-ward">—</td></tr>
-        <tr><td>Stake</td><td id="val-stake">—</td></tr>
-        <tr><td>Upcoming Sunday</td><td id="val-date">—</td></tr>
-        <tr><td>Presiding</td><td id="val-presiding">—</td></tr>
-        <tr><td>Conducting</td><td id="val-conducting">—</td></tr>
-        <tr><td>Meeting Type</td><td id="val-meetingtype">—</td></tr>
-      </table>
+    <!-- Program / agenda -->
+    <section id="program" class="card program">
+      <!-- Program content will be injected here by JS -->
+      <div id="program-content" class="program-content">
+        <div class="placeholder">
+          <p class="muted">No agenda items loaded yet. When Agenda is configured the program will appear here.</p>
+        </div>
+      </div>
     </section>
-    
+
+    <!-- Collapsible Activities -->
+    <section class="card collapsible" id="activities-section">
+      <button class="collapsible-toggle" data-target="activities-panel">
+        <span>Activities &amp; Events</span>
+        <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden><path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="activities-panel" class="collapsible-panel">
+        <div id="activities-list" class="list"></div>
+        <div class="muted small">No activities yet.</div>
+      </div>
+    </section>
+
+    <!-- Collapsible Ward Leadership -->
+    <section class="card collapsible" id="leaders-section">
+      <button class="collapsible-toggle" data-target="leaders-panel">
+        <span>Ward Leadership</span>
+        <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden><path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="leaders-panel" class="collapsible-panel">
+        <div id="leaders-list" class="list"></div>
+        <div class="muted small">No leadership data yet.</div>
+      </div>
+    </section>
+
+    <div id="notice" class="notice" hidden></div>
   </main>
 
   <script src="js/app.js"></script>
