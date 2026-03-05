@@ -51,12 +51,11 @@ function parseCSVtoRows(text){
 // slug helper
 function slugify(text){
   if(!text) return '';
-  // normalize diacritics, remove punctuation, strip leading numbers like "123. "
   return text.toString()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')   // remove accents
     .trim()
     .replace(/^[0-9]+\.\s*/,'')                        // strip leading "123. "
-    .replace(/[’'"\.:,;!?\(\)\[\]]/g,'')              // remove punctuation
+    .replace(/[’'"\.:,;!?\(\)\[\]\/]/g,'')             // remove punctuation
     .replace(/[^a-zA-Z0-9\s-]/g,'')                   // remove other non-safe chars
     .toLowerCase()
     .replace(/\s+/g,'-')
@@ -64,70 +63,64 @@ function slugify(text){
     .replace(/^-|-$/g,'');
 }
 
-// hymn URL generator
-function getHymnUrl(title, hymnNumber, extraInfo){
-  // normalize inputs
+/**
+ * title: hymn title (string)
+ * hymnNumber: numeric or string (e.g. "193" or "1024")
+ * extraInfo: contents of column C (hints like "Hymns", "Hymns for Home and Church", "Children's Songbook")
+ * slugOverride: optional explicit slug from column D (if present)
+ */
+function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const extra = (extraInfo || '').toString().toLowerCase();
   const t = (title || '').toString().trim();
-  const titleSlug = slugify(t);
-
-  // parse numeric if present
+  const titleSlug = slugOverride ? String(slugOverride).trim() : slugify(t);
   const n = Number((hymnNumber !== undefined && hymnNumber !== null) ? String(hymnNumber).replace(/[^\d]/g,'') : NaN);
 
-  // 1) If Extra Info explicitly mentions Children's Songbook / Songbook -> use songbook path
-  if(extra.includes('child') || extra.includes('children') || extra.includes('songbook')) {
-    if(titleSlug) {
-      return `https://www.churchofjesuschrist.org/study/music/songbook/${titleSlug}?lang=eng`;
+  // 1) If explicit slug provided in sheet (column D), use that with sensible path guessing
+  if(titleSlug) {
+    // prefer specific collections if extra hints them
+    if(extra.includes('child') || extra.includes('songbook')) {
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
     }
-    // fallback to search if no title slug
-    if(!isNaN(n) && n > 0) {
-      // still try search by number if no slug
-      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
-    }
-  }
-
-  // 2) If Extra Info explicitly mentions Hymns-for-Home (or 'home and church') -> use that path
-  if(extra.includes('hymns for home') || extra.includes('home and church') || extra.includes('hymns-for-home')) {
-    if(titleSlug) {
+    if(extra.includes('hymns for home') || extra.includes('home and church')) {
       return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
     }
-    if(!isNaN(n) && n >= 1000) {
-      // fallback: we don't always have direct numeric slug mapping, so search by number
-      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
-    }
+    // Classic hymn book
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${titleSlug}?lang=eng`;
   }
 
-  // 3) If numeric hymn number present - choose classical hymnal vs for-home
+  // 2) If numeric hymn is present, use it to choose general path
   if(!isNaN(n) && n > 0){
     if(n <= 341){
-      // classic hymnbook numeric route
-      return `https://www.churchofjesuschrist.org/music/library/hymns/${n}`;
+      // classic hymns: map number -> manual/hymns slug is reliable if we have title, but
+      // if we only have number attempt canonical manual link via search by number (search fallback)
+      // Prefer constructing study/manual/hymns/<slug> if title exists; otherwise, link to the hymns index anchor via search.
+      // We'll return the manual path with the number if all else fails by searching the manual page.
+      // Best experience: include title in sheet or add slug in column D.
+      return `https://www.churchofjesuschrist.org/study/manual/hymns/${n}?lang=eng`;
     }
     if(n >= 1000){
-      // treat as Hymns-for-Home numeric id; use slug if we have title, otherwise search fallback
-      if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
-      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
+      // treat as Hymns-for-Home numeric id: prefer titleSlug if present, otherwise link to collection anchor via search
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng#${n}`;
     }
-    // numbers between 342 and 999 are rare — fallback to classic hymn path
-    return `https://www.churchofjesuschrist.org/music/library/hymns/${n}`;
+    // default fallback
+    return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
   }
 
-  // 4) If no numeric value, but extra info hints at source, use title slug with that source
-  if(extra.includes('hymn') && extra.includes('home')) {
+  // 3) If extra info points to a collection but no slug/number, build slug from title and try appropriate path
+  if(extra.includes('child') || extra.includes('songbook')){
+    if(titleSlug) return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
+  }
+  if(extra.includes('hymns for home') || extra.includes('home and church')){
     if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
   }
-  if(extra.includes('hymn') && (extra.includes('child') || extra.includes('songbook'))) {
-    if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/songbook/${titleSlug}?lang=eng`;
-  }
 
-  // 5) Last resort: search by title
-  if(t) {
-    return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
-  }
+  // 4) Last resort: if we have a title at all, do a site search for it
+  if(t) return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
 
   // nothing to link
   return null;
 }
+
 
 function createElemFromHTML(html){
   const div = document.createElement('div');
