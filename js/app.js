@@ -239,6 +239,7 @@ async function run(){
       const colA = (r[0] || '').toString().trim(); // Item
       const colB = (r[1] || '').toString().trim(); // Name / Title / Hymn
       const colC = (r[2] || '').toString().trim(); // Extra Info
+      const colD = (r[3] || '').toString().trim(); // Optional explicit hymn slug (column D)
     
       // Detect and skip header row (tolerant to capitalization and small variations)
       const aKey = colA.toLowerCase();
@@ -258,6 +259,7 @@ async function run(){
       const item = colA;   // A: Item (Opening Hymn, Invocation, Speaker, etc)
       const name = colB;   // B: Name or hymn title with number
       const extra = colC;  // C: Extra Info
+      const slugOverride = colD; // D: optional explicit slug (use when site slug differs)
     
       // Skip any row where the Name column (B) is empty — prevents rendering empty optional rows
       if (!name) {
@@ -266,49 +268,48 @@ async function run(){
       }
     
       const key = normalizeItemKey(item);
-
+    
       // handle hymns which may be in the "Name" column with leading number
-      if(key.includes('hymn')) {
+      if (key.includes('hymn')) {
         // detect hymn number from name: leading number or trailing
         let hymnNumber = null;
         let hymnTitle = name;
         const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
-        if(m){
+        if (m) {
           hymnNumber = m[1];
           hymnTitle = m[2] || '';
         } else {
-          // another pattern "1024. I have faith..." possibly includes dot + title
           const m2 = name.match(/([0-9]{3,4})/);
-          if(m2) hymnNumber = m2[1];
+          if (m2) hymnNumber = m2[1];
         }
-
-        const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra);
+    
+        // Pass slugOverride into getHymnUrl so explicit slugs in column D are used when present
+        const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
         container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
         any = true;
         continue;
       }
-
+    
       // handle "Speaker" or "Speaker (Optional)" and similar
-      if(key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')) {
-        // For "Speaker (Optional)" or "Speaker" just show as Speaker line
+      if (key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')) {
         container.appendChild(createRow('Speaker', name, ''));
         any = true;
         continue;
       }
-
+    
       // Invocation, Benediction, Closing Prayer, Musical Number etc.
-      if(key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')) {
+      if (key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')) {
         container.appendChild(createRow(item, name, ''));
         any = true;
         continue;
       }
-
-      if(key.includes('musical')) {
+    
+      if (key.includes('musical')) {
         container.appendChild(createRow('Musical Number', name, extra));
         any = true;
         continue;
       }
-
+    
       // catch-all: render generic row
       container.appendChild(createRow(item, name, extra));
       any = true;
