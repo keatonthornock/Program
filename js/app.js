@@ -200,19 +200,40 @@ async function run(){
     container.innerHTML = '';
     let any = false;
 
-    for(let i=0;i<agRows.length;i++){
+    for (let i = 0; i < agRows.length; i++) {
       const r = agRows[i];
-      if(!r || !r[0]) continue; // skip blank rows
-      const item = (r[0]||'').toString().trim();   // A: Item (Opening Hymn, Invocation, Speaker, etc)
-      const name = (r[1]||'').toString().trim();   // B: Name or hymn title with number
-      const extra = (r[2]||'').toString().trim();  // C: Extra Info (e.g. "Hymns", "Hymns for Home and Church")
-
+      if (!r || !r[0]) continue; // skip completely blank rows
+    
+      // Normalize each column (trim and coerce to string)
+      const colA = (r[0] || '').toString().trim(); // Item
+      const colB = (r[1] || '').toString().trim(); // Name / Title / Hymn
+      const colC = (r[2] || '').toString().trim(); // Extra Info
+    
+      // Detect and skip header row (tolerant to capitalization and small variations)
+      const aKey = colA.toLowerCase();
+      const bKey = colB.toLowerCase();
+      const cKey = colC.toLowerCase();
+      const looksLikeHeader =
+        aKey === 'item' ||
+        bKey === 'name' ||
+        cKey === 'extra info' ||
+        (aKey.includes('item') && bKey.includes('name')); // extra safety
+      if (looksLikeHeader) {
+        console.log(`[app] skipping header-like row ${i+1}: ${colA} | ${colB} | ${colC}`);
+        continue;
+      }
+    
+      // Now assign the meaningful variables the rest of the code expects
+      const item = colA;   // A: Item (Opening Hymn, Invocation, Speaker, etc)
+      const name = colB;   // B: Name or hymn title with number
+      const extra = colC;  // C: Extra Info
+    
       // Skip any row where the Name column (B) is empty — prevents rendering empty optional rows
-      if(!name) {
+      if (!name) {
         console.log(`[app] skipping empty agenda row ${i+1} (no name/title in column B)`);
         continue;
       }
-
+    
       const key = normalizeItemKey(item);
 
       // handle hymns which may be in the "Name" column with leading number
