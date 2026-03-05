@@ -1,22 +1,14 @@
-// app.js (diagnostic build)
-// Loads config.json, fetches Admin CSV from Google Sheets (or admin_csv_url),
-// parses Key/Value pairs, and renders the basic fields to the page.
-
-// Utility
+// app.js - Render new mobile agenda layout using Administrative sheet (CSV).
 const $ = sel => document.querySelector(sel);
-const cfgPath = window.location.pathname.includes('/Program/')
-  ? '/Program/config.json'
-  : './config.json';
+const cfgPath = './config.json';
 
 async function loadConfig(){
   try {
     const r = await fetch(cfgPath);
     if(!r.ok) throw new Error('Missing config.json or not reachable');
-    const cfg = await r.json();
-    console.log('[app] loaded config.json:', cfg);
-    return cfg;
+    return await r.json();
   } catch(err){
-    showError(`Cannot load config.json. Create config.json from config.json.example and fill sheet_id & admin_gid.\n${err.message}`);
+    showError(`Cannot load config.json. ${err.message}`);
     throw err;
   }
 }
@@ -25,54 +17,29 @@ function buildCsvUrl(sheetId, gid){
   return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
-function stripBOM(s){
-  if(!s) return s;
-  return s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s;
-}
-
 function parseCSV(text){
-  // remove BOM
-  text = stripBOM(text);
-  const rows = [];
-  let cur = [''];
-  let inQuotes = false;
-  for(let i=0;i<text.length;i++){
-    const ch = text[i];
-    if(ch === '"'){
-      if(inQuotes && text[i+1] === '"'){ // escaped quote
-        cur[cur.length-1] += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-    if(!inQuotes && ch === ','){
-      cur.push('');
-      continue;
-    }
-    if(!inQuotes && (ch === '\n' || ch === '\r')){
-      // handle CRLF
-      if(ch === '\r' && text[i+1] === '\n'){ /* skip, loop will skip next\n */ }
-      rows.push(cur);
-      cur = [''];
-      // Skip possible following \n in CRLF
-      if(ch === '\r' && text[i+1] === '\n') i++;
-      continue;
-    }
-    cur[cur.length-1] += ch;
+  // Simple CSV parse, robust enough for key/value Admin sheet
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/).map(l => l.trim());
+  return lines.map(l => {
+    // split on first comma only (Key,Value)
+    if(!l) return [];
+    const idx = l.indexOf(',');
+    if(idx === -1) return [l];
+    return [ l.slice(0,idx).trim(), l.slice(idx+1).trim().replace(/^"(.*)"$/, '$1') ];
+  });
+}
+
+function showError(msg){
+  const n = $('#notice');
+  if(n){
+    n.hidden = false;
+    n.textContent = msg;
+  } else {
+    console.warn(msg);
   }
-  // finish last
-  if(cur.length && (cur.some(c => c !== ''))) rows.push(cur);
-
-  // Trim empty trailing rows
-  while(rows.length && rows[rows.length-1].every(c => c === '')) rows.pop();
-  return rows;
 }
-
-function normalizeKey(k){
-  return String(k||'').trim().toLowerCase().replace(/\s+/g,' ');
-}
+function clearError(){ const n = $('#notice'); if(n){ n.hidden = true; n.textContent = ''; } }
 
 function formatDateIfPossible(s){
   if(!s) return '';
@@ -80,117 +47,182 @@ function formatDateIfPossible(s){
   if(!isNaN(d)) {
     return d.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' });
   }
-  // mm/dd/yyyy fallback
-  const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-  if(m){
-    const dd = new Date(`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`);
-    if(!isNaN(dd)) return dd.toLocaleDateString(undefined, { month:'long', day:'numeric', year:'numeric' });
-  }
   return s;
 }
 
-function showError(msg){
-  const n = $('#notice');
-  n.hidden = false;
-  n.textContent = msg;
-  console.warn('[app] user error:', msg);
+function createHymnCard(title, hymnNumber, label='Opening Hymn'){
+  const el = document.createElement('div');
+  el.className = 'hymn-card';
+  el.innerHTML = `
+    <div class="left">
+      <div class="hymn-icon" aria-hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 17V7l10-2v10" stroke="#0b4a6a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="hymn-title">${label}</div>
+        <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''} ${title ? ` — ${title}` : ''}</div>
+      </div>
+    </div>
+    <div class="right">›</div>
+  `;
+  return el;
 }
 
-function clearError(){ $('#notice').hidden = true; $('#notice').textContent = ''; }
+function createSimpleRow(type, text, extra=''){
+  const el = document.createElement('div');
+  el.className = 'agenda-item';
+  el.innerHTML = `
+    <div class="icon" aria-hidden> 
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#0b4a6a" stroke-width="1.2"></circle>
+      </svg>
+    </div>
+    <div class="content">
+      <div class="title">${type}</div>
+      <div class="sub">${text || ''}</div>
+    </div>
+    <div class="right">${extra}</div>
+  `;
+  return el;
+}
 
-// run
+function renderAdministrative(map){
+  // Header
+  const title = map['title'] || 'The Church of Jesus Christ of Latter-day Saints';
+  const ward = map['ward'] || '';
+  const stake = map['stake'] || '';
+  const dateRaw = map['upcoming sunday date'] || map['upcoming sunday'] || '';
+  const presiding = map['presiding'] || '—';
+  const conducting = map['conducting'] || '—';
+  const meetingType = map['meeting type'] || '';
+
+  $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
+  $('#meeting-date').textContent = (dateRaw ? formatDateIfPossible(dateRaw) : '') + (ward ? `\n${ward} · ${stake}` : (ward || stake ? ` · ${ward} ${stake}` : ''));
+  $('#presiding').textContent = presiding;
+  $('#conducting').textContent = conducting;
+
+  // Program skeleton (until Agenda tab is added)
+  const pc = $('#program-content');
+  pc.innerHTML = ''; // clear
+
+  // Opening hymn card from admin if they put Title fields (we check keys)
+  // Try to find Opening Hymn info in admin sheet by keys: "opening hymn" / "opening hymn #"
+  const openingTitle = map['opening hymn'] || '';
+  const openingNum = map['opening hymn #'] || map['opening hymn number'] || '';
+  if(openingTitle || openingNum) {
+    pc.appendChild(createHymnCard(openingTitle, openingNum, 'Opening Hymn'));
+  } else {
+    // placeholder opening hymn
+    pc.appendChild(createHymnCard('', '', 'Opening Hymn'));
+  }
+
+  // Invocation row
+  const invocation = map['invocation'] || '';
+  if(invocation) pc.appendChild(createSimpleRow('Invocation', invocation));
+  else pc.appendChild(createSimpleRow('Invocation', ''));
+
+  // Speakers placeholder section (we'll show sample if none)
+  const spHeader = document.createElement('div');
+  spHeader.className = 'muted small';
+  spHeader.style.margin = '6px 4px';
+  spHeader.textContent = 'Speakers & Intermediate Hymn';
+  pc.appendChild(spHeader);
+
+  // If admin provided "speaker1", "speaker2", etc., render them
+  let speakersFound = false;
+  for(let i=1;i<=6;i++){
+    const key = `speaker ${i}`;
+    if(map[key]) {
+      speakersFound = true;
+      pc.appendChild(createSimpleRow('Speaker', map[key]));
+    }
+  }
+  if(!speakersFound) {
+    // Some default placeholders to match your mockup look (they can be removed once Agenda is implemented)
+    pc.appendChild(createSimpleRow('Speaker', 'Brother James White'));
+    pc.appendChild(createSimpleRow('Speaker', 'Sister Anna Brown'));
+    // intermediate hymn placeholder
+    pc.appendChild(createHymnCard('I Know That My Redeemer Lives', 136, 'Intermediate Hymn'));
+    pc.appendChild(createSimpleRow('Speaker', 'Brother Michael Johnson'));
+  }
+
+  // Closing hymn
+  const closingTitle = map['closing hymn'] || '';
+  const closingNum = map['closing hymn #'] || map['closing hymn number'] || '';
+  if(closingTitle || closingNum){
+    pc.appendChild(createHymnCard(closingTitle, closingNum, 'Closing Hymn'));
+  } else {
+    pc.appendChild(createHymnCard('God Be with You Till We Meet Again', 152, 'Closing Hymn'));
+  }
+
+  // Benediction
+  const bened = map['benediction'] || map['benediction by'] || map['benediction name'] || '';
+  if(bened) pc.appendChild(createSimpleRow('Benediction', bened));
+  else pc.appendChild(createSimpleRow('Benediction', 'Brother David Lee'));
+
+  clearError();
+}
+
 async function run(){
   clearError();
   let config;
   try { config = await loadConfig(); } catch(e){ return; }
 
-  // Build CSV URL - support direct admin_csv_url fallback
+  // Build csv url (supports admin_csv_url in config)
   let csvUrl = null;
   if(config.admin_csv_url){
     csvUrl = config.admin_csv_url;
-    console.log('[app] using admin_csv_url from config:', csvUrl);
   } else {
-    const sheetId = config.sheet_id;
-    const adminGid = config.admin_gid;
-    if(!sheetId || !adminGid){
-      showError('config.json is missing sheet_id or admin_gid. Open config.json.example for instructions.');
+    const { sheet_id: sheetId, admin_gid: adminGid } = config;
+    if(!sheetId || typeof adminGid === 'undefined') {
+      showError('config.json is missing sheet_id or admin_gid.');
       return;
     }
     csvUrl = buildCsvUrl(sheetId, adminGid);
-    const sheetLink = $('#sheet-link');
-    if (sheetLink) {
-      sheetLink.href = `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=${adminGid}`;
-    }
-    console.log('[app] built csvUrl from sheet_id/admin_gid:', csvUrl);
   }
 
   try {
     const resp = await fetch(csvUrl, { cache: "no-store" });
-    console.log('[app] fetch response:', resp.status, resp.headers.get('content-type'));
+    if(!resp.ok) throw new Error(`Sheet fetch failed (${resp.status})`);
     const text = await resp.text();
-
-    // Quick heuristic: if the response contains HTML tags, it may be a redirect/login page
-    const first500 = text.slice(0,500).replace(/\s+/g,' ');
-    console.log('[app] response first chars:', first500);
-
-    if(/<html|doctype html|<script|login/i.test(first500)){
-      // Likely an HTML page, not CSV (login, permission or publish page)
-      showError('The sheet returned HTML (likely a permission/login page). Ensure the sheet is published or set to "Anyone with the link - Viewer".\nIf you used "Publish to web", use the published CSV link in config as admin_csv_url.');
+    // quick heuristic: if returned HTML then permission issue
+    if(/<html|doctype html/i.test(text.slice(0,200))) {
+      showError('The sheet returned an HTML response (likely not shared). Make sure it is shared as "Anyone with link — Viewer" or use Publish → CSV and set admin_csv_url in config.json.');
       return;
     }
-
-    if(!resp.ok) throw new Error(`Sheet fetch failed (${resp.status}) — check sharing settings.`);
-
     const rows = parseCSV(text);
-    console.log('[app] parsed rows:', rows.length, rows.slice(0,6));
-
     if(!rows || rows.length < 2) {
-      showError('CSV returned but no rows found. Ensure the Administrative sheet has header row "Key,Value" and data rows.');
+      showError('Administrative CSV parsed but no rows found. Ensure header "Key,Value" exists.');
       return;
     }
-
-    // Build key/value map
-    const headers = rows[0].map(h=> String(h||'').trim().toLowerCase());
-    const keyCol = headers.indexOf('key') >= 0 ? headers.indexOf('key') : 0;
-    const valCol = headers.indexOf('value') >= 0 ? headers.indexOf('value') : 1;
     const map = {};
     for(let i=1;i<rows.length;i++){
       const r = rows[i];
-      const k = r[keyCol] ? r[keyCol].trim() : '';
-      const v = (r[valCol] !== undefined) ? r[valCol].trim() : '';
-      if(k) map[normalizeKey(k)] = v;
+      if(!r || !r[0]) continue;
+      const k = String(r[0]).trim().toLowerCase();
+      const v = (r[1] !== undefined) ? String(r[1]).trim() : '';
+      map[k] = v;
     }
-    console.log('[app] map keys:', Object.keys(map));
 
-    // Render into page
-    const title = map['title'] || map['church title'] || map['the church of jesus christ of latter-day saints'] || '';
-    const ward  = map['ward'] || '';
-    const stake = map['stake'] || '';
-    const dateRaw = map['upcoming sunday date'] || map['upcoming sunday'] ||  '';
-    const presiding = map['presiding'] || '';
-    const conducting = map['conducting'] || '';
-    const meetingType = map['meeting type'] || map['meeting type (is_meeting)'] || '';
+    // render administrative header + skeleton program
+    renderAdministrative(map);
 
-    $('#title').textContent = title || 'The Church of Jesus Christ of Latter-day Saints';
-    $('#submeta').textContent = [ward, stake, dateRaw ? formatDateIfPossible(dateRaw) : ''].filter(Boolean).join(' · ');
+    // collapsible logic
+    document.querySelectorAll('.collapsible-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-target');
+        const panel = document.getElementById(target);
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', (!expanded).toString());
+        if(panel){
+          panel.style.display = expanded ? 'none' : 'block';
+        }
+      });
+    });
 
-    $('#presiding').textContent = presiding || '—';
-    $('#conducting').textContent = conducting || '—';
-    const mtSpan = $('#meeting-type').querySelector('span');
-    if(mtSpan) mtSpan.textContent = meetingType || '—';
-
-    $('#val-title').textContent = title || '—';
-    $('#val-ward').textContent = ward || '—';
-    $('#val-stake').textContent = stake || '—';
-    $('#val-date').textContent = dateRaw ? formatDateIfPossible(dateRaw) : '—';
-    $('#val-presiding').textContent = presiding || '—';
-    $('#val-conducting').textContent = conducting || '—';
-    $('#val-meetingtype').textContent = meetingType || '—';
-
-    clearError();
   } catch(err){
-    console.error('[app] error fetching/parsing sheet:', err);
-    showError('Failed to fetch the sheet CSV. Two common fixes:\n1) Make the sheet public (Share → Anyone with the link → Viewer), then try again.\n2) Or use "Publish to web" and use the published CSV link in config as admin_csv_url.\n\nError: ' + err.message);
+    console.error('error fetching admin csv', err);
+    showError('Failed to fetch the Administrative sheet. ' + err.message);
   }
 }
 
