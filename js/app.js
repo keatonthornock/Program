@@ -507,11 +507,41 @@ function renderHeaderFromAdmin(map){
   const presiding = map['presiding'] || '—';
   const conducting = map['conducting'] || '—';
   const meetingType = map['meeting type'] || 'Sacrament Meeting';
+  const chorister = map['chorister'] || '';
+  const organist = map['organist'] || '';
 
   $('#meeting-heading').textContent = meetingType;
   $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
   $('#presiding').textContent = presiding;
   $('#conducting').textContent = conducting;
+
+  // Presiding
+  if(presiding){
+    $('#presiding').textContent = presiding;
+  }else{
+    $('#presiding-line').style.display = 'none';
+  }
+  
+  // Conducting
+  if(conducting){
+    $('#conducting').textContent = conducting;
+  }else{
+    $('#conducting-line').style.display = 'none';
+  }
+  
+  // Chorister
+  if(chorister){
+    $('#chorister').textContent = chorister;
+  }else{
+    $('#chorister-line').style.display = 'none';
+  }
+  
+  // Organist
+  if(organist){
+    $('#organist').textContent = organist;
+  }else{
+    $('#organist-line').style.display = 'none';
+  }
 }
 
 run();
