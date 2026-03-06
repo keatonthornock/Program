@@ -204,10 +204,13 @@ body{
   justify-content:space-between;
   padding:12px;
   border-radius:10px;
-  background:#eef5f8;
-  border:1px solid rgba(11,74,106,0.06);
-  box-shadow:none;
-  border-bottom:1px solid rgba(0,0,0,0.06);
+  background:#f4f6f7;
+  border:1px solid rgba(0,0,0,0.04);
+  box-shadow:0 1px 3px rgba(0,0,0,0.04;
+
+  margin:0;
+  margin-bottom:6px;
+  border-bottom:1px solid #e5e7eb
 }
 
 .hymn-card .left{ display:flex; gap:12px; align-items:center; }
@@ -295,10 +298,6 @@ body{
   position: relative;
   z-index: 1;
   padding-bottom: 8px;
-}
-
-.program-content > *{
-  margin-bottom:10px;
 }
 
 .program-content > *:last-child{
