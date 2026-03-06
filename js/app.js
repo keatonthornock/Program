@@ -140,48 +140,6 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   return null;
 }
 
-// small icon factory — returns an inline-SVG string for the named icon
-function getIconSVG(type = 'default'){
-  // common SVG wrapper: a 44x44 rounded square background and an inner icon path
-  // you can tweak class names or sizes to match your .icon styling
-  const base = (innerSvg) => `
-    <svg class="icon-svg" width="44" height="44" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <rect class="icon-bg" x="0" y="0" width="24" height="24" rx="4" ry="4" />
-      ${innerSvg}
-    </svg>
-  `;
-
-  switch((type||'').toString().toLowerCase()){
-    case 'hymn':
-    case 'music':
-      // simple music-note path (keeps look from earlier)
-      return base(`<path class="icon-stroke" d="M9 17V7l10-2v10" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`);
-    case 'speaker':
-    case 'person':
-      // user/person icon: head circle + shoulders arc
-      return base(`
-        <circle class="icon-stroke" cx="12" cy="7" r="2.4" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <path class="icon-stroke" d="M5.5 19c0-3.6 3.6-6 6.5-6s6.5 2.4 6.5 6" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-      `);
-    case 'prayer':
-    case 'benediction':
-    case 'invocation':
-      // praying hands are complex; use a centered emoji fallback inside the circle for clarity
-      // emoji keeps it vector-free and recognizable; browsers render emoji as glyphs
-      // we group text inside svg so color/size can still be controlled
-      return `
-        <svg class="icon-svg" width="44" height="44" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <rect class="icon-bg" x="0" y="0" width="24" height="24" rx="4" ry="4" />
-          <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" class="icon-emoji">🙏</text>
-        </svg>
-      `;
-    default:
-      // fallback circle
-      return base(`<circle class="icon-stroke" cx="12" cy="12" r="5.2" fill="none" stroke-width="1.2"/>`);
-  }
-}
-
-
 function createElemFromHTML(html){
   const div = document.createElement('div');
   div.innerHTML = html.trim();
@@ -193,7 +151,7 @@ function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
   el.className = 'hymn-card';
   el.innerHTML = `
     <div class="left">
-      ${ getIconSVG('hymn') }
+      ${getAgendaIcon("hymn")}
       <div>
         <div class="hymn-title">${label}</div>
         <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''}${title ? (hymnNumber ? ` — ${title}` : title) : ''}</div>
@@ -219,7 +177,7 @@ function createRow(typeLabel, name, extra){
   // pick icon type based on the label (you can map more rules here)
   let iconType = 'default';
   const tkey = (typeLabel||'').toString().toLowerCase();
-  if(tkey.includes('hymn') || tkey.includes('sacram')) iconType = 'hymn';
+  if(tkey.includes('hymn') || tkey.includes('sacrament')) iconType = 'hymn';
   else if(tkey.includes('speaker') || tkey.includes('testimon')) iconType = 'speaker';
   else if(tkey.includes('invocation') || tkey.includes('benediction') || tkey.includes('prayer')) iconType = 'prayer';
   // build
