@@ -138,6 +138,31 @@ body{
   z-index: 1;
 }
 
+/* wrapper that groups the small stake title and the event cards inside the same program card */
+.stake-wrapper{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding: 6px 4px 18px 4px; /* small padding so title doesn't hug the edges */
+}
+
+/* the centered title inside the program card (smaller than the old big placeholder) */
+.stake-title{
+  font-size:20px;
+  font-weight:700;
+  color: #6b7280;            /* muted heading color */
+  text-align:center;
+  padding: 18px 8px 6px 8px; /* top breathing room (keeps white space above) and small gap below */
+}
+
+/* Ensure the event container keeps expected spacing under the title and a little space after cards */
+.conference-events-body{
+  margin: 0 0 20px 0;       /* small bottom gap after cards */
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
 /* Event cards */
 .event-card {
   background: #fff;
