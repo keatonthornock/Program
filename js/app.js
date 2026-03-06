@@ -174,6 +174,68 @@ function createRow(typeLabel, name, extra){
   return el;
 }
 
+/**
+ * Render the leadership rows into #leaders-list.
+ * Expects rows in the format: Column A = Role/Key, Column B = Name, Column C = Contact
+ */
+function renderLeadership(rows){
+  const container = document.getElementById('leaders-list');
+  if(!container) return;
+  container.innerHTML = '';
+
+  // skip header-like first row if it's a header
+  let start = 0;
+  if(rows[0] && rows[0][0]){
+    const h = rows[0][0].toString().toLowerCase();
+    if(h.includes('key') || h.includes('role') || h.includes('name')) start = 1;
+  }
+
+  for(let i = start; i < rows.length; i++){
+    const r = rows[i];
+    if(!r || !r[0]) continue;
+    const role = (r[0]||'').toString().trim();
+    const name = (r[1]||'').toString().trim();
+    const contact = (r[2]||'').toString().trim();
+
+    // Build a small card row
+    const card = document.createElement('div');
+    card.className = 'card-mini leader-row';
+
+    // initials
+    let initials = '';
+    if(name) initials = name.split(/\s+/).slice(0,2).map(n => n[0]||'').join('').toUpperCase();
+
+    card.innerHTML = `
+      <div class="leader-left">
+        <div class="avatar" aria-hidden>${initials}</div>
+      </div>
+      <div class="leader-main">
+        <div class="leader-role">${role}</div>
+        <div class="leader-name">${name}</div>
+      </div>
+      <div class="leader-contact">
+        ${contact ? formatContactLink(contact) : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+/** Format contact value: tel: for phones, mailto: for emails, otherwise plain text */
+function formatContactLink(contact){
+  if(!contact) return '';
+  const digits = contact.replace(/[^\d+]/g,'');
+  const digitCount = (digits.match(/\d/g)||[]).length;
+  if(digitCount >= 7){
+    const tel = contact.replace(/[^\d+]/g,'');
+    return `<a href="tel:${tel}" class="muted small">${contact}</a>`;
+  }
+  if(contact.includes('@')){
+    return `<a href="mailto:${contact}" class="muted small">${contact}</a>`;
+  }
+  return `<span class="muted small">${contact}</span>`;
+}
+
 function showError(msg){
   const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
 }
@@ -189,6 +251,7 @@ async function run(){
   // determine URLs
   let adminCsvUrl = config.admin_csv_url || (config.sheet_id && config.admin_gid ? buildCsvUrl(config.sheet_id, config.admin_gid) : null);
   let agendaCsvUrl = config.agenda_csv_url || (config.sheet_id && config.agenda_gid ? buildCsvUrl(config.sheet_id, config.agenda_gid) : null);
+  let leadershipCsvUrl = config.leadership_csv_url || (config.sheet_id && config.leadership_gid ? buildCsvUrl(config.sheet_id, config.leadership_gid) : null);
 
   if(!adminCsvUrl){
     showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
@@ -199,21 +262,35 @@ async function run(){
     return;
   }
 
-  // fetch admin and agenda in parallel
+  // fetch admin, agenda, and leadership in parallel
   try {
-    const [admResp, agResp] = await Promise.all([ fetch(adminCsvUrl), fetch(agendaCsvUrl) ]);
+    // Build list of fetch promises, include leadership only if a URL is available
+    const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
+    if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
+
+    const responses = await Promise.all(fetches);
+    // responses[0] -> admin, [1] -> agenda, [2] -> leadership (if provided)
+    const admResp = responses[0];
+    const agResp = responses[1];
+    const leadResp = responses[2] || null;
+
     if(!admResp.ok) throw new Error('Admin sheet fetch failed: ' + admResp.status);
     if(!agResp.ok) throw new Error('Agenda sheet fetch failed: ' + agResp.status);
+    if(leadResp && !leadResp.ok) throw new Error('Leadership sheet fetch failed: ' + leadResp.status);
 
     const admText = await admResp.text();
     const agText = await agResp.text();
+    const leadText = leadResp ? await leadResp.text() : null;
 
-    // Quick HTML detection
+    // Quick HTML detection (permission problems often return HTML)
     if(/<html|doctype html/i.test(admText.slice(0,200))) { showError('Admin sheet returned HTML (not public)'); return; }
     if(/<html|doctype html/i.test(agText.slice(0,200))) { showError('Agenda sheet returned HTML (not public)'); return; }
+    if(leadText && /<html|doctype html/i.test(leadText.slice(0,200))) { showError('Leadership sheet returned HTML (not public)'); return; }
 
+    // Parse CSV rows
     const admRows = parseCSVtoRows(admText);
     const agRows = parseCSVtoRows(agText);
+    const leadRows = leadText ? parseCSVtoRows(leadText) : null;
 
     // build admin map
     const adminMap = {};
@@ -226,7 +303,7 @@ async function run(){
     // render header
     renderHeaderFromAdmin(adminMap);
 
-    // parse and render agenda rows in order
+    // parse and render agenda rows in order (your existing loop)
     const container = $('#program-content');
     container.innerHTML = '';
     let any = false;
@@ -321,6 +398,15 @@ async function run(){
 
     if(!any){
       container.innerHTML = '<div class="placeholder"><p class="muted">No agenda items found in Agenda sheet.</p></div>';
+    }
+
+    // Render leadership list (if the leadership CSV was provided)
+    if (leadRows && leadRows.length) {
+      renderLeadership(leadRows);
+    } else {
+      // clear or show a friendly message in the leaders list
+      const ll = document.getElementById('leaders-list');
+      if (ll) ll.innerHTML = '<div class="muted small">No leadership data found.</div>';
     }
 
     clearError();
