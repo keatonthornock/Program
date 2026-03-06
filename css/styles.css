@@ -124,6 +124,10 @@ body{
 .hymn-title{ font-weight:600; color:#0f1724; }
 .hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
 
+.hymn-card:hover{
+  background:#f1f7fa;
+}
+
 .hymn-link{
   text-decoration:none;
   color:inherit;
