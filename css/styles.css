@@ -184,15 +184,64 @@ body{
 /* Stake conference event card */
 #conference-events{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
 
-.event-card{
+/* Conference events when placed inside the program card/body */
+.conference-events-body {
+  margin: 6px 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Event cards default look (same visual language as hymn cards) */
+.event-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid rgba(11,74,106,0.06);
+  box-shadow: 0 6px 18px rgba(12,18,22,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* event card main content */
+.event-card .event-main {
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px;
-  border-radius:10px;
-  border:1px solid rgba(11,74,106,0.06);
-  background:#fff;
-  box-shadow:0 4px 12px rgba(12,18,22,0.04);
+  flex-direction: column;
+  gap:6px;
+}
+
+/* Event title */
+.event-card .event-title {
+  font-weight:700;
+  color:#0f1724;
+  font-size:16px;
+}
+
+/* Event meta lines */
+.event-card .event-sub {
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* Address link style: clickable-looking but no underline */
+.event-card .event-address {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight:600;
+}
+
+/* arrow to right like hymn cards */
+.event-card .event-arrow {
+  width:24px;
+  height:24px;
+  stroke: #0b4a6a;
+  stroke-width:2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 
 .event-left{ display:flex; flex-direction:column; gap:6px; }
