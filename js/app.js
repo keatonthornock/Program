@@ -193,6 +193,21 @@ function createRow(typeLabel, name, extra){
   return el;
 }
 
+
+function createDivider(label){
+  const el = document.createElement('div');
+  el.className = 'agenda-divider';
+
+  el.innerHTML = `
+    <div class="divider-line"></div>
+    <div class="divider-text">${label}</div>
+    <div class="divider-line"></div>
+  `;
+
+  return el;
+}
+
+
 /**
  * Render the leadership rows into #leaders-list.
  * Expects rows in the format: Column A = Role/Key, Column B = Name, Column C = Contact
@@ -379,7 +394,14 @@ async function run(){
       const name = colB;                   // B: Name or hymn title with number
       const extra = colC;                  // C: Extra Info
       const slugOverride = colD;           // D: optional explicit slug (use when site slug differs)
-    
+
+      // Special divider for "Administration of the Sacrament"
+      if(item.toLowerCase().includes('administration of the sacrament')){
+        container.appendChild(createDivider(item));
+        any = true;
+        continue;
+      }
+      
       // Skip any row where the Name column (B) is empty — prevents rendering empty optional rows
       if (!name) {
         console.log(`[app] skipping empty agenda row ${i+1} (no name/title in column B)`);
