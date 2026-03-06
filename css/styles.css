@@ -107,3 +107,74 @@ body{
   .meeting-heading{ font-size:20px }
   .agenda-item .icon{ width:40px; height:40px; }
 }
+
+/* Leadership table styling (clean 3-column layout) */
+.leadership-table{
+  width:100%;
+  border-collapse:collapse;
+  background: #fff;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(11,74,106,0.06);
+}
+
+.leadership-table tbody tr{
+  border-bottom: 1px solid rgba(11,74,106,0.06);
+}
+
+.leadership-table tbody tr:last-child{
+  border-bottom: none;
+}
+
+.leadership-table td{
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #0f1724;
+}
+
+/* first column (role) emphasis */
+.lead-col-role{
+  width: 40%;
+  font-weight: 700;
+  color: #0b4a6a; /* deep church-blue accent */
+}
+
+/* second column (name) */
+.lead-col-name{
+  width: 40%;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* third column (contact) align right on desktop */
+.lead-col-contact{
+  width: 20%;
+  text-align: right;
+  font-size: 13px;
+  color: #6b7280; /* muted */
+}
+
+/* Make contact links inherit muted color and remove underline */
+.lead-col-contact a{
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Small screens: stack contact under name for readability */
+@media (max-width: 520px){
+  .leadership-table td{
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+  }
+  .lead-col-role{ font-size: 13px; }
+  .lead-col-name{ margin-top: 6px; }
+  .lead-col-contact{ text-align: left; margin-top: 6px; color: #6b7280; }
+  .leadership-table tbody tr{
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(11,74,106,0.04);
+  }
+}
