@@ -106,6 +106,35 @@ function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textCo
 
 function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
 
+function shouldRenderAgendaItem(key, meetingType){
+
+  const isTestimony = meetingType.includes('testimony');
+  const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
+
+  // If it's neither sacrament nor testimony, agenda items are not rendered
+  if(!isSacrament && !isTestimony){
+    return false;
+  }
+
+  // Testimony meeting rules
+  if(isTestimony){
+
+    // remove speakers
+    if(key.includes('speaker')) return false;
+
+    // remove musical numbers
+    if(key.includes('musical')) return false;
+
+    // only allow opening / sacrament / closing hymns
+    if(key.includes('hymn') && !/opening|sacrament|closing/i.test(key)){
+      return false;
+    }
+
+  }
+
+  return true;
+}
+
 /* ---------- icon/image helpers ---------- */
 function getAgendaIcon(type){
   if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
@@ -487,15 +516,7 @@ async function run(){
 
       const key = normalizeItemKey(item);
 
-      // Testimony flow filters
-      if(isTestimony){
-        if(key.startsWith('speaker') || key.includes('musical') || (key.includes('hymn') && !/opening|sacrament|closing/i.test(key))){
-          continue;
-        }
-      }
-
-      // non-sacrament & non-testimony: skip agenda details (we'll show placeholder below)
-      if(!isSacrament && !isTestimony){
+      if(!shouldRenderAgendaItem(key, meetingType)){
         continue;
       }
 
