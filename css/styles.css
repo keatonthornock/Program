@@ -84,6 +84,42 @@ body{
   border:1px solid rgba(12,18,22,0.035);
 }
 
+.meta-box{
+  margin-top:12px;
+  background:#fff;
+  border-radius:var(--radius);
+  padding:12px 14px;
+  border:1px solid rgba(12,18,22,0.035);
+  box-shadow:0 6px 18px rgba(12,18,22,0.04);
+}
+
+.meta-line{
+  font-size:15px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.meta-line:last-child{
+  margin-bottom:0;
+}
+
+.meta-extra{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+  padding:0 6px;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.meta-left{
+  text-align:left;
+}
+
+.meta-right{
+  text-align:right;
+}
+
 /* Meta row */
 .meta-row-2{
   display:flex;
