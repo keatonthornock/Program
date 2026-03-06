@@ -178,6 +178,11 @@ function createRow(typeLabel, name, extra){
  * Render the leadership rows into #leaders-list.
  * Expects rows in the format: Column A = Role/Key, Column B = Name, Column C = Contact
  */
+/**
+ * Render the leadership rows into #leaders-list as a 3-column table:
+ * Column A = Role/Key, Column B = Name, Column C = Contact
+ * No headers, no avatars.
+ */
 function renderLeadership(rows){
   const container = document.getElementById('leaders-list');
   if(!container) return;
@@ -187,38 +192,53 @@ function renderLeadership(rows){
   let start = 0;
   if(rows[0] && rows[0][0]){
     const h = rows[0][0].toString().toLowerCase();
-    if(h.includes('key') || h.includes('role') || h.includes('name')) start = 1;
+    if(h.includes('key') || h.includes('role') || h.includes('name') || h.includes('contact')) start = 1;
   }
+
+  // create table
+  const table = document.createElement('table');
+  table.className = 'leadership-table';
+  const tbody = document.createElement('tbody');
 
   for(let i = start; i < rows.length; i++){
     const r = rows[i];
-    if(!r || !r[0]) continue;
+    if(!r) continue;
+
+    // If entire row is empty skip it
+    const hasAny = (r[0]||'').toString().trim() || (r[1]||'').toString().trim() || (r[2]||'').toString().trim();
+    if(!hasAny) continue;
+
     const role = (r[0]||'').toString().trim();
     const name = (r[1]||'').toString().trim();
     const contact = (r[2]||'').toString().trim();
 
-    // Build a small card row
-    const card = document.createElement('div');
-    card.className = 'card-mini leader-row';
+    const tr = document.createElement('tr');
 
-    // initials
-    let initials = '';
-    if(name) initials = name.split(/\s+/).slice(0,2).map(n => n[0]||'').join('').toUpperCase();
+    // Role cell (first column)
+    const tdRole = document.createElement('td');
+    tdRole.className = 'lead-col-role';
+    tdRole.textContent = role || '';
+    tr.appendChild(tdRole);
 
-    card.innerHTML = `
-      <div class="leader-left">
-        <div class="avatar" aria-hidden>${initials}</div>
-      </div>
-      <div class="leader-main">
-        <div class="leader-role">${role}</div>
-        <div class="leader-name">${name}</div>
-      </div>
-      <div class="leader-contact">
-        ${contact ? formatContactLink(contact) : ''}
-      </div>
-    `;
-    container.appendChild(card);
+    // Name cell (second column)
+    const tdName = document.createElement('td');
+    tdName.className = 'lead-col-name';
+    tdName.textContent = name || '';
+    tr.appendChild(tdName);
+
+    // Contact cell (third column) — use formatContactLink to produce safe markup
+    const tdContact = document.createElement('td');
+    tdContact.className = 'lead-col-contact';
+    // formatContactLink returns an HTML string (tel/mailto or text).
+    // Use innerHTML intentionally because the string can include <a> tags.
+    tdContact.innerHTML = contact ? formatContactLink(contact) : '';
+    tr.appendChild(tdContact);
+
+    tbody.appendChild(tr);
   }
+
+  table.appendChild(tbody);
+  container.appendChild(table);
 }
 
 /** Format contact value: tel: for phones, mailto: for emails, otherwise plain text */
