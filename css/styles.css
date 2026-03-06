@@ -129,7 +129,14 @@ body{
 
 /* Conference events area inside program body */
 #conference-events{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
-.conference-events-body { margin: 6px 0 12px 0; display:flex; flex-direction:column; gap:12px; position:relative; z-index:1; }
+.conference-events-body {
+  margin: 6px 0 28px 0; /* increased bottom margin for white space after cards */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
 
 /* Event cards */
 .event-card {
