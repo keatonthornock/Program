@@ -76,7 +76,7 @@ body{
 
 /* Card */
 .card{
-  margin-top:-40px;
+  margin-top:14px;
   background:var(--card);
   border-radius:var(--radius);
   padding:12px;
