@@ -350,34 +350,32 @@ function renderHeaderFromAdmin(map, admRows){
   }
 
   // If Stake conference, render events from Administrative rows
-  // If Stake conference, render events from Administrative rows
-  if(isStakeConference){
-    const events = parseConferenceEvents(admRows);
+  if (isStakeConference) {
+    const events = parseConferenceEvents(admRows); // assumes this helper exists and returns array of event objects
   
-    // find or create the container inside the hero so cards appear in the same blue box
+    // find or create the container inside the PROGRAM card (so it appears in the body, not the hero)
     let container = document.getElementById('conference-events');
-    if(!container){
+    if (!container) {
       container = document.createElement('div');
       container.id = 'conference-events';
-      // Add a small wrapper class so we can target styling separately when it's inside the hero
-      container.className = 'conference-events-hero';
-      // Insert inside the hero, right after .hero-inner (so it's visually under the title/date)
-      const hero = document.querySelector('.hero');
-      const heroInner = hero ? hero.querySelector('.hero-inner') : null;
-      if(hero && heroInner && heroInner.parentNode){
-        // insert after heroInner
-        if(heroInner.nextSibling) hero.insertBefore(container, heroInner.nextSibling);
-        else hero.appendChild(container);
+      container.className = 'conference-events-body'; // separate class for body placement styling
+  
+      // preferred placement: inside the program card, before the agenda items
+      const program = document.getElementById('program');                // <section id="program" class="card program">
+      const progContent = program ? program.querySelector('#program-content') : null; // the container holding agenda items
+      if (progContent) {
+        // place container as first child of program-content so it sits above the agenda list inside the same card
+        progContent.insertBefore(container, progContent.firstChild);
       } else {
-        // fallback: put before program as before
-        const program = document.getElementById('program');
-        if(program && program.parentNode) program.parentNode.insertBefore(container, program);
+        // fallback: append directly beneath the program card
+        if (program && program.parentNode) program.parentNode.insertBefore(container, program.nextSibling);
         else document.querySelector('.app').appendChild(container);
       }
     }
   
+    // render event cards
     container.innerHTML = '';
-    if(events && events.length){
+    if (events && events.length) {
       events.forEach(ev => container.appendChild(createEventCard(ev)));
     } else {
       container.innerHTML = `<div class="muted small">No stake conference events found in Administrative sheet.</div>`;
@@ -385,7 +383,7 @@ function renderHeaderFromAdmin(map, admRows){
   } else {
     // remove container if present and not stake conference
     const container = document.getElementById('conference-events');
-    if(container && container.parentNode) container.parentNode.removeChild(container);
+    if (container && container.parentNode) container.parentNode.removeChild(container);
   }
 
   // store meeting type on body dataset for other logic if needed
