@@ -165,20 +165,33 @@ body{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:12px;
-  background:#fff;
-  border-radius:10px;
-  border:1px solid #eef0f1;
+  padding:14px 6px;
+  background:none;
+  border:none;
+  border-bottom:1px solid #e5e7eb;
+  border-radius:0;
 }
+
 .agenda-item .icon{
   width:44px;
   height:44px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:none;
-  border:none;
 }
+
+.agenda-item .title{
+  font-weight:600;
+  font-size:16px;
+  color:#111827;
+}
+
+.agenda-item .sub{
+  font-size:14px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
 .agenda-item .content{ flex:1; }
 .agenda-item .title{ font-weight:600; color:#0f1724; font-size:15px; }
 .agenda-item .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
@@ -280,6 +293,10 @@ body{
   position: relative;
   z-index: 1;
   padding-bottom: 8px;
+}
+
+.program-content .agenda-item:last-child{
+  border-bottom:none;
 }
 
 /* ---------- Small utility styles ---------- */
