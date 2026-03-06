@@ -48,6 +48,25 @@ function parseCSVtoRows(text){
   return rows;
 }
 
+
+function getAgendaIcon(type){
+
+  if(type === "hymn"){
+    return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
+  }
+
+  if(type === "speaker"){
+    return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
+  }
+
+  if(type === "prayer"){
+    return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
+  }
+
+  return "";
+}
+
+
 // slug helper
 function slugify(text){
   if(!text) return '';
@@ -205,7 +224,8 @@ function createRow(typeLabel, name, extra){
   else if(tkey.includes('invocation') || tkey.includes('benediction') || tkey.includes('prayer')) iconType = 'prayer';
   // build
   el.innerHTML = `
-    <div class="icon" aria-hidden>${ getIconSVG(iconType) }</div>
+    <div class="icon">${getAgendaIcon(iconType)}</div>
+    
     <div class="content">
       <div class="title">${typeLabel}</div>
       <div class="sub">${name || ''}</div>
