@@ -1,488 +1,573 @@
-:root{
-  --bg:#f6f4f1;
-  --card:#ffffff;
-  --muted:#6b7280;
-  --accent:#0b4a6a; /* church blue */
-  --accent-2:#e9f3f6;
-  --radius:12px;
-  --max-width:720px;
+// js/app.js
+// Enhanced: load Administrative + Agenda CSVs, render agenda items, and handle conference events
+const $ = s => document.querySelector(s);
+const cfgPath = './config.json';
+
+async function loadConfig(){
+  try {
+    const r = await fetch(cfgPath);
+    if(!r.ok) throw new Error('Missing config.json');
+    const cfg = await r.json();
+    console.log('[app] config', cfg);
+    return cfg;
+  } catch(e){
+    showError('Cannot load config.json. ' + e.message);
+    throw e;
+  }
 }
 
-/* Reset & layout */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: var(--bg);
-  color:#111827;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  display:flex;
-  justify-content:center;
-  padding:18px;
+function buildCsvUrl(sheetId, gid){
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
-/* App container */
-.app{
-  width:100%;
-  max-width:var(--max-width);
-  margin:0 auto;
+function stripBOM(s){ return s && s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s; }
+
+function parseCSVtoRows(text){
+  text = stripBOM(text || '');
+  const lines = text.split(/\r?\n/);
+  const rows = [];
+  for(const ln of lines){
+    if(ln === undefined || ln === null) continue;
+    if(ln.trim() === '') continue;
+    const parts = [];
+    let cur = '', inQ = false;
+    for(let i=0;i<ln.length;i++){
+      const ch = ln[i];
+      if(ch === '"' ) { inQ = !inQ; continue; }
+      if(ch === ',' && !inQ){
+        parts.push(cur); cur = '';
+        continue;
+      }
+      cur += ch;
+    }
+    parts.push(cur);
+    rows.push(parts.map(p => (p||'').trim()));
+  }
+  return rows;
 }
 
-/* Hero / header */
-.hero{
-  position:relative;
-  width:100vw;
-  margin-left:calc(-50vw + 50%);
-  padding:28px 18px 80px 18px;
-  color:#fff;
-  overflow:hidden;
+/* ---------- hymn/url helpers ---------- */
+function slugify(text){
+  if(!text) return '';
+  return text.toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .trim()
+    .replace(/^[0-9]+\.\s*/,'')
+    .replace(/[’'"\.:,;!?\(\)\[\]\/]/g,'')
+    .replace(/[^a-zA-Z0-9\s-]/g,'')
+    .toLowerCase()
+    .replace(/\s+/g,'-')
+    .replace(/-+/g,'-')
+    .replace(/^-|-$/g,'');
 }
 
-.hero::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-    170deg,
-    var(--accent) 0%,
-    var(--accent) 40%,
-    rgba(11,74,106,0.6) 65%,
-    rgba(11,74,106,0.25) 80%,
-    rgba(11,74,106,0.0) 100%
-  );
-  z-index:0;
+function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
+  const extra = (extraInfo || '').toString().toLowerCase();
+  const t = (title || '').toString().trim();
+  const titleSlug = slugOverride ? String(slugOverride).trim() : slugify(t);
+  const n = Number((hymnNumber !== undefined && hymnNumber !== null) ? String(hymnNumber).replace(/[^\d]/g,'') : NaN);
+
+  if(titleSlug) {
+    if(extra.includes('child') || extra.includes('songbook')) {
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
+    }
+    if(extra.includes('hymns for home') || extra.includes('home and church')) {
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+    }
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${titleSlug}?lang=eng`;
+  }
+
+  if(!isNaN(n) && n > 0){
+    if(n <= 341){
+      return `https://www.churchofjesuschrist.org/study/manual/hymns/${n}?lang=eng`;
+    }
+    if(n >= 1000){
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng#${n}`;
+    }
+    return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
+  }
+
+  if(extra.includes('child') || extra.includes('songbook')){
+    if(titleSlug) return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
+  }
+  if(extra.includes('hymns for home') || extra.includes('home and church')){
+    if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+  }
+
+  if(t) return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
+  return null;
 }
 
-.hero-inner{
-  position:relative;
-  z-index:1;
-  display:flex;
-  gap:12px;
-  align-items:center;
+/* ---------- small UI helpers ---------- */
+function showError(msg){
+  const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
+}
+function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textContent = ''; } }
+
+function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
+
+/* ---------- icon/image helpers ---------- */
+function getAgendaIcon(type){
+  if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
+  if(type === "speaker") return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
+  if(type === "prayer") return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
+  return "";
 }
 
-.hero img { height:52px; width:auto; border-radius:6px; background:#fff; padding:6px; display:block }
-.hero-text{ flex:1; text-align:center; }
-.org{ font-size:13px; font-weight:600; letter-spacing:0.08em; opacity:0.95; }
-.suborg{ display:block; font-weight:400; font-size:11px; letter-spacing:0.08em; margin-top:2px;}
-.meeting-heading{ font-family: "Merriweather", serif; margin:10px 0 0; font-size:22px; }
-.meeting-date{ margin-top:6px; color:rgba(255,255,255,0.9); font-size:14px; }
-
-/* Card */
-.card{
-  margin-top:14px;
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:12px;
-  box-shadow:0 6px 18px rgba(12,18,22,0.04);
-  border:1px solid rgba(12,18,22,0.035);
+/* ---------- rendering helpers ---------- */
+function createElemFromHTML(html){
+  const div = document.createElement('div');
+  div.innerHTML = html.trim();
+  return div.firstChild;
 }
 
-/* Meta box for presiding/conducting */
-.meta-box{
-  margin-top:12px;
-  background:#fff;
-  border-radius:var(--radius);
-  padding:12px 14px;
-  border:1px solid rgba(12,18,22,0.035);
-  box-shadow:0 6px 18px rgba(12,18,22,0.04);
+function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
+  const el = document.createElement('div');
+  el.className = 'hymn-card';
+  el.innerHTML = `
+    <div class="left">
+      ${getAgendaIcon("hymn")}
+      <div>
+        <div class="hymn-title">${label}</div>
+        <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''}${title ? (hymnNumber ? ` — ${title}` : title) : ''}</div>
+      </div>
+    </div>
+    <div class="right">${url? `
+      <svg class="hymn-arrow" viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+      </svg>` : ''}</div>
+  `;
+  if(url){
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'hymn-link';
+    a.appendChild(el);
+    return a;
+  }
+  return el;
 }
 
-.meta-line{
-  font-size:15px;
-  color:var(--muted);
-  margin-bottom:6px;
+function createRow(typeLabel, name, extra, iconType = 'default'){
+  const el = document.createElement('div');
+  el.className = 'agenda-item';
+  el.innerHTML = `
+    <div class="icon">${getAgendaIcon(iconType)}</div>
+    <div class="content">
+      <div class="title">${typeLabel}</div>
+      <div class="sub">${name || ''}</div>
+    </div>
+    <div class="right">${extra || ''}</div>
+  `;
+  return el;
 }
 
-.meta-line:last-child{
-  margin-bottom:0;
+function createDivider(label){
+  const el = document.createElement('div');
+  el.className = 'agenda-divider';
+  el.innerHTML = `
+    <div class="divider-line"></div>
+    <div class="divider-text">${label}</div>
+    <div class="divider-line"></div>
+  `;
+  return el;
 }
 
-.meta-extra{
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-  padding:0 18px;   /* adds breathing room left and right */
-  font-size:14px;
-  color:var(--muted);
-  max-width:720px;
-  margin:10px auto 0 auto;
+/* ---------- Conference event parsing + rendering ---------- */
+function parseConferenceEvents(admRows){
+  if(!Array.isArray(admRows)) return [];
+  const headerNames = ['event','location','date','time','address'];
+  for(let i=0;i<admRows.length;i++){
+    const row = admRows[i].map(c => (c||'').toString().trim().toLowerCase());
+    // require row[0] === 'event' or includes 'event' to be robust
+    if(row[0] && row[0].includes('event')){
+      // check next columns for at least 'location' or 'date' to be confident
+      if(row[1] && (row[1].includes('location') || row[1].includes('loc'))) {
+        const events = [];
+        for(let j=i+1;j<admRows.length;j++){
+          const r = admRows[j];
+          if(!r || !r[0] || r[0].toString().trim() === '') break;
+          const ev = {
+            event: (r[0]||'').toString().trim(),
+            location: (r[1]||'').toString().trim(),
+            date: (r[2]||'').toString().trim(),
+            time: (r[3]||'').toString().trim(),
+            address: (r[4]||'').toString().trim()
+          };
+          if(ev.event || ev.location || ev.date || ev.time || ev.address) events.push(ev);
+        }
+        return events;
+      }
+    }
+  }
+  return [];
 }
 
-.meta-left{
-  text-align:left;
-  padding-left:6px; /* breathing space so chorister isn't flush left */
+function createEventCard(ev){
+  const el = document.createElement('div');
+  el.className = 'event-card';
+  const mapHref = ev.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.address)}` : '';
+  el.innerHTML = `
+    <div class="event-left">
+      <div class="event-title">${ev.event || ''}</div>
+      <div class="event-meta">
+        ${ev.location ? `<div class="event-loc">${ev.location}</div>` : ''}
+        ${ev.date || ev.time ? `<div class="event-time">${ev.date ? ev.date : ''}${ev.date && ev.time ? ' · ' : ''}${ev.time ? ev.time : ''}</div>` : ''}
+        ${ev.address ? `<div class="event-address"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
+      </div>
+    </div>
+    <div class="event-right">
+      <svg class="hymn-arrow" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  `;
+  if(mapHref){
+    el.addEventListener('click', (e) => {
+      // let native anchor clicks behave normally
+      const a = e.target.closest('a');
+      if(a) return;
+      window.open(mapHref, '_blank', 'noopener');
+    });
+    el.style.cursor = 'pointer';
+  }
+  return el;
 }
 
-.meta-right{
-  text-align:right;
-  padding-right:6px; /* breathing space so organist isn't flush right */
+/* ---------- Leadership rendering ---------- */
+function renderLeadership(rows){
+  const container = document.getElementById('leaders-list');
+  if(!container) return;
+  container.innerHTML = '';
+
+  let start = 0;
+  if(rows[0] && rows[0][0]){
+    const h = rows[0][0].toString().toLowerCase();
+    if(h.includes('key') || h.includes('role') || h.includes('name') || h.includes('contact')) start = 1;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'leadership-table';
+  const tbody = document.createElement('tbody');
+
+  for(let i = start; i < rows.length; i++){
+    const r = rows[i];
+    if(!r) continue;
+    const hasAny = (r[0]||'').toString().trim() || (r[1]||'').toString().trim() || (r[2]||'').toString().trim();
+    if(!hasAny) continue;
+    const role = (r[0]||'').toString().trim();
+    const name = (r[1]||'').toString().trim();
+    const contact = (r[2]||'').toString().trim();
+    const tr = document.createElement('tr');
+    const tdRole = document.createElement('td'); tdRole.className='lead-col-role'; tdRole.textContent = role || ''; tr.appendChild(tdRole);
+    const tdName = document.createElement('td'); tdName.className='lead-col-name'; tdName.textContent = name || ''; tr.appendChild(tdName);
+    const tdContact = document.createElement('td'); tdContact.className='lead-col-contact'; tdContact.innerHTML = contact ? formatContactLink(contact) : ''; tr.appendChild(tdContact);
+    tbody.appendChild(tr);
+  }
+
+  table.appendChild(tbody);
+  container.appendChild(table);
 }
 
-/* Meta row */
-.meta-row-2{
-  display:flex;
-  gap:12px;
-  justify-content:space-between;
-  color:var(--muted);
-  margin:0;
-  font-size:15px;
+function formatContactLink(contact){
+  if(!contact) return '';
+  const digits = contact.replace(/[^\d+]/g,'');
+  const digitCount = (digits.match(/\d/g)||[]).length;
+  if(digitCount >= 7){
+    const tel = contact.replace(/[^\d+]/g,'');
+    return `<a href="tel:${tel}" class="muted small">${contact}</a>`;
+  }
+  if(contact.includes('@')){
+    return `<a href="mailto:${contact}" class="muted small">${contact}</a>`;
+  }
+  return `<span class="muted small">${contact}</span>`;
 }
 
-.agenda-icon{
-  width:42px;
-  height:42px;
-  display:block;
+/* ---------- Header rendering + conference logic ---------- */
+function renderHeaderFromAdmin(map, admRows){
+  const title = map['title'] || 'The Church of Jesus Christ of Latter-day Saints';
+  const ward = map['ward'] || '';
+  const stake = map['stake'] || '';
+  const dateRaw = map['upcoming sunday date'] || map['upcoming sunday'] || '';
+  const presiding = map['presiding'] || '';
+  const conducting = map['conducting'] || '';
+  const meetingTypeRaw = (map['meeting type'] || '').toString();
+  const meetingType = meetingTypeRaw.trim();
+  const chorister = map['chorister'] || '';
+  const organist = map['organist'] || '';
+
+  $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
+  $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
+
+  // special handling for stake/general conferences: hide meta box entirely
+  const isStakeConference = meetingType.toLowerCase().includes('stake conference') || meetingType.toLowerCase().includes('stake meeting') || meetingType.toLowerCase() === 'stake conference' || meetingType.toLowerCase() === 'stake';
+  const isGeneralConference = meetingType.toLowerCase().includes('general conference') || meetingType.toLowerCase() === 'general conference' || meetingType.toLowerCase().includes('general');
+
+  if(isStakeConference || isGeneralConference){
+    const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = 'none';
+    const me = document.querySelector('.meta-extra'); if(me) me.style.display = 'none';
+  } else {
+    const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = '';
+    const me = document.querySelector('.meta-extra'); if(me) me.style.display = '';
+
+    // Presiding
+    if(presiding){
+      const pelt = document.getElementById('presiding'); if(pelt) pelt.textContent = presiding;
+      const pLine = document.getElementById('presiding-line'); if(pLine) pLine.style.display = '';
+    } else {
+      const pLine = document.getElementById('presiding-line'); if(pLine) pLine.style.display = 'none';
+    }
+
+    // Conducting placed below Presiding (left-aligned)
+    if(conducting){
+      const celt = document.getElementById('conducting'); if(celt) celt.textContent = conducting;
+      const cLine = document.getElementById('conducting-line'); if(cLine) cLine.style.display = '';
+    } else {
+      const cLine = document.getElementById('conducting-line'); if(cLine) cLine.style.display = 'none';
+    }
+
+    // Chorister & Organist lines (outside the meta-box, left & right)
+    if(chorister){
+      const ch = document.getElementById('chorister'); if(ch) ch.textContent = chorister;
+      const chLine = document.getElementById('chorister-line'); if(chLine) chLine.style.display = '';
+    } else {
+      const chLine = document.getElementById('chorister-line'); if(chLine) chLine.style.display = 'none';
+    }
+
+    if(organist){
+      const og = document.getElementById('organist'); if(og) og.textContent = organist;
+      const ogLine = document.getElementById('organist-line'); if(ogLine) ogLine.style.display = '';
+    } else {
+      const ogLine = document.getElementById('organist-line'); if(ogLine) ogLine.style.display = 'none';
+    }
+  }
+
+  // If Stake conference, render events from Administrative rows (place into program-content as first child)
+  if (isStakeConference) {
+    const events = parseConferenceEvents(admRows);
+
+    let container = document.getElementById('conference-events');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'conference-events';
+      container.className = 'conference-events-body';
+      const program = document.getElementById('program');
+      const progContent = program ? program.querySelector('#program-content') : null;
+      if (progContent) progContent.insertBefore(container, progContent.firstChild);
+      else if (program && program.parentNode) program.parentNode.insertBefore(container, program.nextSibling);
+      else document.querySelector('.app').appendChild(container);
+    }
+
+    container.innerHTML = '';
+    if (events && events.length) {
+      events.forEach(ev => container.appendChild(createEventCard(ev)));
+    } else {
+      container.innerHTML = `<div class="muted small">No stake conference events found in Administrative sheet.</div>`;
+    }
+  } else {
+    const container = document.getElementById('conference-events');
+    if (container && container.parentNode) container.parentNode.removeChild(container);
+  }
+
+  // store meeting type on body dataset for other logic if needed
+  document.body.dataset.meetingType = meetingType.toLowerCase();
 }
 
-/* Program list */
-.program-content{ display:flex; flex-direction:column; gap:10px; }
-.agenda-item{ display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px; border:1px solid #eef0f1; }
-.agenda-item .icon{
-  width:44px;
-  height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:none;
-  border:none;
-}
-.agenda-item .content{ flex:1; }
-.agenda-item .title{ font-weight:600; color:#0f1724; font-size:15px; }
-.agenda-item .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
-.agenda-item .right{ font-size:13px; color:var(--muted) }
+/* ---------- main run flow ---------- */
+async function run(){
+  clearError();
+  let config;
+  try { config = await loadConfig(); } catch(e){ return; }
 
-/* Hymn card special */
-.hymn-card{ display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.06); box-shadow:none; }
-.hymn-card .left{ display:flex; gap:12px; align-items:center; }
-.hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08)}
-.hymn-title{ font-weight:600; color:#0f1724; }
-.hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+  let adminCsvUrl = config.admin_csv_url || (config.sheet_id && config.admin_gid ? buildCsvUrl(config.sheet_id, config.admin_gid) : null);
+  let agendaCsvUrl = config.agenda_csv_url || (config.sheet_id && config.agenda_gid ? buildCsvUrl(config.sheet_id, config.agenda_gid) : null);
+  let leadershipCsvUrl = config.leadership_csv_url || (config.sheet_id && config.leadership_gid ? buildCsvUrl(config.sheet_id, config.leadership_gid) : null);
 
-.hymn-card:hover{
-  background:#f1f7fa;
-}
+  if(!adminCsvUrl){
+    showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
+    return;
+  }
+  if(!agendaCsvUrl){
+    showError('No agenda CSV URL available. Set agenda_gid or agenda_csv_url in config.json');
+    return;
+  }
 
-.hymn-link{
-  text-decoration:none;
-  color:inherit;
-  display:block;
-}
+  try {
+    const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
+    if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
+    const responses = await Promise.all(fetches);
 
-.hymn-arrow{
-  width:25px;
-  height:25px;
-  stroke:#0b4a6a;
-  stroke-width:2.2;
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
+    const admResp = responses[0];
+    const agResp = responses[1];
+    const leadResp = responses[2] || null;
 
-/* Stake conference event card */
-#conference-events{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
+    if(!admResp.ok) throw new Error('Admin sheet fetch failed: ' + admResp.status);
+    if(!agResp.ok) throw new Error('Agenda sheet fetch failed: ' + agResp.status);
+    if(leadResp && !leadResp.ok) throw new Error('Leadership sheet fetch failed: ' + leadResp.status);
 
-/* Conference events when placed inside the program card/body */
-.conference-events-body {
-  margin: 6px 0 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
+    const admText = await admResp.text();
+    const agText = await agResp.text();
+    const leadText = leadResp ? await leadResp.text() : null;
 
-/* Event cards default look (same visual language as hymn cards) */
-.event-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid rgba(11,74,106,0.06);
-  box-shadow: 0 6px 18px rgba(12,18,22,0.04);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    if(/<html|doctype html/i.test(admText.slice(0,200))) { showError('Admin sheet returned HTML (not public)'); return; }
+    if(/<html|doctype html/i.test(agText.slice(0,200))) { showError('Agenda sheet returned HTML (not public)'); return; }
+    if(leadText && /<html|doctype html/i.test(leadText.slice(0,200))) { showError('Leadership sheet returned HTML (not public)'); return; }
 
-/* event card main content */
-.event-card .event-main {
-  display:flex;
-  flex-direction: column;
-  gap:6px;
-}
+    const admRows = parseCSVtoRows(admText);
+    const agRows = parseCSVtoRows(agText);
+    const leadRows = leadText ? parseCSVtoRows(leadText) : null;
 
-/* Event title */
-.event-card .event-title {
-  font-weight:700;
-  color:#0f1724;
-  font-size:16px;
-}
+    // build admin map
+    const adminMap = {};
+    for(let i=0;i<admRows.length;i++){
+      const r = admRows[i];
+      if(!r) continue;
+      if(!r[0]) continue;
+      adminMap[(r[0]||'').toString().trim().toLowerCase()] = (r[1]||'').toString().trim();
+    }
 
-/* Event meta lines */
-.event-card .event-sub {
-  color:var(--muted);
-  font-size:13px;
-}
+    // parse and render agenda rows in order
+    const container = $('#program-content');
+    container.innerHTML = '';
+    let any = false;
 
-/* Address link style: clickable-looking but no underline */
-.event-card .event-address {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight:600;
-}
+    const meetingType = (adminMap['meeting type'] || '').toString().toLowerCase();
+    const isTestimony = meetingType.includes('testimony');
+    const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
 
-/* arrow to right like hymn cards */
-.event-card .event-arrow {
-  width:24px;
-  height:24px;
-  stroke: #0b4a6a;
-  stroke-width:2;
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
+    for (let i = 0; i < agRows.length; i++) {
+      const r = agRows[i];
+      if (!r || !r[0]) continue;
+      const colA = (r[0] || '').toString().trim();
+      const colB = (r[1] || '').toString().trim();
+      const colC = (r[2] || '').toString().trim();
+      const colD = (r[3] || '').toString().trim();
 
-.event-left{ display:flex; flex-direction:column; gap:6px; }
-.event-title{ font-weight:700; font-size:16px; color:#0f1724; }
-.event-meta{ color:var(--muted); font-size:13px; }
-.event-loc, .event-time { margin-top:2px; }
-.event-address a{
-  color:var(--accent);
-  text-decoration:none;
-  font-weight:600;
-  display:inline-block;
-  margin-top:6px;
-}
+      const aKey = colA.toLowerCase();
+      const bKey = colB.toLowerCase();
+      const cKey = colC.toLowerCase();
+      const looksLikeHeader = aKey === 'item' || bKey === 'name' || cKey === 'extra info' || (aKey.includes('item') && bKey.includes('name'));
+      if (looksLikeHeader) continue;
 
-/* mimic hymn arrow styling on right */
-.event-right .hymn-arrow{ width:24px; height:24px; stroke:var(--accent); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+      const itemRaw = colA;
+      const displayItem = itemRaw.replace(/\s*\(\s*optional\s*\)\s*$/i, '').trim();
+      const item = displayItem;
+      const name = colB;
+      const extra = colC;
+      const slugOverride = colD;
 
-/* small mobile tweak */
-@media (max-width:520px){
-  .event-card{ padding:12px; }
-  .event-right{ margin-left:10px; }
-}
+      // Administration divider special
+      if(item.toLowerCase().includes('administration of the sacrament')){
+        if(isSacrament || isTestimony){
+          container.appendChild(createDivider(item));
+          any = true;
+        }
+        if(isTestimony){
+          const tb = document.createElement('div');
+          tb.className = 'testimony-banner';
+          tb.innerHTML = `<div class="testimony-text">Testimonies of the Congregation</div>`;
+          container.appendChild(tb);
+          any = true;
+        }
+        continue;
+      }
 
-/* When conference events are placed inside the hero, give them spacing and keep layout */
-.hero #conference-events,
-.conference-events-hero{
-  margin-top: 12px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  /* make sure they sit above the hero background gradient */
-  position: relative;
-  z-index: 1;
-  padding-bottom: 8px; /* small breathing room so hero gradient shows below */
-}
+      if(!name) continue;
 
-/* If you prefer the event cards to blend a bit with the hero, lower the card contrast */
-.hero #conference-events .event-card,
-.conference-events-hero .event-card{
-  /* keep them as normal white cards, or use slight translucency like below:
-  background: rgba(255,255,255,0.92);
-  */
-}
+      const key = normalizeItemKey(item);
 
-/* small styles */
-.muted{ color:var(--muted); }
-.small{ font-size:12px; }
+      // Testimony flow filters
+      if(isTestimony){
+        if(key.startsWith('speaker') || key.includes('musical') || (key.includes('hymn') && !/opening|sacrament|closing/i.test(key))){
+          continue;
+        }
+      }
 
-/* Collapsibles */
-.collapsible{ padding:0; overflow:hidden; }
-.collapsible-toggle{ width:100%; background:var(--accent); color:#fff; padding:12px; border-radius:10px; border:none; display:flex; align-items:center; justify-content:space-between; font-weight:600; cursor:pointer; margin-bottom:8px; }
-.collapsible-panel{ display:none; padding:12px; background:#fff; border-radius:8px; border:1px solid rgba(12,18,22,0.04); }
-.list .card-mini{ margin-bottom:8px; padding:10px; border-radius:8px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.04) }
-.chev{ transform: rotate(0deg); transition: transform .25s ease; }
-.collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
+      // non-sacrament & non-testimony: skip agenda details (we'll show placeholder below)
+      if(!isSacrament && !isTestimony){
+        continue;
+      }
 
-/* Notice */
-.notice{ display:block; margin-top:12px; background:#fff4e6; border:1px solid #f0d7bd; padding:8px; border-radius:8px; color:#7a4b00 }
+      // hymn handling
+      if(key.includes('hymn')){
+        let hymnNumber = null;
+        let hymnTitle = name;
+        const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
+        if (m) { hymnNumber = m[1]; hymnTitle = m[2] || ''; }
+        else {
+          const m2 = name.match(/([0-9]{3,4})/);
+          if(m2) hymnNumber = m2[1];
+        }
+        const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
+        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
+        any = true;
+        continue;
+      }
 
-/* icon SVG base styling */
-.icon-svg{ width:44px; height:44px; display:block; }
+      if(key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')){
+        container.appendChild(createRow('Speaker', name, '', 'speaker'));
+        any = true;
+        continue;
+      }
 
-/* rounded background inside the tiny 24x24 viewBox. We scale using CSS variables if needed */
-.icon-svg .icon-bg{
-  fill: var(--accent-2);         /* soft background color */
-  stroke: transparent;
-}
+      if(key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')){
+        container.appendChild(createRow(item, name, '', 'prayer'));
+        any = true;
+        continue;
+      }
 
-/* stroke color for paths */
-.icon-svg .icon-stroke{
-  stroke: var(--accent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
-}
+      if(key.includes('musical')){
+        if(!isTestimony){
+          container.appendChild(createRow('Musical Number', name, extra));
+          any = true;
+        }
+        continue;
+      }
 
-/* emoji inside SVG — scale and center, use a subtle color */
-.icon-svg .icon-emoji{
-  font-size: 14px;               /* tweak for visual size */
-  fill: var(--accent);           /* emoji color isn't affected by fill in many systems, but this is harmless */
-}
+      // fallback generic
+      container.appendChild(createRow(item, name, extra));
+      any = true;
+    }
 
-/* ensure svg aligns with your .agenda-item .icon box */
-.agenda-item .icon{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
+    // If meeting type is neither sacrament nor testimony -> show centered placeholder with meeting-type text
+    if(!isSacrament && !isTestimony){
+      const pc = document.getElementById('program-content');
+      if(pc) pc.innerHTML = `<div class="meeting-placeholder"><div class="placeholder-text">${(adminMap['meeting type']||'').toString()}</div></div>`;
+      any = true;
+    }
 
-/* optional: different background for hymn cards so they pop slightly */
-.hymn-card .icon .icon-bg{ fill:#f8fbfc; }
+    if(!any){
+      container.innerHTML = '<div class="placeholder"><p class="muted">No agenda items found in Agenda sheet.</p></div>';
+    }
 
-/* Divider */
-.agenda-divider{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin:16px 0;
+    // Leadership
+    if (leadRows && leadRows.length) {
+      renderLeadership(leadRows);
+    } else {
+      const ll = document.getElementById('leaders-list');
+      if (ll) ll.innerHTML = '<div class="muted small">No leadership data found.</div>';
+    }
+
+    // Now render header and conference events AFTER the program content has been generated.
+    // This prevents inserted conference-events from being wiped by the agenda rendering.
+    renderHeaderFromAdmin(adminMap, admRows);
+
+    clearError();
+
+    // wire collapsibles
+    document.querySelectorAll('.collapsible-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-target');
+        const panel = document.getElementById(target);
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', (!expanded).toString());
+        if(panel) panel.style.display = expanded ? 'none' : 'block';
+      });
+    });
+
+  } catch(err){
+    console.error('[app] error', err);
+    showError('Failed to fetch sheets: ' + err.message);
+  }
 }
 
-.divider-line{
-  flex:1;
-  height:1px;
-  background:#e5e7eb;
-}
-
-.divider-text{
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  color:#6b7280;
-  white-space:nowrap;
-}
-
-/* Responsive tweaks */
-@media (max-width:420px){
-  .hero-inner{ flex-direction:column; gap:6px; }
-  .meeting-heading{ font-size:20px }
-  .agenda-item .icon{ width:40px; height:40px; }
-}
-
-/* Leadership table styling (clean 3-column layout) */
-.leadership-table{
-  width:100%;
-  border-collapse:collapse;
-  background: #fff;
-  margin: 0;
-  box-shadow: none;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(11,74,106,0.06);
-}
-
-.leadership-table tbody tr{
-  border-bottom: 1px solid rgba(11,74,106,0.06);
-}
-
-.leadership-table tbody tr:last-child{
-  border-bottom: none;
-}
-
-.leadership-table td{
-  padding: 10px 12px;
-  vertical-align: middle;
-  font-size: 14px;
-  color: #0f1724;
-}
-
-/* first column (role) emphasis */
-.lead-col-role{
-  width: 40%;
-  font-weight: 700;
-  color: #0b4a6a; /* deep church-blue accent */
-}
-
-/* second column (name) */
-.lead-col-name{
-  width: 40%;
-  font-weight: 500;
-  color: #111827;
-}
-
-/* Ensure phone numbers do not wrap (stay on a single line) */
-.lead-col-contact{
-  width: 20%;
-  text-align: right;
-  font-size: 13px;
-  color: var(--muted);
-
-  white-space: nowrap;      /* no wrapping inside the contact cell */
-  overflow: visible;        /* allow content to remain visible (or change to hidden if you prefer ellipsis) */
-  word-break: normal;
-  overflow-wrap: normal;
-  hyphens: none;
-  min-width: 110px;        /* reserve enough width so phones fit on one line */
-}
-
-/* Phone link: no wrap as well and tappable area */
-.lead-col-contact a{
-  color: var(--accent);
-  text-decoration: none;
-  display: inline-block;
-  padding: 6px 8px;
-  border-radius: 8px;
-  white-space: nowrap;     /* make sure links don't wrap either */
-}
-
-/* Slightly reduce the min-width on very small devices so layout stays usable */
-@media (max-width: 360px){
-  .lead-col-contact{ min-width: 96px; font-size: 12px; }
-  .lead-col-role{ width: 44%; }
-  .lead-col-name{ width: auto; }
-}
-
-/* --- special meeting styles --- */
-
-/* Large centered placeholder for non-sacrament meeting types */
-.meeting-placeholder{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:260px;            /* large empty area */
-  margin:36px 0;
-  border-radius:12px;
-  background: transparent;     /* intentionally empty-looking (not a card) */
-  box-shadow: none;
-  border: none;
-  width:100%;
-}
-.meeting-placeholder .placeholder-text{
-  font-size:22px;
-  font-weight:700;
-  color:var(--muted);
-  text-align:center;
-  padding:56px 18px;           /* plenty of vertical breathing room */
-  letter-spacing:0.02em;
-}
-
-/* Testimony banner style (inserted after Administration divider) */
-.testimony-banner{
-  display:flex;
-  justify-content:center;
-  margin:12px 0 18px 0;
-}
-.testimony-banner .testimony-text{
-  text-transform:uppercase;
-  font-weight:700;
-  letter-spacing:0.06em;
-  color:var(--accent);
-  font-size:14px;
-  border-top:1px solid rgba(11,74,106,0.06);
-  padding-top:12px;            /* separation from divider line above */
-}
-
-/* Slight visual tweak so the Administration divider and the Testimony banner read well together */
-.agenda-divider + .testimony-banner{
-  margin-top:6px;
-}
-
-/* Ensure the hymn arrow keeps the no-underline look for the hymn link (already in your CSS) */
-.hymn-link { text-decoration:none; color:inherit; display:block; }
-
-/* Make the placeholder text responsive a bit */
-@media (max-width:480px){
-  .meeting-placeholder .placeholder-text{ font-size:18px; padding:36px 12px; }
-  .testimony-banner .testimony-text{ font-size:13px; }
-}
+run();
