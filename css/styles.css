@@ -8,7 +8,7 @@
   --max-width:720px;
 }
 
-/* Reset & layout */
+/* ---------- Reset & layout ---------- */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -30,15 +30,17 @@ body{
   margin:0 auto;
 }
 
-/* Hero / header */
+/* ---------- Hero / header ---------- */
 .hero{
   position:relative;
   width:100vw;
   margin-left:calc(-50vw + 50%);
-  padding:28px 18px 80px 18px;
+  padding:28px 18px 80px 18px; /* space below to separate hero from the program card */
   color:#fff;
   overflow:hidden;
 }
+
+/* angled / fading banner background */
 .hero::before{
   content:"";
   position:absolute;
@@ -53,21 +55,53 @@ body{
   );
   z-index:0;
 }
+
+/* hero content sits above the gradient */
 .hero-inner{
   position:relative;
   z-index:1;
   display:flex;
   gap:12px;
   align-items:center;
+  justify-content:center;
 }
-.hero img { height:52px; width:auto; border-radius:6px; background:#fff; padding:6px; display:block }
-.hero-text{ flex:1; text-align:center; }
+
+/* stack logo, title and date vertically and center */
+.hero-text{
+  flex:1;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+
+/* logo: no forced white plate, allow transparency to show through */
+.hero img{
+  display:block;
+  background: transparent;  /* do not force a white background */
+  padding: 0;
+  border-radius: 0;
+  width: auto;
+  height: auto;
+  max-height: 120px;        /* adjust to taste (desktop) */
+  max-width: 48%;           /* prevents logo from becoming overly wide */
+  object-fit: contain;
+  box-shadow: none;
+}
+
+/* smaller logo on very small screens */
+@media (max-width:520px){
+  .hero img { max-height: 84px; max-width: 60%; }
+}
+
+/* hero text styles */
 .org{ font-size:13px; font-weight:600; letter-spacing:0.08em; opacity:0.95; }
 .suborg{ display:block; font-weight:400; font-size:11px; letter-spacing:0.08em; margin-top:2px;}
 .meeting-heading{ font-family: "Merriweather", serif; margin:10px 0 0; font-size:22px; }
 .meeting-date{ margin-top:6px; color:rgba(255,255,255,0.9); font-size:14px; }
 
-/* Card */
+/* ---------- Generic card ---------- */
 .card{
   margin-top:14px;
   background:var(--card);
@@ -77,7 +111,7 @@ body{
   border:1px solid rgba(12,18,22,0.035);
 }
 
-/* Meta box for presiding/conducting */
+/* ---------- Meta box (presiding / conducting / chorister / organist) ---------- */
 .meta-box{
   margin-top:12px;
   background:#fff;
@@ -86,7 +120,6 @@ body{
   border:1px solid rgba(12,18,22,0.035);
   box-shadow:0 6px 18px rgba(12,18,22,0.04);
 }
-
 .meta-line{
   font-size:15px;
   color:var(--muted);
@@ -94,12 +127,12 @@ body{
 }
 .meta-line:last-child{ margin-bottom:0; }
 
-/* Chorister / Organist neat spacing */
+/* Chorister / Organist neat spacing — small left/right padding so names aren't flush */
 .meta-extra{
   display:flex;
   justify-content:space-between;
   margin-top:10px;
-  padding:0 18px;   /* breathing room left and right */
+  padding:0 18px;
   font-size:14px;
   color:var(--muted);
   max-width:720px;
@@ -108,62 +141,110 @@ body{
 .meta-left{ text-align:left; padding-left:6px; }
 .meta-right{ text-align:right; padding-right:6px; }
 
-/* Program list */
-.program-content{ display:flex; flex-direction:column; gap:10px; }
-.agenda-item{ display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px; border:1px solid #eef0f1; }
-.agenda-item .icon{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:none; border:none; }
+/* ---------- Program list / agenda ---------- */
+.program-content{ display:flex; flex-direction:column; gap:10px; padding:0; }
+
+.agenda-icon{
+  width:40px;
+  height:40px;
+  display:block;
+  object-fit:contain;
+}
+
+.agenda-item .icon{
+  width:44px;
+  height:44px;
+  min-width:44px;   /* prevents flexbox stretching */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* generic agenda row */
+.agenda-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid #eef0f1;
+}
+.agenda-item .icon{
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:none;
+  border:none;
+}
 .agenda-item .content{ flex:1; }
 .agenda-item .title{ font-weight:600; color:#0f1724; font-size:15px; }
 .agenda-item .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
 .agenda-item .right{ font-size:13px; color:var(--muted) }
 
-/* Hymn card special */
-.hymn-card{ display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.06); box-shadow:none; }
+/* ---------- Hymn card ---------- */
+.hymn-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px;
+  border-radius:10px;
+  background:#f8fbfc;
+  border:1px solid rgba(11,74,106,0.06);
+  box-shadow:none;
+}
 .hymn-card .left{ display:flex; gap:12px; align-items:center; }
 .hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08)}
 .hymn-title{ font-weight:600; color:#0f1724; }
 .hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
 .hymn-card:hover{ background:#f1f7fa; }
 .hymn-link{ text-decoration:none; color:inherit; display:block; }
-.hymn-arrow{ width:25px; height:25px; stroke:#0b4a6a; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
-
-/* Conference events area inside program body */
-#conference-events{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
-.conference-events-body {
-  margin: 6px 0 28px 0; /* increased bottom margin for white space after cards */
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
+.hymn-arrow{
+  width:25px;
+  height:25px;
+  stroke:#0b4a6a;
+  stroke-width:2.2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 
-/* wrapper that groups the small stake title and the event cards inside the same program card */
+/* ---------- Conference events placed inside the program card body ---------- */
+/* this wrapper groups the stake title and the cards inside the program content */
 .stake-wrapper{
   display:flex;
   flex-direction:column;
   gap:12px;
-  padding: 6px 4px 18px 4px; /* small padding so title doesn't hug the edges */
+  padding: 6px 12px 18px 12px; /* keeps the title away from edges and gives breathing room below cards */
 }
 
-/* the centered title inside the program card (smaller than the old big placeholder) */
+/* centered title inside the program card; smaller and muted */
 .stake-title{
   font-size:20px;
   font-weight:700;
-  color: #6b7280;            /* muted heading color */
+  color: #6b7280;
   text-align:center;
-  padding: 18px 8px 6px 8px; /* top breathing room (keeps white space above) and small gap below */
+  padding: 8px 8px 6px 8px; /* preserves space above and small gap below */
+  margin:0 auto;
 }
 
-/* Ensure the event container keeps expected spacing under the title and a little space after cards */
-.conference-events-body{
-  margin: 0 0 20px 0;       /* small bottom gap after cards */
+/* container that holds the event cards directly under the stake title */
+.conference-events-body {
+  margin: 0;              /* important: no extra top margin so cards sit immediately under the title */
   display:flex;
   flex-direction:column;
   gap:12px;
+  position: relative;
+  z-index: 1;
+  padding: 0;
 }
 
-/* Event cards */
+/* keeps a little space after the cards inside the program card */
+#conference-events{ margin-top:0; }
+
+/* ---------- Event cards (visual language consistent with hymn cards) ---------- */
 .event-card {
   background: #fff;
   border-radius: 10px;
@@ -180,15 +261,16 @@ body{
 .event-loc, .event-time { margin-top:2px; }
 .event-address a{ color:var(--accent); text-decoration:none; font-weight:600; display:inline-block; margin-top:6px; }
 
-/* mimic hymn arrow styling on right */
+/* arrow on right (matching hymn arrow stylistically) */
 .event-right .hymn-arrow{ width:24px; height:24px; stroke:var(--accent); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
+/* small screens */
 @media (max-width:520px){
   .event-card{ padding:12px; }
   .event-right{ margin-left:10px; }
 }
 
-/* hero placement fallback */
+/* hero placement fallback for conference cards if they get placed inside hero */
 .hero #conference-events,
 .conference-events-hero{
   margin-top: 12px;
@@ -200,35 +282,88 @@ body{
   padding-bottom: 8px;
 }
 
-/* small styles */
+/* ---------- Small utility styles ---------- */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
 
-/* Collapsibles */
+/* ---------- Collapsibles ---------- */
 .collapsible{ padding:0; overflow:hidden; }
-.collapsible-toggle{ width:100%; background:var(--accent); color:#fff; padding:12px; border-radius:10px; border:none; display:flex; align-items:center; justify-content:space-between; font-weight:600; cursor:pointer; margin-bottom:8px; }
-.collapsible-panel{ display:none; padding:12px; background:#fff; border-radius:8px; border:1px solid rgba(12,18,22,0.04); }
-.list .card-mini{ margin-bottom:8px; padding:10px; border-radius:8px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.04) }
+.collapsible-toggle{
+  width:100%;
+  background:var(--accent);
+  color:#fff;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:8px;
+}
+.collapsible-panel{
+  display:none;
+  padding:12px;
+  background:#fff;
+  border-radius:8px;
+  border:1px solid rgba(12,18,22,0.04);
+}
+.list .card-mini{
+  margin-bottom:8px;
+  padding:10px;
+  border-radius:8px;
+  background:#f8fbfc;
+  border:1px solid rgba(11,74,106,0.04)
+}
 .chev{ transform: rotate(0deg); transition: transform .25s ease; }
 .collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
 
-/* Notice */
+/* ---------- Notices, dividers, placeholders ---------- */
 .notice{ display:block; margin-top:12px; background:#fff4e6; border:1px solid #f0d7bd; padding:8px; border-radius:8px; color:#7a4b00 }
 
-/* Divider */
 .agenda-divider{ display:flex; align-items:center; gap:10px; margin:16px 0; }
 .divider-line{ flex:1; height:1px; background:#e5e7eb; }
 .divider-text{ font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#6b7280; white-space:nowrap; }
 
-/* special meeting styles */
-.meeting-placeholder{ display:flex; align-items:center; justify-content:center; min-height:260px; margin:36px 0; border-radius:12px; background: transparent; box-shadow: none; border: none; width:100%; }
-.meeting-placeholder .placeholder-text{ font-size:22px; font-weight:700; color:var(--muted); text-align:center; padding:56px 18px; letter-spacing:0.02em; }
+/* Large centered placeholder for non-sacrament meeting types */
+.meeting-placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:260px;
+  margin:36px 0;
+  border-radius:12px;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  width:100%;
+}
+.meeting-placeholder .placeholder-text{
+  font-size:22px;
+  font-weight:700;
+  color:var(--muted);
+  text-align:center;
+  padding:56px 18px;
+  letter-spacing:0.02em;
+}
+
+/* Testimony banner style (inserted after Administration divider) */
 .testimony-banner{ display:flex; justify-content:center; margin:12px 0 18px 0; }
-.testimony-banner .testimony-text{ text-transform:uppercase; font-weight:700; letter-spacing:0.06em; color:var(--accent); font-size:14px; border-top:1px solid rgba(11,74,106,0.06); padding-top:12px; }
+.testimony-banner .testimony-text{
+  text-transform:uppercase;
+  font-weight:700;
+  letter-spacing:0.06em;
+  color:var(--accent);
+  font-size:14px;
+  border-top:1px solid rgba(11,74,106,0.06);
+  padding-top:12px;
+}
 .agenda-divider + .testimony-banner{ margin-top:6px; }
 
+/* Responsive tweaks */
 @media (max-width:420px){
   .hero-inner{ flex-direction:column; gap:6px; }
-  .meeting-heading{ font-size:20px }
+  .meeting-heading{ font-size:20px; }
   .agenda-item .icon{ width:40px; height:40px; }
 }
