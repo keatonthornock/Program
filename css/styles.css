@@ -149,53 +149,34 @@ body{
   color: #111827;
 }
 
-/* third column (contact) align right on desktop */
+/* Ensure phone numbers do not wrap (stay on a single line) */
 .lead-col-contact{
   width: 20%;
   text-align: right;
   font-size: 13px;
-  color: #6b7280; /* muted */
+  color: var(--muted);
+
+  white-space: nowrap;      /* no wrapping inside the contact cell */
+  overflow: visible;        /* allow content to remain visible (or change to hidden if you prefer ellipsis) */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  min-width: 110px;        /* reserve enough width so phones fit on one line */
 }
 
+/* Phone link: no wrap as well and tappable area */
 .lead-col-contact a{
-  color: var(--accent);         /* church-blue accent to show clickability */
-  text-decoration: none;        /* remove underline */
-  display: inline-block;        /* larger tappable area */
-  padding: 6px 8px;             /* touch-friendly padding */
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 8px;
   border-radius: 8px;
-  transition: background-color .12s ease, color .12s ease;
-  cursor: pointer;
-  -webkit-tap-highlight-color: rgba(11,74,106,0.06);
+  white-space: nowrap;     /* make sure links don't wrap either */
 }
 
-/* hover / focus for desktop and accessible focus state for keyboard users */
-.lead-col-contact a:hover,
-.lead-col-contact a:focus{
-  background: rgba(11,74,106,0.06);
-  color: #073a53;
-  outline: none;
-}
-
-/* ensure no underline anywhere inside the table */
-.leadership-table a{ text-decoration: none; }
-
-/* Keep table layout on small screens but tighten spacing */
-@media (max-width: 520px){
-  .leadership-table{
-    font-size: 14px;
-  }
-
-  .leadership-table td{
-    display: table-cell;     /* keep tabular layout (do NOT stack) */
-    padding: 8px 10px;
-    vertical-align: middle;
-  }
-
-  .lead-col-role{ width: 42%; font-size: 13px; }
-  .lead-col-name{ width: 38%; font-size: 13px; }
-  .lead-col-contact{ width: 20%; text-align: right; font-size: 13px; color: var(--muted); }
-
-  .leadership-table tbody tr{
-    border-bottom: 1px solid rgba(11,74,106,0.04);
-  }
+/* Slightly reduce the min-width on very small devices so layout stays usable */
+@media (max-width: 360px){
+  .lead-col-contact{ min-width: 96px; font-size: 12px; }
+  .lead-col-role{ width: 44%; }
+  .lead-col-name{ width: auto; }
 }
