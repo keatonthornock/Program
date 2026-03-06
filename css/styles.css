@@ -70,6 +70,12 @@ body{
   font-size:15px;
 }
 
+.agenda-icon{
+  width:42px;
+  height:42px;
+  display:block;
+}
+
 /* Program list */
 .program-content{ display:flex; flex-direction:column; gap:10px; }
 .agenda-item{ display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px; border:1px solid #eef0f1; }
