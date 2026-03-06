@@ -204,10 +204,12 @@ body{
   justify-content:space-between;
   padding:12px;
   border-radius:10px;
-  background:#f8fbfc;
+  background:#eef5f8;
   border:1px solid rgba(11,74,106,0.06);
   box-shadow:none;
+  border-bottom:1px solid rgba(0,0,0,0.06);
 }
+
 .hymn-card .left{ display:flex; gap:12px; align-items:center; }
 .hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08)}
 .hymn-title{ font-weight:600; color:#0f1724; }
@@ -295,7 +297,11 @@ body{
   padding-bottom: 8px;
 }
 
-.program-content .agenda-item:last-child{
+.program-content > *{
+  margin-bottom:10px;
+}
+
+.program-content > *:last-child{
   border-bottom:none;
 }
 
