@@ -216,6 +216,27 @@ body{
   .event-right{ margin-left:10px; }
 }
 
+/* When conference events are placed inside the hero, give them spacing and keep layout */
+.hero #conference-events,
+.conference-events-hero{
+  margin-top: 12px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  /* make sure they sit above the hero background gradient */
+  position: relative;
+  z-index: 1;
+  padding-bottom: 8px; /* small breathing room so hero gradient shows below */
+}
+
+/* If you prefer the event cards to blend a bit with the hero, lower the card contrast */
+.hero #conference-events .event-card,
+.conference-events-hero .event-card{
+  /* keep them as normal white cards, or use slight translucency like below:
+  background: rgba(255,255,255,0.92);
+  */
+}
+
 /* small styles */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
