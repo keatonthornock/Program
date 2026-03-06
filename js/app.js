@@ -157,7 +157,14 @@ function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
         <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''}${title ? (hymnNumber ? ` — ${title}` : title) : ''}</div>
       </div>
     </div>
-    <div class="right">${url? '›' : ''}</div>
+    
+    <div class="right">
+      ${url ? `
+      <svg class="hymn-arrow" viewBox="0 0 24 24">
+        <path d="M9 6l6 6-6 6"/>
+      </svg>
+      ` : ''}
+    </div>
   `;
   if(url){
     const a = document.createElement('a');
