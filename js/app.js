@@ -543,8 +543,50 @@ async function run(){
     // If meeting type is neither sacrament nor testimony -> show centered placeholder with meeting-type text
     if(!isSacrament && !isTestimony){
       const pc = document.getElementById('program-content');
-      if(pc) pc.innerHTML = `<div class="meeting-placeholder"><div class="placeholder-text">${(adminMap['meeting type']||'').toString()}</div></div>`;
-      any = true;
+      if(pc){
+        // If it's a Stake Conference, render the title + events in a single wrapper inside the program card
+        const isStakeConference = (adminMap['meeting type'] || '').toString().toLowerCase().includes('stake');
+        if(isStakeConference){
+          // clear any existing content
+          pc.innerHTML = '';
+    
+          // wrapper that contains the title and the events (keeps them inside the same card)
+          const stakeWrapper = document.createElement('div');
+          stakeWrapper.className = 'stake-wrapper';
+    
+          // Title (small padded area only for the text, not a giant box)
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'stake-title';
+          titleDiv.textContent = (adminMap['meeting type']||'Stake Conference').toString();
+          stakeWrapper.appendChild(titleDiv);
+    
+          // events container (cards will be appended here)
+          const eventsContainer = document.createElement('div');
+          eventsContainer.id = 'conference-events';
+          eventsContainer.className = 'conference-events-body';
+    
+          // parse events from admin rows and render them here
+          const events = parseConferenceEvents(admRows);
+          if(events && events.length){
+            events.forEach(ev => eventsContainer.appendChild(createEventCard(ev)));
+          } else {
+            const no = document.createElement('div');
+            no.className = 'muted small';
+            no.textContent = 'No stake conference events found in Administrative sheet.';
+            eventsContainer.appendChild(no);
+          }
+    
+          stakeWrapper.appendChild(eventsContainer);
+    
+          // append wrapper to program content (so title sits above the cards, both inside the same card)
+          pc.appendChild(stakeWrapper);
+          any = true;
+        } else {
+          // generic non-sacrament non-testimony placeholder (unchanged)
+          pc.innerHTML = `<div class="meeting-placeholder"><div class="placeholder-text">${(adminMap['meeting type']||'').toString()}</div></div>`;
+          any = true;
+        }
+      }
     }
 
     if(!any){
