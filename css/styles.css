@@ -130,6 +130,16 @@ body{
   display:block;
 }
 
+.hymn-arrow{
+  width:18px;
+  height:18px;
+  stroke:#0b4a6a;
+  stroke-width:2.2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
 /* small styles */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
