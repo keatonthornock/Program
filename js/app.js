@@ -1,5 +1,5 @@
 // js/app.js
-// Enhanced: load Administrative + Agenda CSVs, render agenda items (hymns, speakers, etc.)
+// Enhanced: load Administrative + Agenda CSVs, render agenda items, and handle conference events
 const $ = s => document.querySelector(s);
 const cfgPath = './config.json';
 
@@ -27,7 +27,8 @@ function parseCSVtoRows(text){
   const lines = text.split(/\r?\n/);
   const rows = [];
   for(const ln of lines){
-    if(!ln) continue;
+    if(ln === undefined || ln === null) continue;
+    if(ln.trim() === '') continue;
     const parts = [];
     let cur = '', inQ = false;
     for(let i=0;i<ln.length;i++){
@@ -45,42 +46,21 @@ function parseCSVtoRows(text){
   return rows;
 }
 
-
-function getAgendaIcon(type){
-  if(type === "hymn"){
-    return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
-  }
-  if(type === "speaker"){
-    return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
-  }
-  if(type === "prayer"){
-    return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
-  }
-  return "";
-}
-
-
-// slug helper (unchanged)
+/* ---------- hymn/url helpers (unchanged) ---------- */
 function slugify(text){
   if(!text) return '';
   return text.toString()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')   // remove accents
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .trim()
-    .replace(/^[0-9]+\.\s*/,'')                        // strip leading "123. "
-    .replace(/[’'"\.:,;!?\(\)\[\]\/]/g,'')             // remove punctuation
-    .replace(/[^a-zA-Z0-9\s-]/g,'')                   // remove other non-safe chars
+    .replace(/^[0-9]+\.\s*/,'')
+    .replace(/[’'"\.:,;!?\(\)\[\]\/]/g,'')
+    .replace(/[^a-zA-Z0-9\s-]/g,'')
     .toLowerCase()
     .replace(/\s+/g,'-')
     .replace(/-+/g,'-')
     .replace(/^-|-$/g,'');
 }
 
-/**
- * title: hymn title (string)
- * hymnNumber: numeric or string (e.g. "193" or "1024")
- * extraInfo: contents of column C (hints like "Hymns", "Hymns for Home and Church", "Children's Songbook")
- * slugOverride: optional explicit slug from column D (if present)
- */
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const extra = (extraInfo || '').toString().toLowerCase();
   const t = (title || '').toString().trim();
@@ -115,10 +95,26 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   }
 
   if(t) return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
-
   return null;
 }
 
+/* ---------- small UI helpers ---------- */
+function showError(msg){
+  const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
+}
+function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textContent = ''; } }
+
+function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
+
+/* ---------- icon/image helpers from your repo ---------- */
+function getAgendaIcon(type){
+  if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
+  if(type === "speaker") return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
+  if(type === "prayer") return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
+  return "";
+}
+
+/* ---------- rendering helpers ---------- */
 function createElemFromHTML(html){
   const div = document.createElement('div');
   div.innerHTML = html.trim();
@@ -136,13 +132,10 @@ function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
         <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''}${title ? (hymnNumber ? ` — ${title}` : title) : ''}</div>
       </div>
     </div>
-    <div class="right">
-      ${url ? `
-      <svg class="hymn-arrow" viewBox="0 0 24 24" aria-hidden="true">
+    <div class="right">${url? `
+      <svg class="hymn-arrow" viewBox="0 0 24 24">
         <path d="M9 6l6 6-6 6"/>
-      </svg>
-      ` : ''}
-    </div>
+      </svg>` : ''}</div>
   `;
   if(url){
     const a = document.createElement('a');
@@ -156,19 +149,11 @@ function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
   return el;
 }
 
-function createRow(typeLabel, name, extra, iconType){
+function createRow(typeLabel, name, extra, iconType = 'default'){
   const el = document.createElement('div');
   el.className = 'agenda-item';
-  let resolvedIcon = iconType || 'default';
-  const tkey = (typeLabel||'').toString().toLowerCase();
-  if(!iconType){
-    if(tkey.includes('hymn') || tkey.includes('sacrament')) resolvedIcon = 'hymn';
-    else if(tkey.includes('speaker') || tkey.includes('testimon')) resolvedIcon = 'speaker';
-    else if(tkey.includes('invocation') || tkey.includes('benediction') || tkey.includes('prayer')) resolvedIcon = 'prayer';
-  }
-
   el.innerHTML = `
-    <div class="icon">${getAgendaIcon(resolvedIcon)}</div>
+    <div class="icon">${getAgendaIcon(iconType)}</div>
     <div class="content">
       <div class="title">${typeLabel}</div>
       <div class="sub">${name || ''}</div>
@@ -189,23 +174,75 @@ function createDivider(label){
   return el;
 }
 
-function createTestimonyBanner(){
-  const el = document.createElement('div');
-  el.className = 'testimony-banner';
-  el.innerHTML = `<div class="testimony-text">Testimonies of the Congregation</div>`;
-  return el;
-}
-
-function createMeetingPlaceholder(meetingTypeLabel){
-  const el = document.createElement('div');
-  el.className = 'meeting-placeholder';
-  el.innerHTML = `<div class="placeholder-text">${meetingTypeLabel}</div>`;
-  return el;
-}
+/* ---------- Conference event parsing + rendering ---------- */
 
 /**
- * Render leadership as a 3-column table (unchanged from previous)
+ * Given admRows (full Administrative CSV parsed to rows),
+ * find the header row with: Event | Location | Date | Time | Address
+ * then collect subsequent rows until blank row encountered and return array of objects.
  */
+function parseConferenceEvents(admRows){
+  if(!Array.isArray(admRows)) return [];
+  const headerNames = ['event','location','date','time','address'];
+  for(let i=0;i<admRows.length;i++){
+    const row = admRows[i].map(c => (c||'').toString().trim().toLowerCase());
+    // check that first five columns match or at least the first one is 'event' and others present
+    if(row[0] && headerNames.every((h,idx)=> (row[idx]||'').includes(h) || (row[idx]||'') === h )){
+      // collect subsequent rows
+      const events = [];
+      for(let j=i+1;j<admRows.length;j++){
+        const r = admRows[j];
+        if(!r || r.length === 0) break;
+        const ev = {
+          event: (r[0]||'').toString().trim(),
+          location: (r[1]||'').toString().trim(),
+          date: (r[2]||'').toString().trim(),
+          time: (r[3]||'').toString().trim(),
+          address: (r[4]||'').toString().trim()
+        };
+        // stop if row blank in event column
+        if(!ev.event) break;
+        // only push if at least some data present
+        if(ev.event || ev.location || ev.date || ev.time || ev.address) events.push(ev);
+      }
+      return events;
+    }
+  }
+  return [];
+}
+
+function createEventCard(ev){
+  const el = document.createElement('div');
+  el.className = 'event-card card';
+  // maps search url: will open maps app on most devices
+  const mapHref = ev.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.address)}` : '';
+  el.innerHTML = `
+    <div class="event-left">
+      <div class="event-title">${ev.event || ''}</div>
+      <div class="event-meta">
+        ${ev.location ? `<div class="event-loc">${ev.location}</div>` : ''}
+        ${ev.date ? `<div class="event-time">${ev.date}${ev.time ? ' · ' + ev.time : ''}</div>` : (ev.time ? `<div class="event-time">${ev.time}</div>` : '')}
+        ${ev.address ? `<div class="event-address"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
+      </div>
+    </div>
+    <div class="event-right">
+      <svg class="hymn-arrow" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  `;
+  // make entire card clickable when address exists (but keep accessible anchor as the authoritative link)
+  if(mapHref){
+    el.addEventListener('click', (e) => {
+      // if user clicked the inner anchor, let it be; otherwise open map
+      const a = e.target.closest('a');
+      if(a) return;
+      window.open(mapHref, '_blank', 'noopener');
+    });
+    el.style.cursor = 'pointer';
+  }
+  return el;
+}
+
+/* ---------- Leadership rendering (unchanged except returns before) ---------- */
 function renderLeadership(rows){
   const container = document.getElementById('leaders-list');
   if(!container) return;
@@ -226,28 +263,13 @@ function renderLeadership(rows){
     if(!r) continue;
     const hasAny = (r[0]||'').toString().trim() || (r[1]||'').toString().trim() || (r[2]||'').toString().trim();
     if(!hasAny) continue;
-
     const role = (r[0]||'').toString().trim();
     const name = (r[1]||'').toString().trim();
     const contact = (r[2]||'').toString().trim();
-
     const tr = document.createElement('tr');
-
-    const tdRole = document.createElement('td');
-    tdRole.className = 'lead-col-role';
-    tdRole.textContent = role || '';
-    tr.appendChild(tdRole);
-
-    const tdName = document.createElement('td');
-    tdName.className = 'lead-col-name';
-    tdName.textContent = name || '';
-    tr.appendChild(tdName);
-
-    const tdContact = document.createElement('td');
-    tdContact.className = 'lead-col-contact';
-    tdContact.innerHTML = contact ? formatContactLink(contact) : '';
-    tr.appendChild(tdContact);
-
+    const tdRole = document.createElement('td'); tdRole.className='lead-col-role'; tdRole.textContent = role || ''; tr.appendChild(tdRole);
+    const tdName = document.createElement('td'); tdName.className='lead-col-name'; tdName.textContent = name || ''; tr.appendChild(tdName);
+    const tdContact = document.createElement('td'); tdContact.className='lead-col-contact'; tdContact.innerHTML = contact ? formatContactLink(contact) : ''; tr.appendChild(tdContact);
     tbody.appendChild(tr);
   }
 
@@ -269,13 +291,95 @@ function formatContactLink(contact){
   return `<span class="muted small">${contact}</span>`;
 }
 
-function showError(msg){
-  const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
+/* ---------- Header rendering + conference logic ---------- */
+function renderHeaderFromAdmin(map, admRows){
+  const title = map['title'] || 'The Church of Jesus Christ of Latter-day Saints';
+  const ward = map['ward'] || '';
+  const stake = map['stake'] || '';
+  const dateRaw = map['upcoming sunday date'] || map['upcoming sunday'] || '';
+  const presiding = map['presiding'] || '';
+  const conducting = map['conducting'] || '';
+  const meetingTypeRaw = (map['meeting type'] || '').toString();
+  const meetingType = meetingTypeRaw.trim();
+  const chorister = map['chorister'] || '';
+  const organist = map['organist'] || '';
+
+  $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
+  $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
+
+  // special handling for stake/general conferences: hide meta box entirely
+  const isStakeConference = meetingType.toLowerCase().includes('stake conference') || meetingType.toLowerCase().includes('stake meeting') || meetingType.toLowerCase().includes('stake');
+  const isGeneralConference = meetingType.toLowerCase().includes('general conference') || meetingType.toLowerCase().includes('general');
+
+  if(isStakeConference || isGeneralConference){
+    // hide meta-box and extra lines
+    const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = 'none';
+    const me = document.querySelector('.meta-extra'); if(me) me.style.display = 'none';
+  } else {
+    // show them and populate values if present
+    const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = '';
+    const me = document.querySelector('.meta-extra'); if(me) me.style.display = '';
+
+    if(presiding){
+      const pelt = document.getElementById('presiding'); if(pelt) pelt.textContent = presiding;
+      const pLine = document.getElementById('presiding-line'); if(pLine) pLine.style.display = '';
+    } else {
+      const pLine = document.getElementById('presiding-line'); if(pLine) pLine.style.display = 'none';
+    }
+
+    if(conducting){
+      const celt = document.getElementById('conducting'); if(celt) celt.textContent = conducting;
+      const cLine = document.getElementById('conducting-line'); if(cLine) cLine.style.display = '';
+    } else {
+      const cLine = document.getElementById('conducting-line'); if(cLine) cLine.style.display = 'none';
+    }
+
+    if(chorister){
+      const ch = document.getElementById('chorister'); if(ch) ch.textContent = chorister;
+      const chLine = document.getElementById('chorister-line'); if(chLine) chLine.style.display = '';
+    } else {
+      const chLine = document.getElementById('chorister-line'); if(chLine) chLine.style.display = 'none';
+    }
+
+    if(organist){
+      const og = document.getElementById('organist'); if(og) og.textContent = organist;
+      const ogLine = document.getElementById('organist-line'); if(ogLine) ogLine.style.display = '';
+    } else {
+      const ogLine = document.getElementById('organist-line'); if(ogLine) ogLine.style.display = 'none';
+    }
+  }
+
+  // If Stake conference, render events from Administrative rows
+  if(isStakeConference){
+    // parse events
+    const events = parseConferenceEvents(admRows);
+    // ensure a container exists (create before the program card if not present)
+    let container = document.getElementById('conference-events');
+    if(!container){
+      container = document.createElement('div');
+      container.id = 'conference-events';
+      // place it after the meta-extra and before the program card
+      const program = document.getElementById('program');
+      if(program && program.parentNode) program.parentNode.insertBefore(container, program);
+      else document.querySelector('.app').appendChild(container);
+    }
+    container.innerHTML = '';
+    if(events && events.length){
+      events.forEach(ev => container.appendChild(createEventCard(ev)));
+    } else {
+      container.innerHTML = `<div class="muted small">No stake conference events found in Administrative sheet.</div>`;
+    }
+  } else {
+    // remove container if present and not stake conference
+    const container = document.getElementById('conference-events');
+    if(container && container.parentNode) container.parentNode.removeChild(container);
+  }
+
+  // store meeting type on body dataset for other logic if needed
+  document.body.dataset.meetingType = meetingType.toLowerCase();
 }
-function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textContent = ''; } }
 
-function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
-
+/* ---------- main run flow (uses existing CSV fetch logic) ---------- */
 async function run(){
   clearError();
   let config;
@@ -297,8 +401,8 @@ async function run(){
   try {
     const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
     if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
-
     const responses = await Promise.all(fetches);
+
     const admResp = responses[0];
     const agResp = responses[1];
     const leadResp = responses[2] || null;
@@ -319,153 +423,143 @@ async function run(){
     const agRows = parseCSVtoRows(agText);
     const leadRows = leadText ? parseCSVtoRows(leadText) : null;
 
-    // build admin map
+    // build admin map (first two columns as before)
     const adminMap = {};
     for(let i=0;i<admRows.length;i++){
       const r = admRows[i];
-      if(!r || !r[0]) continue;
+      if(!r) continue;
+      if(!r[0]) continue;
       adminMap[(r[0]||'').toString().trim().toLowerCase()] = (r[1]||'').toString().trim();
     }
 
-    // render header
-    renderHeaderFromAdmin(adminMap);
+    // render header (includes conference logic)
+    renderHeaderFromAdmin(adminMap, admRows);
 
-    // Determine meeting type for special behavior
-    const meetingTypeRaw = (adminMap['meeting type'] || adminMap['meeting'] || '').toString().trim();
-    const meetingTypeKey = meetingTypeRaw.toLowerCase();
-
+    // parse and render agenda rows in order
     const container = $('#program-content');
     container.innerHTML = '';
     let any = false;
 
-    // If it's a non-sacrament and non-testimony meeting => render centered placeholder and skip rest
-    const isSacrament = meetingTypeKey.includes('sacrament');
-    const isTestimony = meetingTypeKey.includes('testimony');
+    const meetingType = (adminMap['meeting type'] || '').toString().toLowerCase();
+    const isTestimony = meetingType.includes('testimony');
+    const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
 
-    if(!isSacrament && !isTestimony){
-      // Render the big centered placeholder and stop
-      container.appendChild(createMeetingPlaceholder(meetingTypeRaw || 'Meeting'));
-      any = true;
-    } else {
-      // Normal or Testimony flow: iterate agenda rows but with filters for testimony
-      for (let i = 0; i < agRows.length; i++) {
-        const r = agRows[i];
-        if (!r || !r[0]) continue;
+    for (let i = 0; i < agRows.length; i++) {
+      const r = agRows[i];
+      if (!r || !r[0]) continue;
+      const colA = (r[0] || '').toString().trim();
+      const colB = (r[1] || '').toString().trim();
+      const colC = (r[2] || '').toString().trim();
+      const colD = (r[3] || '').toString().trim();
 
-        const colA = (r[0] || '').toString().trim();
-        const colB = (r[1] || '').toString().trim();
-        const colC = (r[2] || '').toString().trim();
-        const colD = (r[3] || '').toString().trim();
+      // skip header-like
+      const aKey = colA.toLowerCase();
+      const bKey = colB.toLowerCase();
+      const cKey = colC.toLowerCase();
+      const looksLikeHeader = aKey === 'item' || bKey === 'name' || cKey === 'extra info' || (aKey.includes('item') && bKey.includes('name'));
+      if (looksLikeHeader) continue;
 
-        const aKey = colA.toLowerCase();
-        const bKey = colB.toLowerCase();
-        const cKey = colC.toLowerCase();
-        const looksLikeHeader = aKey === 'item' || bKey === 'name' || cKey === 'extra info' || (aKey.includes('item') && bKey.includes('name'));
-        if (looksLikeHeader) continue;
+      const itemRaw = colA;
+      const displayItem = itemRaw.replace(/\s*\(\s*optional\s*\)\s*$/i, '').trim();
+      const item = displayItem;
+      const name = colB;
+      const extra = colC;
+      const slugOverride = colD;
 
-        const itemRaw = colA;
-        const displayItem = itemRaw.replace(/\s*\(\s*optional\s*\)\s*$/i, '').trim();
-        const item = displayItem;
-        const name = colB;
-        const extra = colC;
-        const slugOverride = colD;
-
-        // If this row is the "Administration of the Sacrament" divider -- handle always in sacram/testimony as needed
-        if(item.toLowerCase().includes('administration of the sacrament')){
+      // Administration divider special (still show even in testimony flow where appropriate)
+      if(item.toLowerCase().includes('administration of the sacrament')){
+        // In 'other' meeting types we don't show administration at all (you asked previously)
+        // But if the meeting type is testimony or sacrament, show divider
+        if(isSacrament || isTestimony){
           container.appendChild(createDivider(item));
           any = true;
-          // For testimony meetings insert the "Testimonies..." banner immediately after the divider
-          if(isTestimony){
-            container.appendChild(createTestimonyBanner());
-          }
-          continue;
         }
-
-        // Skip rows with no name (common for optional rows etc.)
-        if(!name) continue;
-
-        const key = normalizeItemKey(item);
-
-        // If meeting type is 'Testimony' we only allow a small set of item types:
+        // If testimony, add the "Testimonies of the Congregation" banner right after the administration divider
         if(isTestimony){
-          // If it's a hymn, allow only if it is NOT an intermediate hymn.
-          if(key.includes('hymn')){
-            // skip intermediate or "special" or "musical hymn"
-            if(key.includes('intermediate') || key.includes('special') || key.includes('musical')) {
-              continue;
-            }
-            // Accept opening, sacrament, closing, or generic 'hymn' labels
-            const allowedHymnMatch = /opening|sacrament|closing|hymn/;
-            if(!allowedHymnMatch.test(key)) continue;
-            // proceed to render hymn card
-            let hymnNumber = null;
-            let hymnTitle = name;
-            const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
-            if (m) { hymnNumber = m[1]; hymnTitle = m[2] || ''; }
-            else { const m2 = name.match(/([0-9]{3,4})/); if(m2) hymnNumber = m2[1]; }
-            const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
-            container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
-            any = true;
-            continue;
-          }
-
-          // allow invocation/opening prayer/benediction/closing
-          if(key.includes('invocation') || key.includes('opening prayer') || key.includes('benediction') || key.includes('closing') ){
-            container.appendChild(createRow(item, name, '','prayer'));
-            any = true;
-            continue;
-          }
-
-          // explicitly skip musical, speaker, testimony (individual), and other items
-          // (so nothing else is rendered)
-          continue;
-        }
-
-        // Standard Sacrament meeting flow (render everything as you had before, including musical numbers)
-        // Handle hymn
-        if (key.includes('hymn')) {
-          let hymnNumber = null;
-          let hymnTitle = name;
-          const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
-          if (m) { hymnNumber = m[1]; hymnTitle = m[2] || ''; }
-          else { const m2 = name.match(/([0-9]{3,4})/); if(m2) hymnNumber = m2[1]; }
-          const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
-          container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
+          const tb = document.createElement('div');
+          tb.className = 'testimony-banner';
+          tb.innerHTML = `<div class="testimony-text">Testimonies of the Congregation</div>`;
+          container.appendChild(tb);
           any = true;
+        }
+        continue;
+      }
+
+      // Skip empty name rows
+      if(!name) continue;
+
+      const key = normalizeItemKey(item);
+
+      // When meeting type is Testimony, ignore speakers, intermediate hymns, and musical numbers
+      if(isTestimony){
+        if(key.startsWith('speaker') || key.includes('musical') || (key.includes('hymn') && !/opening|sacrament|closing/i.test(key))) {
           continue;
         }
+      }
 
-        // Speakers
-        if (key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')) {
-          container.appendChild(createRow('Speaker', name, ''));
-          any = true;
-          continue;
+      // When meeting type is neither sacrament nor testimony -> show placeholder instead of cards
+      if(!isSacrament && !isTestimony){
+        // Do nothing here for agenda items. We'll show the centered placeholder after the loop if no "any"
+        continue;
+      }
+
+      // regular hymn handling
+      if(key.includes('hymn')){
+        let hymnNumber = null;
+        let hymnTitle = name;
+        const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
+        if (m) { hymnNumber = m[1]; hymnTitle = m[2] || ''; }
+        else {
+          const m2 = name.match(/([0-9]{3,4})/);
+          if(m2) hymnNumber = m2[1];
         }
+        const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
+        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
+        any = true;
+        continue;
+      }
 
-        // Invocation, Benediction, Closing Prayer, Musical Number etc.
-        if (key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')) {
-          container.appendChild(createRow(item, name, ''));
-          any = true;
-          continue;
-        }
+      // speakers (skip in testimony already handled)
+      if(key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')){
+        container.appendChild(createRow('Speaker', name, '', 'speaker'));
+        any = true;
+        continue;
+      }
 
-        if (key.includes('musical')) {
+      if(key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')){
+        container.appendChild(createRow(item, name, '', 'prayer'));
+        any = true;
+        continue;
+      }
+
+      if(key.includes('musical')){
+        // skip for testimony (already filtered); otherwise render
+        if(!isTestimony){
           container.appendChild(createRow('Musical Number', name, extra));
           any = true;
-          continue;
         }
+        continue;
+      }
 
-        // catch-all: render generic row using cleaned label
-        container.appendChild(createRow(item, name, extra));
-        any = true;
-      } // end agRows loop
-    } // end sacram/testimony block
+      // generic fallback
+      container.appendChild(createRow(item, name, extra));
+      any = true;
+    }
+
+    // If meeting type is neither sacrament nor testimony -> show centered placeholder with meeting-type text
+    if(!isSacrament && !isTestimony){
+      const programCard = document.getElementById('program');
+      // remove any items inside program-content and insert placeholder
+      const pc = document.getElementById('program-content');
+      if(pc) pc.innerHTML = `<div class="meeting-placeholder"><div class="placeholder-text">${(adminMap['meeting type']||'').toString()}</div></div>`;
+      any = true;
+    }
 
     if(!any){
       container.innerHTML = '<div class="placeholder"><p class="muted">No agenda items found in Agenda sheet.</p></div>';
     }
 
-    // Render leadership list (if provided)
+    // Leadership
     if (leadRows && leadRows.length) {
       renderLeadership(leadRows);
     } else {
@@ -488,40 +582,6 @@ async function run(){
   } catch(err){
     console.error('[app] error', err);
     showError('Failed to fetch sheets: ' + err.message);
-  }
-}
-
-// render header from admin map (keeps look) — unchanged behavior
-function renderHeaderFromAdmin(map){
-  const title = map['title'] || 'The Church of Jesus Christ of Latter-day Saints';
-  const ward = map['ward'] || '';
-  const stake = map['stake'] || '';
-  const dateRaw = map['upcoming sunday date'] || map['upcoming sunday'] || '';
-  const presiding = map['presiding'] || '—';
-  const conducting = map['conducting'] || '—';
-  const meetingType = map['meeting type'] || 'Sacrament Meeting';
-  const chorister = map['chorister'] || '';
-  const organist = map['organist'] || '';
-
-  $('#meeting-heading').textContent = meetingType;
-  $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
-
-  // Presiding & Conducting lines
-  const presEl = $('#presiding');
-  const condEl = $('#conducting');
-  if(presEl) presEl.textContent = presiding || '';
-  if(condEl) condEl.textContent = conducting || '';
-
-  // Chorister & Organist lines (these elements are expected in HTML with ids chorister/organist)
-  const chorEl = $('#chorister');
-  const orgEl = $('#organist');
-  if(chorEl){
-    if(chorister) { chorEl.textContent = chorister; chorEl.style.display = ''; }
-    else { chorEl.style.display = 'none'; }
-  }
-  if(orgEl){
-    if(organist) { orgEl.textContent = organist; orgEl.style.display = ''; }
-    else { orgEl.style.display = 'none'; }
   }
 }
 
