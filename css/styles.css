@@ -1,3 +1,333 @@
+:root{
+  --bg:#f6f4f1;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#0b4a6a; /* church blue */
+  --accent-2:#e9f3f6;
+  --radius:12px;
+  --max-width:720px;
+}
+
+/* Reset & layout */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color:#111827;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  display:flex;
+  justify-content:center;
+  padding:18px;
+}
+
+/* App container */
+.app{
+  width:100%;
+  max-width:var(--max-width);
+  margin:0 auto;
+}
+
+/* Hero / header */
+.hero{
+  position:relative;
+  width:100vw;
+  margin-left:calc(-50vw + 50%);
+  padding:28px 18px 80px 18px;
+  color:#fff;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    170deg,
+    var(--accent) 0%,
+    var(--accent) 40%,
+    rgba(11,74,106,0.6) 65%,
+    rgba(11,74,106,0.25) 80%,
+    rgba(11,74,106,0.0) 100%
+  );
+  z-index:0;
+}
+
+.hero-inner{
+  position:relative;
+  z-index:1;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.hero img { height:52px; width:auto; border-radius:6px; background:#fff; padding:6px; display:block }
+.hero-text{ flex:1; text-align:center; }
+.org{ font-size:13px; font-weight:600; letter-spacing:0.08em; opacity:0.95; }
+.suborg{ display:block; font-weight:400; font-size:11px; letter-spacing:0.08em; margin-top:2px;}
+.meeting-heading{ font-family: "Merriweather", serif; margin:10px 0 0; font-size:22px; }
+.meeting-date{ margin-top:6px; color:rgba(255,255,255,0.9); font-size:14px; }
+
+/* Card */
+.card{
+  margin-top:14px;
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:12px;
+  box-shadow:0 6px 18px rgba(12,18,22,0.04);
+  border:1px solid rgba(12,18,22,0.035);
+}
+
+/* Meta box for presiding/conducting */
+.meta-box{
+  margin-top:12px;
+  background:#fff;
+  border-radius:var(--radius);
+  padding:12px 14px;
+  border:1px solid rgba(12,18,22,0.035);
+  box-shadow:0 6px 18px rgba(12,18,22,0.04);
+}
+
+.meta-line{
+  font-size:15px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.meta-line:last-child{
+  margin-bottom:0;
+}
+
+.meta-extra{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  padding:0 18px;   /* adds breathing room left and right */
+  font-size:14px;
+  color:var(--muted);
+  max-width:720px;
+  margin:10px auto 0 auto;
+}
+
+.meta-left{
+  text-align:left;
+  padding-left:6px; /* breathing space so chorister isn't flush left */
+}
+
+.meta-right{
+  text-align:right;
+  padding-right:6px; /* breathing space so organist isn't flush right */
+}
+
+/* Meta row */
+.meta-row-2{
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  color:var(--muted);
+  margin:0;
+  font-size:15px;
+}
+
+.agenda-icon{
+  width:42px;
+  height:42px;
+  display:block;
+}
+
+/* Program list */
+.program-content{ display:flex; flex-direction:column; gap:10px; }
+.agenda-item{ display:flex; align-items:center; gap:12px; padding:12px; background:#fff; border-radius:10px; border:1px solid #eef0f1; }
+.agenda-item .icon{
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:none;
+  border:none;
+}
+.agenda-item .content{ flex:1; }
+.agenda-item .title{ font-weight:600; color:#0f1724; font-size:15px; }
+.agenda-item .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+.agenda-item .right{ font-size:13px; color:var(--muted) }
+
+/* Hymn card special */
+.hymn-card{ display:flex; align-items:center; justify-content:space-between; padding:12px; border-radius:10px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.06); box-shadow:none; }
+.hymn-card .left{ display:flex; gap:12px; align-items:center; }
+.hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08)}
+.hymn-title{ font-weight:600; color:#0f1724; }
+.hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+.hymn-card:hover{
+  background:#f1f7fa;
+}
+
+.hymn-link{
+  text-decoration:none;
+  color:inherit;
+  display:block;
+}
+
+.hymn-arrow{
+  width:25px;
+  height:25px;
+  stroke:#0b4a6a;
+  stroke-width:2.2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* small styles */
+.muted{ color:var(--muted); }
+.small{ font-size:12px; }
+
+/* Collapsibles */
+.collapsible{ padding:0; overflow:hidden; }
+.collapsible-toggle{ width:100%; background:var(--accent); color:#fff; padding:12px; border-radius:10px; border:none; display:flex; align-items:center; justify-content:space-between; font-weight:600; cursor:pointer; margin-bottom:8px; }
+.collapsible-panel{ display:none; padding:12px; background:#fff; border-radius:8px; border:1px solid rgba(12,18,22,0.04); }
+.list .card-mini{ margin-bottom:8px; padding:10px; border-radius:8px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.04) }
+.chev{ transform: rotate(0deg); transition: transform .25s ease; }
+.collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
+
+/* Notice */
+.notice{ display:block; margin-top:12px; background:#fff4e6; border:1px solid #f0d7bd; padding:8px; border-radius:8px; color:#7a4b00 }
+
+/* icon SVG base styling */
+.icon-svg{ width:44px; height:44px; display:block; }
+
+/* rounded background inside the tiny 24x24 viewBox. We scale using CSS variables if needed */
+.icon-svg .icon-bg{
+  fill: var(--accent-2);         /* soft background color */
+  stroke: transparent;
+}
+
+/* stroke color for paths */
+.icon-svg .icon-stroke{
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* emoji inside SVG — scale and center, use a subtle color */
+.icon-svg .icon-emoji{
+  font-size: 14px;               /* tweak for visual size */
+  fill: var(--accent);           /* emoji color isn't affected by fill in many systems, but this is harmless */
+}
+
+/* ensure svg aligns with your .agenda-item .icon box */
+.agenda-item .icon{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; }
+
+/* optional: different background for hymn cards so they pop slightly */
+.hymn-card .icon .icon-bg{ fill:#f8fbfc; }
+
+/* Divider */
+.agenda-divider{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:16px 0;
+}
+
+.divider-line{
+  flex:1;
+  height:1px;
+  background:#e5e7eb;
+}
+
+.divider-text{
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#6b7280;
+  white-space:nowrap;
+}
+
+/* Responsive tweaks */
+@media (max-width:420px){
+  .hero-inner{ flex-direction:column; gap:6px; }
+  .meeting-heading{ font-size:20px }
+  .agenda-item .icon{ width:40px; height:40px; }
+}
+
+/* Leadership table styling (clean 3-column layout) */
+.leadership-table{
+  width:100%;
+  border-collapse:collapse;
+  background: #fff;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(11,74,106,0.06);
+}
+
+.leadership-table tbody tr{
+  border-bottom: 1px solid rgba(11,74,106,0.06);
+}
+
+.leadership-table tbody tr:last-child{
+  border-bottom: none;
+}
+
+.leadership-table td{
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 14px;
+  color: #0f1724;
+}
+
+/* first column (role) emphasis */
+.lead-col-role{
+  width: 40%;
+  font-weight: 700;
+  color: #0b4a6a; /* deep church-blue accent */
+}
+
+/* second column (name) */
+.lead-col-name{
+  width: 40%;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Ensure phone numbers do not wrap (stay on a single line) */
+.lead-col-contact{
+  width: 20%;
+  text-align: right;
+  font-size: 13px;
+  color: var(--muted);
+
+  white-space: nowrap;      /* no wrapping inside the contact cell */
+  overflow: visible;        /* allow content to remain visible (or change to hidden if you prefer ellipsis) */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  min-width: 110px;        /* reserve enough width so phones fit on one line */
+}
+
+/* Phone link: no wrap as well and tappable area */
+.lead-col-contact a{
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 8px;
+  white-space: nowrap;     /* make sure links don't wrap either */
+}
+
+/* Slightly reduce the min-width on very small devices so layout stays usable */
+@media (max-width: 360px){
+  .lead-col-contact{ min-width: 96px; font-size: 12px; }
+  .lead-col-role{ width: 44%; }
+  .lead-col-name{ width: auto; }
+}
+
 /* --- special meeting styles --- */
 
 /* Large centered placeholder for non-sacrament meeting types */
