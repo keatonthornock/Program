@@ -350,19 +350,32 @@ function renderHeaderFromAdmin(map, admRows){
   }
 
   // If Stake conference, render events from Administrative rows
+  // If Stake conference, render events from Administrative rows
   if(isStakeConference){
-    // parse events
     const events = parseConferenceEvents(admRows);
-    // ensure a container exists (create before the program card if not present)
+  
+    // find or create the container inside the hero so cards appear in the same blue box
     let container = document.getElementById('conference-events');
     if(!container){
       container = document.createElement('div');
       container.id = 'conference-events';
-      // place it after the meta-extra and before the program card
-      const program = document.getElementById('program');
-      if(program && program.parentNode) program.parentNode.insertBefore(container, program);
-      else document.querySelector('.app').appendChild(container);
+      // Add a small wrapper class so we can target styling separately when it's inside the hero
+      container.className = 'conference-events-hero';
+      // Insert inside the hero, right after .hero-inner (so it's visually under the title/date)
+      const hero = document.querySelector('.hero');
+      const heroInner = hero ? hero.querySelector('.hero-inner') : null;
+      if(hero && heroInner && heroInner.parentNode){
+        // insert after heroInner
+        if(heroInner.nextSibling) hero.insertBefore(container, heroInner.nextSibling);
+        else hero.appendChild(container);
+      } else {
+        // fallback: put before program as before
+        const program = document.getElementById('program');
+        if(program && program.parentNode) program.parentNode.insertBefore(container, program);
+        else document.querySelector('.app').appendChild(container);
+      }
     }
+  
     container.innerHTML = '';
     if(events && events.length){
       events.forEach(ev => container.appendChild(createEventCard(ev)));
