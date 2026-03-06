@@ -352,9 +352,21 @@ function renderHeaderFromAdmin(map, admRows){
       container.className = 'conference-events-body';
       const program = document.getElementById('program');
       const progContent = program ? program.querySelector('#program-content') : null;
-      if (progContent) progContent.insertBefore(container, progContent.firstChild);
-      else if (program && program.parentNode) program.parentNode.insertBefore(container, program.nextSibling);
-      else document.querySelector('.app').appendChild(container);
+      if (progContent) {
+        // Prefer placing the events immediately *after* the meeting-type placeholder (so cards are under "Stake Conference")
+        const placeholder = progContent.querySelector('.meeting-placeholder');
+        if (placeholder) {
+          // insert after placeholder
+          placeholder.after(container);
+        } else {
+          // otherwise append to the end of the program content (right above the agenda items)
+          progContent.appendChild(container);
+        }
+      } else {
+        // fallback: append directly beneath the program card
+        if (program && program.parentNode) program.parentNode.insertBefore(container, program.nextSibling);
+        else document.querySelector('.app').appendChild(container);
+      }
     }
 
     container.innerHTML = '';
