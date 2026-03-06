@@ -319,21 +319,73 @@ body{
 .chev{ transform: rotate(0deg); transition: transform .25s ease; }
 .collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
 
-/* Prevent leadership phone numbers from wrapping */
+/* Leadership table styling (clean 3-column layout) */
+
+.leadership-table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  margin:0;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid rgba(11,74,106,0.06);
+}
+
+/* add more breathing room between entries */
+.leadership-table tbody tr{
+  border-bottom:1px solid rgba(11,74,106,0.06);
+}
+
+.leadership-table tbody tr:last-child{
+  border-bottom:none;
+}
+
+/* more vertical padding */
+.leadership-table td{
+  padding:14px 12px;
+  vertical-align:middle;
+  font-size:13px;
+  color:#0f1724;
+}
+
+/* role column */
+.lead-col-role{
+  width:40%;
+  font-weight:600;
+  font-size:13px;
+  color:#0b4a6a;
+}
+
+/* name column */
+.lead-col-name{
+  width:40%;
+  font-weight:500;
+  font-size:13px;
+  color:#111827;
+}
+
+/* contact column */
 .lead-col-contact{
   width:20%;
   text-align:right;
-  font-size:13px;
+  font-size:12px;
   color:var(--muted);
 
   white-space:nowrap;
   word-break:keep-all;
   overflow-wrap:normal;
+
+  min-width:120px;
 }
 
+/* phone link styling */
 .lead-col-contact a{
-  white-space:nowrap;
+  color:var(--accent);
+  text-decoration:none;
   display:inline-block;
+  padding:6px 10px;
+  border-radius:8px;
+  white-space:nowrap;
 }
 
 /* ---------- Notices, dividers, placeholders ---------- */
