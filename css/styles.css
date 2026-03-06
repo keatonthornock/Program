@@ -181,6 +181,41 @@ body{
   stroke-linejoin:round;
 }
 
+/* Stake conference event card */
+#conference-events{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
+
+.event-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid rgba(11,74,106,0.06);
+  background:#fff;
+  box-shadow:0 4px 12px rgba(12,18,22,0.04);
+}
+
+.event-left{ display:flex; flex-direction:column; gap:6px; }
+.event-title{ font-weight:700; font-size:16px; color:#0f1724; }
+.event-meta{ color:var(--muted); font-size:13px; }
+.event-loc, .event-time { margin-top:2px; }
+.event-address a{
+  color:var(--accent);
+  text-decoration:none;
+  font-weight:600;
+  display:inline-block;
+  margin-top:6px;
+}
+
+/* mimic hymn arrow styling on right */
+.event-right .hymn-arrow{ width:24px; height:24px; stroke:var(--accent); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+/* small mobile tweak */
+@media (max-width:520px){
+  .event-card{ padding:12px; }
+  .event-right{ margin-left:10px; }
+}
+
 /* small styles */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
