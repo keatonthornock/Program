@@ -145,6 +145,29 @@ body{
 .hymn-card .icon .icon-bg{ fill:#f8fbfc; }
 
 
+.agenda-divider{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:16px 0;
+}
+
+.divider-line{
+  flex:1;
+  height:1px;
+  background:#e5e7eb;
+}
+
+.divider-text{
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#6b7280;
+  white-space:nowrap;
+}
+
+
 /* Responsive tweaks */
 @media (max-width:420px){
   .hero-inner{ flex-direction:column; gap:6px; }
