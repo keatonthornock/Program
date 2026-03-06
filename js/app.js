@@ -256,10 +256,13 @@ async function run(){
       }
     
       // Now assign the meaningful variables the rest of the code expects
-      const item = colA;   // A: Item (Opening Hymn, Invocation, Speaker, etc)
-      const name = colB;   // B: Name or hymn title with number
-      const extra = colC;  // C: Extra Info
-      const slugOverride = colD; // D: optional explicit slug (use when site slug differs)
+      const itemRaw = colA;                // raw Item text from sheet (may include "(Optional)")
+      // Remove trailing " (Optional)" (case-insensitive, flexible spacing) for display
+      const displayItem = itemRaw.replace(/\s*\(\s*optional\s*\)\s*$/i, '').trim();
+      const item = displayItem;            // use this cleaned label for UI
+      const name = colB;                   // B: Name or hymn title with number
+      const extra = colC;                  // C: Extra Info
+      const slugOverride = colD;           // D: optional explicit slug (use when site slug differs)
     
       // Skip any row where the Name column (B) is empty — prevents rendering empty optional rows
       if (!name) {
@@ -267,6 +270,7 @@ async function run(){
         continue;
       }
     
+      // Use cleaned item when building the match key so "Speaker (Optional)" matches "speaker"
       const key = normalizeItemKey(item);
     
       // handle hymns which may be in the "Name" column with leading number
@@ -285,7 +289,7 @@ async function run(){
     
         // Pass slugOverride into getHymnUrl so explicit slugs in column D are used when present
         const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
-        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
+        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl)); // use cleaned item label
         any = true;
         continue;
       }
@@ -299,7 +303,7 @@ async function run(){
     
       // Invocation, Benediction, Closing Prayer, Musical Number etc.
       if (key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')) {
-        container.appendChild(createRow(item, name, ''));
+        container.appendChild(createRow(item, name, '')); // use cleaned item label for display
         any = true;
         continue;
       }
@@ -310,7 +314,7 @@ async function run(){
         continue;
       }
     
-      // catch-all: render generic row
+      // catch-all: render generic row using cleaned label
       container.appendChild(createRow(item, name, extra));
       any = true;
     }
