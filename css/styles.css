@@ -106,10 +106,12 @@ body{
 .meta-extra{
   display:flex;
   justify-content:space-between;
-  margin-top:8px;
-  padding:0 6px;
+  margin-top:10px;
+  padding:0 18px;   /* adds breathing room left and right */
   font-size:14px;
   color:var(--muted);
+  max-width:720px;
+  margin:10px auto 0 auto;
 }
 
 .meta-left{
