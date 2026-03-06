@@ -124,6 +124,12 @@ body{
 .hymn-title{ font-weight:600; color:#0f1724; }
 .hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
 
+.hymn-link{
+  text-decoration:none;
+  color:inherit;
+  display:block;
+}
+
 /* small styles */
 .muted{ color:var(--muted); }
 .small{ font-size:12px; }
