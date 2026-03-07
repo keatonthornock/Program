@@ -168,8 +168,15 @@ body{
   padding:14px 6px;
   background:none;
   border:none;
+
   border-top:1px solid #e5e7eb;
+  border-bottom:1px solid #e5e7eb;
+
   border-radius:0;
+}
+
+.agenda-item + .agenda-item{
+  border-top:none;
 }
 
 .agenda-item .icon{
