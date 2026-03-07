@@ -40,14 +40,15 @@ body{
   padding:18px;
 }
 
+background-attachment: scroll;
+
 /* ---------- Hero / header ---------- */
 .hero{
   position:relative;
-  width:100vw;
-  margin-left:calc(-50vw + 50%);
-  padding:28px 18px 80px 18px; /* space below to separate hero from the program card */
+  padding:28px 18px 60px 18px;
   color:#fff;
   overflow:hidden;
+  text-align:center;
 }
 
 .hero::before{
@@ -56,12 +57,10 @@ body{
 
 /* hero content sits above the gradient */
 .hero-inner{
-  position:relative;
-  z-index:1;
   display:flex;
-  gap:12px;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
+  gap:12px;
 }
 
 /* stack logo, title and date vertically and center */
