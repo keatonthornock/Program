@@ -32,7 +32,6 @@ body {
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding-top: 18px;              /* restores the vertical spacing you had before */
   box-sizing: border-box;
 }
 
@@ -45,19 +44,18 @@ body {
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
-  /* pull the hero up into the status area AND offset the app's top padding (18px) */
-  margin-top: calc(-env(safe-area-inset-top, 0px) - 18px);
-  /* include safe-area inset inside padding so content avoids notch */
   padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px;
   color: #fff;
   overflow: visible;
 
-  /* banner image */
   background-image: url("../images/banner.png");
   background-position: top center;
   background-repeat: no-repeat;
   background-size: cover;
-  z-index: 0;
+}
+
+.hero + * {
+  margin-top: 18px;
 }
 
 /* hide any old gradient pseudo-element that might remain */
