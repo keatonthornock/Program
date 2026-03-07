@@ -20,6 +20,28 @@ function buildCsvUrl(sheetId, gid){
   return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
+// Helper: create a compact display string for a URL (origin + truncated path)
+function getDisplayUrl(rawUrl, maxLen = 48){
+  try {
+    const u = new URL(rawUrl);
+    const origin = u.hostname.replace(/^www\./,'');
+    let path = (u.pathname === '/' ? '' : u.pathname);
+    if(u.search) path += u.search;
+    // normalize
+    path = path.replace(/\/$/,'');
+    let display = origin + (path ? path : '');
+    if(display.length <= maxLen) return display;
+    // truncate: keep origin + leading part of path
+    const remaining = maxLen - origin.length - 1; // leave room for slash/ellipsis
+    if(remaining <= 6) return origin;
+    const truncated = path.slice(0, Math.max(remaining-1, 0));
+    return origin + (truncated ? truncated + '…' : '…');
+  } catch(e) {
+    // fallback: trim and ellipsize raw
+    return rawUrl.length > maxLen ? rawUrl.slice(0, maxLen-1) + '…' : rawUrl;
+  }
+}
+
 function stripBOM(s){ return s && s.charCodeAt(0) === 0xFEFF ? s.slice(1) : s; }
 
 function parseCSVtoRows(text){
@@ -559,7 +581,14 @@ function renderGeneralConference(adminMap, admRows){
     txt.appendChild(nameEl);
 
     const urlEl = document.createElement('div');
-    urlEl.innerHTML = `<a href="${p.url}" target="_blank" rel="noopener" style="color:var(--accent); text-decoration:none; font-weight:600;">${p.url}</a>`;
+    const a = document.createElement('a');
+    a.href = p.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'gc-url';                // CSS class we'll style
+    a.textContent = getDisplayUrl(p.url);  // shortened display
+    a.title = p.url;                       // full URL on hover
+    urlEl.appendChild(a);
     txt.appendChild(urlEl);
 
     left.appendChild(txt);
