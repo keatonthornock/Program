@@ -687,9 +687,11 @@ function renderHeaderFromAdmin(map, admRows){
       const progContent = program ? program.querySelector('#program-content') : null;
   
       if (progContent) {
-        // remove any leftover placeholder/wrapper so we don't duplicate content
-        const existing = progContent.querySelector('.meeting-placeholder, .stake-wrapper, .gc-wrapper');
-        if (existing) existing.remove();
+        // Only remove any existing conference-events container to avoid duplicates.
+        // Don't remove other wrappers (meeting-placeholder, stake-wrapper, etc.) — they may
+        // contain other important content like Activities or Ward Leadership.
+        const existingEvents = progContent.querySelector('#conference-events');
+        if (existingEvents) existingEvents.remove();
   
         const placeholder = progContent.querySelector('.meeting-placeholder');
         if (placeholder) {
@@ -717,14 +719,15 @@ function renderHeaderFromAdmin(map, admRows){
   
   // General conference behavior (place schedule + watch cards inside the program card)
   if (isGeneralConference) {
-    // ensure we don't already have a GC wrapper or leftover placeholder
+    // Only remove an existing GC wrapper to avoid duplicates.
+    // Do NOT touch other wrappers (meeting-placeholder / stake-wrapper) so Activities / Leadership stay.
     const pc = document.getElementById('program-content');
     if (pc) {
-      const existing = pc.querySelector('.gc-wrapper, .meeting-placeholder, .stake-wrapper');
-      if (existing) existing.remove();
+      const existingGC = pc.querySelector('.gc-wrapper');
+      if (existingGC) existingGC.remove();
     }
   
-    // call our renderer (renderGeneralConference should create a .gc-wrapper inside #program-content)
+    // call renderer (renderGeneralConference should create .gc-wrapper inside #program-content)
     renderGeneralConference(map, admRows);
   } else {
     // remove any general-conference wrapper if present
@@ -734,9 +737,9 @@ function renderHeaderFromAdmin(map, admRows){
       if (existingGC) existingGC.remove();
     }
   }
-
-  document.body.dataset.meetingType = meetingType.toLowerCase();
-}
+  
+    document.body.dataset.meetingType = meetingType.toLowerCase();
+  }
 
 /* ---------- main run flow ---------- */
 async function run(){
