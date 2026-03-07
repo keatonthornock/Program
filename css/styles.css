@@ -11,6 +11,8 @@
 /* ---------- Reset & layout ---------- */
 *{box-sizing:border-box}
 html, body {
+  margin: 0;
+  padding: 0;
   height: 100%;
 }
 
@@ -44,7 +46,14 @@ body {
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
+
+  /* pull up only by the safe-area amount (this is 0 on desktop) */
+  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+
+  /* padding includes safe-area so content stays below the notch.
+     Add your usual top spacing (28px) on top of the safe area. */
   padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px;
+
   color: #fff;
   overflow: visible;
 
@@ -52,6 +61,7 @@ body {
   background-position: top center;
   background-repeat: no-repeat;
   background-size: cover;
+  z-index: 0;
 }
 
 .hero + * {
