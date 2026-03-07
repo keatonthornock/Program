@@ -134,13 +134,13 @@
    y="0"
    xlink:href="#path1"
    id="use1"
-   transform="translate(0,-0.38389031)"
+   transform="translate(0,-0.10968294)"
    style="display:inline" /><use
    x="0"
    y="0"
    xlink:href="#use1"
    id="use2"
-   transform="translate(0,1.2613539)"
+   transform="translate(0,0.98714653)"
    style="display:inline" /><use
    x="0"
    y="0"
@@ -152,7 +152,7 @@
    y="0"
    xlink:href="#use1"
    id="use4"
-   transform="translate(0.8226221,0.82262211)"
+   transform="translate(0.8226221,0.54841474)"
    style="display:none" /><use
    x="0"
    y="0"
