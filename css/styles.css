@@ -10,55 +10,56 @@
 
 /* ---------- Reset & layout ---------- */
 *{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
+html, body {
+  height: 100%;
+}
+
+/* Keep horizontal page inset, but remove top padding so full-bleed hero can reach the top */
+body {
+  margin: 0;
+  padding: 0 18px 18px;           /* top padding removed here */
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   background: var(--bg);
-  color:#111827;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  display:flex;
-  justify-content:center;
-  padding:18px; /* keeps app content inset on left/right */
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  justify-content: center;
 }
 
-/* App container */
-.app{
-  width:100%;
-  max-width:var(--max-width);
-  margin:0 auto;
+/* App container receives the horizontal inset (and the old top spacing) */
+.app {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding-top: 18px;              /* restores the vertical spacing you had before */
+  box-sizing: border-box;
 }
 
-/* ---------- Hero / header ---------- */
-/* This version uses a bitmap banner image (images/banner.png).
-   The hero is pulled up to the very top of the viewport (including iOS safe area).
-   The banner image should itself fade to white toward the bottom to blend with the app background.
+/* Hero: full-bleed banner that reaches into the safe area on iOS.
+   - margin-left keeps the full-bleed (like your previous calc).
+   - margin-top pulls the hero above the body's top so the image sits under the status bar.
+   - padding-top includes the safe-area inset so content avoids the notch.
 */
 .hero{
-  position:relative;
-  width:100vw;
-  /* pull the full-bleed hero up to the very top of the viewport.
-     body has 18px padding; some devices expose a safe-area inset. */
-  margin-left:calc(-50vw + 50%);
-  margin-top: calc(-18px - env(safe-area-inset-top, 0px));
-  /* top padding preserved so internal content keeps breathing room;
-     we add the safe-area top to the padding so the logo/text don't clash with the notch. */
-  padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px;
-  color:#fff;
-  overflow:visible;
-  /* banner image: choose cover so it stretches full width; the banner should visually fade to white */
+  position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-top: calc(-env(safe-area-inset-top, 0px));   /* pull into the iOS status area */
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px; /* include safe area in top padding */
+  color: #fff;
+  overflow: visible;
+
+  /* banner image */
   background-image: url("../images/banner.png");
   background-position: top center;
   background-repeat: no-repeat;
-  background-size: cover;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  z-index:0;
+  background-size: cover; /* or "100% auto" if you want a fixed banner height */
+  z-index: 0;
 }
 
-/* hide the old gradient pseudo-element if present */
-.hero::before{ display:none !important; }
+/* hide any old gradient pseudo-element that might remain */
+.hero::before { display: none !important; }
 
 /* hero-inner sits above the banner image */
 .hero-inner{
