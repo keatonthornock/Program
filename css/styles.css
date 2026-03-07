@@ -168,7 +168,7 @@ body{
   padding:14px 6px;
   background:none;
   border:none;
-  border-bottom:1px solid #e5e7eb;
+  border-top:1px solid #e5e7eb;
   border-radius:0;
 }
 
@@ -296,6 +296,10 @@ body{
   position: relative;
   z-index: 1;
   padding-bottom: 8px;
+}
+
+.program-content .agenda-item:first-child{
+  border-top:none;
 }
 
 .program-content > *:last-child{
