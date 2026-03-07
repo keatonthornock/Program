@@ -232,6 +232,33 @@ body {
 }
 #gc-watch-cards .event-card { cursor: pointer; }
 
+/* General Conference watch card URL: compact label + wrap safely */
+#gc-watch-cards a.gc-url,
+#gc-watch-cards .gc-url {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  display: block;
+  overflow-wrap: anywhere;    /* allow long URLs to wrap */
+  word-break: break-word;     /* fallback for older browsers */
+  hyphens: none;
+  max-width: 100%;
+}
+
+/* Keep the left area (icon + name) from squashing the URL area */
+#gc-watch-cards .event-card > div:first-child {
+  min-width: 0; /* allow flex shrinking */
+}
+
+/* ensure the text column can shrink/wrap within the card */
+#gc-watch-cards .event-card .gc-url,
+#gc-watch-cards .event-card .event-left {
+  min-width: 0;
+}
+
+/* Optional: if you want a lighter visual for very long links, limit font-size on the URL */
+#gc-watch-cards a.gc-url { font-size: 13px; }
+
 /* ---------- Event cards ---------- */
 .event-card { background:#fff; border-radius:10px; padding:12px; border:1px solid rgba(11,74,106,0.06); box-shadow:0 6px 18px rgba(12,18,22,0.04); display:flex; align-items:center; justify-content:space-between; }
 .event-left{ display:flex; flex-direction:column; gap:6px; }
