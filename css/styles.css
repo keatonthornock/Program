@@ -222,6 +222,16 @@ body {
 }
 #conference-events{ margin-top:0; }
 
+.gc-schedule th, .gc-schedule td {
+  border: none;
+  padding: 8px 6px;
+}
+.gc-schedule tbody tr td {
+  font-size: 14px;
+  color: #0f1724;
+}
+#gc-watch-cards .event-card { cursor: pointer; }
+
 /* ---------- Event cards ---------- */
 .event-card { background:#fff; border-radius:10px; padding:12px; border:1px solid rgba(11,74,106,0.06); box-shadow:0 6px 18px rgba(12,18,22,0.04); display:flex; align-items:center; justify-content:space-between; }
 .event-left{ display:flex; flex-direction:column; gap:6px; }
