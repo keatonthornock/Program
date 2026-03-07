@@ -45,8 +45,10 @@ body {
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
-  margin-top: calc(-env(safe-area-inset-top, 0px));   /* pull into the iOS status area */
-  padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px; /* include safe area in top padding */
+  /* pull the hero up into the status area AND offset the app's top padding (18px) */
+  margin-top: calc(-env(safe-area-inset-top, 0px) - 18px);
+  /* include safe-area inset inside padding so content avoids notch */
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px;
   color: #fff;
   overflow: visible;
 
@@ -54,7 +56,7 @@ body {
   background-image: url("../images/banner.png");
   background-position: top center;
   background-repeat: no-repeat;
-  background-size: cover; /* or "100% auto" if you want a fixed banner height */
+  background-size: cover;
   z-index: 0;
 }
 
