@@ -140,6 +140,7 @@ function getAgendaIcon(type){
   if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
   if(type === "speaker") return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
   if(type === "prayer") return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
+  if(type === "music") return `<img src="./icons/musicnumber.svg" class="agenda-icon" alt="">`;
   return "";
 }
 
@@ -550,7 +551,7 @@ async function run(){
 
       if(key.includes('musical')){
         if(!isTestimony){
-          container.appendChild(createRow('Musical Number', name, extra));
+          container.appendChild(createRow('Musical Number', name, extra, 'music'));
           any = true;
         }
         continue;
