@@ -13,23 +13,14 @@
 html,body{height:100%}
 body{
   margin:0;
-  min-height:100vh;
-
   font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-
-  background: url("../images/background.jpg") center / cover no-repeat fixed;
+  background: var(--bg);
   color:#111827;
-
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
-}
-
-html{
-  height:100%;
-}
-
-body{
-  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  padding:18px; /* keeps app content inset on left/right */
 }
 
 /* App container */
@@ -37,30 +28,46 @@ body{
   width:100%;
   max-width:var(--max-width);
   margin:0 auto;
-  padding:18px;
 }
-
-background-attachment: scroll;
 
 /* ---------- Hero / header ---------- */
+/* This version uses a bitmap banner image (images/banner.png).
+   The hero is pulled up to the very top of the viewport (including iOS safe area).
+   The banner image should itself fade to white toward the bottom to blend with the app background.
+*/
 .hero{
   position:relative;
-  padding:28px 18px 60px 18px;
+  width:100vw;
+  /* pull the full-bleed hero up to the very top of the viewport.
+     body has 18px padding; some devices expose a safe-area inset. */
+  margin-left:calc(-50vw + 50%);
+  margin-top: calc(-18px - env(safe-area-inset-top, 0px));
+  /* top padding preserved so internal content keeps breathing room;
+     we add the safe-area top to the padding so the logo/text don't clash with the notch. */
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 18px 80px 18px;
   color:#fff;
-  overflow:hidden;
-  text-align:center;
+  overflow:visible;
+  /* banner image: choose cover so it stretches full width; the banner should visually fade to white */
+  background-image: url("../images/banner.png");
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  z-index:0;
 }
 
-.hero::before{
-  display:none;
-}
+/* hide the old gradient pseudo-element if present */
+.hero::before{ display:none !important; }
 
-/* hero content sits above the gradient */
+/* hero-inner sits above the banner image */
 .hero-inner{
+  position:relative;
+  z-index:1;
   display:flex;
-  flex-direction:column;
-  align-items:center;
   gap:12px;
+  align-items:center;
+  justify-content:center;
 }
 
 /* stack logo, title and date vertically and center */
@@ -73,21 +80,21 @@ background-attachment: scroll;
   gap:8px;
 }
 
-/* logo: no forced white plate, allow transparency to show through */
+/* logo: transparent PNGs will show through; keep a natural size */
 .hero img{
   display:block;
-  background: transparent;  /* do not force a white background */
+  background: transparent;
   padding: 0;
   border-radius: 0;
   width: auto;
   height: auto;
-  max-height: 120px;        /* adjust to taste (desktop) */
-  max-width: 48%;           /* prevents logo from becoming overly wide */
+  max-height: 120px;        /* desktop */
+  max-width: 48%;
   object-fit: contain;
   box-shadow: none;
 }
 
-/* smaller logo on very small screens */
+/* smaller logo on small screens */
 @media (max-width:520px){
   .hero img { max-height: 84px; max-width: 60%; }
 }
@@ -96,7 +103,7 @@ background-attachment: scroll;
 .org{ font-size:13px; font-weight:600; letter-spacing:0.08em; opacity:0.95; }
 .suborg{ display:block; font-weight:400; font-size:11px; letter-spacing:0.08em; margin-top:2px;}
 .meeting-heading{ font-family: "Merriweather", serif; margin:10px 0 0; font-size:22px; }
-.meeting-date{ margin-top:6px; color:rgba(255,255,255,0.9); font-size:14px; }
+.meeting-date{ margin-top:6px; color:rgba(255,255,255,0.95); font-size:14px; }
 
 /* ---------- Generic card ---------- */
 .card{
@@ -109,7 +116,7 @@ background-attachment: scroll;
   border:1px solid rgba(0,0,0,0.04);
 }
 
-/* ---------- Meta box (presiding / conducting / chorister / organist) ---------- */
+/* ---------- Meta box ---------- */
 .meta-box{
   margin-top:12px;
   background:#fff;
@@ -118,14 +125,10 @@ background-attachment: scroll;
   border:1px solid rgba(12,18,22,0.035);
   box-shadow:0 6px 18px rgba(12,18,22,0.04);
 }
-.meta-line{
-  font-size:15px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
+.meta-line{ font-size:15px; color:var(--muted); margin-bottom:6px; }
 .meta-line:last-child{ margin-bottom:0; }
 
-/* Chorister / Organist neat spacing — small left/right padding so names aren't flush */
+/* Chorister / Organist neat spacing */
 .meta-extra{
   display:flex;
   justify-content:space-between;
@@ -142,23 +145,18 @@ background-attachment: scroll;
 /* ---------- Program list / agenda ---------- */
 .program-content{ display:flex; flex-direction:column; gap:10px; padding:0; }
 
-.agenda-icon{
-  width:40px;
-  height:40px;
-  display:block;
-  object-fit:contain;
-}
+.agenda-icon{ width:40px; height:40px; display:block; object-fit:contain; }
 
 .agenda-item .icon{
   width:44px;
   height:44px;
-  min-width:44px;   /* prevents flexbox stretching */
+  min-width:44px;
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
-/* generic agenda row */
+/* generic agenda row: simplified lined look (non-hymn items) */
 .agenda-item{
   display:flex;
   align-items:center;
@@ -166,37 +164,14 @@ background-attachment: scroll;
   padding:14px 6px;
   background:none;
   border:none;
-
   border-top:1px solid #e5e7eb;
   border-bottom:1px solid #e5e7eb;
-
   border-radius:0;
 }
+.agenda-item + .agenda-item{ border-top:none; }
 
-.agenda-item + .agenda-item{
-  border-top:none;
-}
-
-.agenda-item .icon{
-  width:44px;
-  height:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.agenda-item .title{
-  font-weight:600;
-  font-size:16px;
-  color:#111827;
-}
-
-.agenda-item .sub{
-  font-size:14px;
-  color:var(--muted);
-  margin-top:2px;
-}
-
+.agenda-item .title{ font-weight:600; font-size:16px; color:#111827; }
+.agenda-item .sub{ font-size:14px; color:var(--muted); margin-top:2px; }
 .agenda-item .content{ flex:1; }
 .agenda-item .right{ font-size:13px; color:var(--muted) }
 
@@ -207,20 +182,18 @@ background-attachment: scroll;
   justify-content:space-between;
   padding:12px;
   border-radius:10px;
-  background:#f4f6f7;
+  background:#f4f6f7; /* slightly darker interior as requested */
   border:1px solid rgba(0,0,0,0.04);
   box-shadow:0 1px 3px rgba(0,0,0,0.04);
-
   margin:0;
   margin-bottom:6px;
-  border-bottom:1px solid #e5e7eb
+  border-bottom:1px solid #e5e7eb;
 }
-
 .hymn-card .left{ display:flex; gap:12px; align-items:center; }
-.hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08)}
+.hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08) }
 .hymn-title{ font-weight:600; color:#0f1724; }
 .hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
-.hymn-card:hover{ background:#f1f7fa; }
+.hymn-card:hover{ background:#eef6f9; }
 .hymn-link{ text-decoration:none; color:inherit; display:block; }
 .hymn-arrow{
   width:25px;
@@ -233,83 +206,40 @@ background-attachment: scroll;
 }
 
 /* ---------- Conference events placed inside the program card body ---------- */
-/* this wrapper groups the stake title and the cards inside the program content */
 .stake-wrapper{
   display:flex;
   flex-direction:column;
   gap:12px;
-  padding: 6px 12px 18px 12px; /* keeps the title away from edges and gives breathing room below cards */
+  padding: 6px 12px 18px 12px;
 }
-
-/* centered title inside the program card; smaller and muted */
 .stake-title{
-  font-size:20px;
-  font-weight:700;
-  color: #6b7280;
-  text-align:center;
-  padding: 8px 8px 6px 8px; /* preserves space above and small gap below */
-  margin:0 auto;
+  font-size:20px; font-weight:700; color:#6b7280; text-align:center;
+  padding: 8px 8px 6px 8px; margin:0 auto;
 }
-
-/* container that holds the event cards directly under the stake title */
 .conference-events-body {
-  margin: 0;              /* important: no extra top margin so cards sit immediately under the title */
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  position: relative;
-  z-index: 1;
-  padding: 0;
+  margin: 0; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding: 0;
 }
-
-/* keeps a little space after the cards inside the program card */
 #conference-events{ margin-top:0; }
 
-/* ---------- Event cards (visual language consistent with hymn cards) ---------- */
-.event-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid rgba(11,74,106,0.06);
-  box-shadow: 0 6px 18px rgba(12,18,22,0.04);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+/* ---------- Event cards ---------- */
+.event-card { background:#fff; border-radius:10px; padding:12px; border:1px solid rgba(11,74,106,0.06); box-shadow:0 6px 18px rgba(12,18,22,0.04); display:flex; align-items:center; justify-content:space-between; }
 .event-left{ display:flex; flex-direction:column; gap:6px; }
 .event-title{ font-weight:700; font-size:16px; color:#0f1724; }
 .event-meta{ color:var(--muted); font-size:13px; }
 .event-loc, .event-time { margin-top:2px; }
 .event-address a{ color:var(--accent); text-decoration:none; font-weight:600; display:inline-block; margin-top:6px; }
-
-/* arrow on right (matching hymn arrow stylistically) */
 .event-right .hymn-arrow{ width:24px; height:24px; stroke:var(--accent); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
-/* small screens */
 @media (max-width:520px){
   .event-card{ padding:12px; }
   .event-right{ margin-left:10px; }
 }
 
-/* hero placement fallback for conference cards if they get placed inside hero */
-.hero #conference-events,
-.conference-events-hero{
-  margin-top: 12px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  position: relative;
-  z-index: 1;
-  padding-bottom: 8px;
-}
+/* hero fallback if cards end up in hero */
+.hero #conference-events, .conference-events-hero{ margin-top: 12px; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding-bottom: 8px; }
 
-.program-content .agenda-item:first-child{
-  border-top:none;
-}
-
-.program-content > *:last-child{
-  border-bottom:none;
-}
+.program-content .agenda-item:first-child{ border-top:none; }
+.program-content > *:last-child{ border-bottom:none; }
 
 /* ---------- Small utility styles ---------- */
 .muted{ color:var(--muted); }
@@ -317,149 +247,41 @@ background-attachment: scroll;
 
 /* ---------- Collapsibles ---------- */
 .collapsible{ padding:0; overflow:hidden; }
-.collapsible-toggle{
-  width:100%;
-  background:var(--accent);
-  color:#fff;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  font-weight:600;
-  cursor:pointer;
-  margin-bottom:8px;
-}
-.collapsible-panel{
-  display:none;
-  padding:12px;
-  background:#fff;
-  border-radius:8px;
-  border:1px solid rgba(12,18,22,0.04);
-}
-.list .card-mini{
-  margin-bottom:8px;
-  padding:10px;
-  border-radius:8px;
-  background:#f8fbfc;
-  border:1px solid rgba(11,74,106,0.04)
-}
+.collapsible-toggle{ width:100%; background:var(--accent); color:#fff; padding:12px; border-radius:10px; border:none; display:flex; align-items:center; justify-content:space-between; font-weight:600; cursor:pointer; margin-bottom:8px; }
+.collapsible-panel{ display:none; padding:12px; background:#fff; border-radius:8px; border:1px solid rgba(12,18,22,0.04); }
+.list .card-mini{ margin-bottom:8px; padding:10px; border-radius:8px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.04) }
 .chev{ transform: rotate(0deg); transition: transform .25s ease; }
 .collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
 
-/* Leadership table styling (clean 3-column layout) */
-
-.leadership-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  margin:0;
-  border-radius:8px;
-  overflow:hidden;
-  border:1px solid rgba(11,74,106,0.06);
-}
-
-/* add more breathing room between entries */
-.leadership-table tbody tr{
-  border-bottom:1px solid rgba(11,74,106,0.06);
-}
-
-.leadership-table tbody tr:last-child{
-  border-bottom:none;
-}
-
-/* more vertical padding */
-.leadership-table td{
-  padding:14px 12px;
-  vertical-align:middle;
-  font-size:13px;
-  color:#0f1724;
-}
-
-/* role column */
-.lead-col-role{
-  width:40%;
-  font-weight:600;
-  font-size:13px;
-  color:#0b4a6a;
-}
-
-/* name column */
-.lead-col-name{
-  width:40%;
-  font-weight:500;
-  font-size:13px;
-  color:#111827;
-}
-
-/* contact column */
+/* Leadership table styling */
+.leadership-table{ width:100%; border-collapse:collapse; background:#fff; margin:0; border-radius:8px; overflow:hidden; border:1px solid rgba(11,74,106,0.06); }
+.leadership-table tbody tr{ border-bottom:1px solid rgba(11,74,106,0.06); }
+.leadership-table tbody tr:last-child{ border-bottom:none; }
+.leadership-table td{ padding:14px 12px; vertical-align:middle; font-size:13px; color:#0f1724; }
+.lead-col-role{ width:40%; font-weight:600; font-size:13px; color:#0b4a6a; }
+.lead-col-name{ width:40%; font-weight:500; font-size:13px; color:#111827; }
 .lead-col-contact{
-  width:20%;
-  text-align:right;
-  font-size:12px;
-  color:var(--muted);
-
-  white-space:nowrap;
-  word-break:keep-all;
-  overflow-wrap:normal;
-
+  width:20%; text-align:right; font-size:12px; color:var(--muted);
+  white-space:nowrap; word-break:keep-all; overflow-wrap:normal;
   min-width:120px;
 }
+.lead-col-contact a{ color:var(--accent); text-decoration:none; display:inline-block; padding:6px 10px; border-radius:8px; white-space:nowrap; }
 
-/* phone link styling */
-.lead-col-contact a{
-  color:var(--accent);
-  text-decoration:none;
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:8px;
-  white-space:nowrap;
-}
-
-/* ---------- Notices, dividers, placeholders ---------- */
+/* Notices, dividers, placeholders */
 .notice{ display:block; margin-top:12px; background:#fff4e6; border:1px solid #f0d7bd; padding:8px; border-radius:8px; color:#7a4b00 }
-
 .agenda-divider{ display:flex; align-items:center; gap:10px; margin:16px 0; }
 .divider-line{ flex:1; height:1px; background:#e5e7eb; }
 .divider-text{ font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#6b7280; white-space:nowrap; }
 
 /* Large centered placeholder for non-sacrament meeting types */
-.meeting-placeholder{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:260px;
-  margin:36px 0;
-  border-radius:12px;
-  background: transparent;
-  box-shadow: none;
-  border: none;
-  width:100%;
-}
-.meeting-placeholder .placeholder-text{
-  font-size:22px;
-  font-weight:700;
-  color:var(--muted);
-  text-align:center;
-  padding:56px 18px;
-  letter-spacing:0.02em;
-}
+.meeting-placeholder{ display:flex; align-items:center; justify-content:center; min-height:260px; margin:36px 0; border-radius:12px; background: transparent; box-shadow: none; border: none; width:100%; }
+.meeting-placeholder .placeholder-text{ font-size:22px; font-weight:700; color:var(--muted); text-align:center; padding:56px 18px; letter-spacing:0.02em; }
 
-/* Testimony banner style (inserted after Administration divider) */
+/* Testimony banner */
 .testimony-banner{ display:flex; justify-content:center; margin:12px 0 18px 0; }
-.testimony-banner .testimony-text{
-  text-transform:uppercase;
-  font-weight:700;
-  letter-spacing:0.06em;
-  color:var(--accent);
-  font-size:14px;
-  border-top:1px solid rgba(11,74,106,0.06);
-  padding-top:12px;
-}
+.testimony-banner .testimony-text{ text-transform:uppercase; font-weight:700; letter-spacing:0.06em; color:var(--accent); font-size:14px; border-top:1px solid rgba(11,74,106,0.06); padding-top:12px; }
 .agenda-divider + .testimony-banner{ margin-top:6px; }
 
-/* Responsive tweaks */
 @media (max-width:420px){
   .hero-inner{ flex-direction:column; gap:6px; }
   .meeting-heading{ font-size:20px; }
