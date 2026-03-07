@@ -316,8 +316,7 @@ function formatContactLink(contact){
 /* ---------- Header rendering + conference logic (replace previous renderHeaderFromAdmin) ---------- */
 
 function findUtcForTimeZoneLocal(year, month, day, hour, minute = 0, timeZone = 'America/Denver'){
-  // Create a UTC candidate and search +/- 12 hours until the formatted wall-clock in timeZone matches the requested Y/M/D/H/M
-  // This returns a Date (UTC) that represents the instant corresponding to the requested wall-clock in timeZone.
+  // Return a Date object (UTC instant) that maps to the requested wall-clock in the given timeZone.
   function partsFor(date, tz){
     const fmt = new Intl.DateTimeFormat('en-US', {
       timeZone: tz,
@@ -331,24 +330,17 @@ function findUtcForTimeZoneLocal(year, month, day, hour, minute = 0, timeZone = 
     return parts;
   }
 
-  // build base candidate as UTC for the same Y-M-D-H-M (it won't be correct yet, we'll search)
   const utcBase = Date.UTC(year, month - 1, day, hour, minute, 0);
-  // test offsets in range [-12..+12] hours (step minutes could be used but hour steps suffice)
+  // search +/- 12 hours for the instant that matches the requested wall-clock in the timezone
   for(let offset = -12; offset <= 12; offset++){
     const cand = new Date(utcBase + offset * 3600 * 1000);
     const p = partsFor(cand, timeZone);
-    // Normalize numeric parsing
-    const py = Number(p.year);
-    const pm = Number(p.month);
-    const pd = Number(p.day);
-    const ph = Number(p.hour);
-    const pmin = Number(p.minute);
+    const py = Number(p.year), pm = Number(p.month), pd = Number(p.day), ph = Number(p.hour), pmin = Number(p.minute);
     if(py === year && pm === month && pd === day && ph === hour && pmin === minute){
-      return cand; // found the UTC instant that maps to the requested local wallclock for the timezone
+      return cand;
     }
   }
-  // fallback: return Date constructed from utcBase (less correct but avoids runtime errors)
-  return new Date(utcBase);
+  return new Date(utcBase); // fallback
 }
 
 function formatLocalForInstant(date /* Date object */, locales){
@@ -364,13 +356,16 @@ function formatLocalForInstant(date /* Date object */, locales){
 }
 
 function renderGeneralConference(adminMap, admRows){
-  // program content container
   const pc = document.getElementById('program-content');
   if(!pc) return;
 
-  // create wrapper for general conference (same approach as stake wrapper)
+  // build or replace GC wrapper (we use stake-wrapper styles for consistent look)
+  // remove any existing GC wrapper first to avoid duplicates
+  const existingGc = pc.querySelector('.gc-wrapper');
+  if(existingGc) existingGc.remove();
+
   const wrapper = document.createElement('div');
-  wrapper.className = 'stake-wrapper'; // re-use same styling, it's fine
+  wrapper.className = 'stake-wrapper gc-wrapper';
 
   // Title
   const titleDiv = document.createElement('div');
@@ -378,7 +373,54 @@ function renderGeneralConference(adminMap, admRows){
   titleDiv.textContent = 'GENERAL CONFERENCE';
   wrapper.appendChild(titleDiv);
 
-  // Schedule table (Date / Session / Time)
+  // Determine the saturday & sunday to display:
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight local
+  const day = today.getDay(); // 0 = Sunday ... 6 = Saturday
+  let satDate, sunDate;
+
+  // If adminMap provided explicit keys use them (same logic as earlier)
+  const gcSatKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('saturday') && k.includes('date'));
+  const gcSunKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('sunday') && k.includes('date'));
+  const gcAnyKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('date') && !k.includes('time'));
+
+  function parseAdminDate(val){
+    if(!val) return null;
+    const d = new Date(val);
+    if(!isNaN(d)) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return null;
+  }
+
+  if(gcSatKey) satDate = parseAdminDate(adminMap[gcSatKey]);
+  if(gcSunKey) sunDate = parseAdminDate(adminMap[gcSunKey]);
+  if(!satDate && !sunDate && gcAnyKey){
+    const base = parseAdminDate(adminMap[gcAnyKey]);
+    if(base){
+      // derive saturday and sunday around that base date
+      const bDay = base.getDay();
+      // move to nearest saturday of that week
+      const saturday = new Date(base);
+      saturday.setDate(base.getDate() + ((6 - bDay + 7) % 7));
+      const sunday = new Date(saturday); sunday.setDate(saturday.getDate() + 1);
+      satDate = saturday;
+      sunDate = sunday;
+    }
+  }
+
+  // If admin didn't give dates, compute the "conference weekend" as the upcoming Saturday & Sunday,
+  // but special-case Sunday so that Sunday shows the Saturday from the same weekend (yesterday).
+  if(!satDate || !sunDate){
+    if(day === 0){ // Sunday -> show yesterday (sat) and today (sun)
+      satDate = new Date(today); satDate.setDate(today.getDate() - 1);
+      sunDate = new Date(today);
+    } else {
+      const daysUntilSat = (6 - day + 7) % 7; // 0..6 (if today saturday => 0)
+      satDate = new Date(today); satDate.setDate(today.getDate() + daysUntilSat);
+      sunDate = new Date(satDate); sunDate.setDate(satDate.getDate() + 1);
+    }
+  }
+
+  // Build schedule table (no Saturday Evening session)
   const table = document.createElement('table');
   table.className = 'gc-schedule';
   table.style.width = '100%';
@@ -402,81 +444,22 @@ function renderGeneralConference(adminMap, admRows){
 
   const tbody = document.createElement('tbody');
 
-  // find base dates if adminMap supplied; keys we look for:
-  // 'general conference saturday date' and 'general conference sunday date' or 'general conference date'
-  const gcSatKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('saturday') && k.includes('date'));
-  const gcSunKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('sunday') && k.includes('date'));
-  const gcAnyKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('date') && !k.includes('time'));
-
-  function parseAdminDate(val){
-    if(!val) return null;
-    const d = new Date(val);
-    if(!isNaN(d)) return d;
-    // fallback: try parsing MM/DD/YYYY or YYYY-MM-DD - Date tries both on many browsers but this covers basic cases
-    return null;
-  }
-
-  let satDate = gcSatKey ? parseAdminDate(adminMap[gcSatKey]) : null;
-  let sunDate = gcSunKey ? parseAdminDate(adminMap[gcSunKey]) : null;
-
-  if(!satDate || !sunDate){
-    // if admin sheet gave single general conference date, place saturday = that saturday of the upcoming weekend
-    if(gcAnyKey && adminMap[gcAnyKey]){
-      const base = parseAdminDate(adminMap[gcAnyKey]);
-      if(base){
-        // derive saturday and sunday of that weekend
-        const d = new Date(base.getFullYear(), base.getMonth(), base.getDate());
-        // find saturday of that week
-        const day = d.getDay(); // 0 Sunday ... 6 Saturday
-        // rotate
-        const saturday = new Date(d);
-        saturday.setDate(d.getDate() + ((6 - day + 7) % 7));
-        const sunday = new Date(saturday);
-        sunday.setDate(saturday.getDate() + 1);
-        satDate = saturday;
-        sunDate = sunday;
-      }
-    }
-  }
-
-  // If still not available, compute next weekend (upcoming saturday and sunday)
-  if(!satDate || !sunDate){
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const day = today.getDay(); // 0..6
-    // days until saturday:
-    const daysUntilSat = (6 - day + 7) % 7 || 7; // if today saturday => next saturday in 7 days; we want the upcoming weekend, choose smallest positive number (allow 0? choose daysUntilSat = (6-day+7)%7)
-    const nextSat = new Date(today);
-    nextSat.setDate(today.getDate() + daysUntilSat);
-    const nextSun = new Date(nextSat);
-    nextSun.setDate(nextSat.getDate() + 1);
-    satDate = satDate || nextSat;
-    sunDate = sunDate || nextSun;
-  }
-
-  // sessions mapping: name, date (sat/sun), hour (24h)
   const sessions = [
     { session: 'Saturday Morning Session', date: satDate, hour: 10 },
     { session: 'Saturday Afternoon Session', date: satDate, hour: 14 },
-    { session: 'Saturday Evening Session', date: satDate, hour: 18 },
     { session: 'Sunday Morning Session', date: sunDate, hour: 10 },
     { session: 'Sunday Afternoon Session', date: sunDate, hour: 14 }
   ];
 
-  // user's locale for formatting
   const userLocales = navigator.languages && navigator.languages.length ? navigator.languages[0] : navigator.language || 'en-US';
 
   sessions.forEach(s => {
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid rgba(0,0,0,0.04)';
-    tr.style.padding = '6px 0';
 
     const tdDate = document.createElement('td');
     tdDate.style.padding = '10px 6px';
-    tdDate.style.verticalAlign = 'top';
-
     if(s.date && s.date instanceof Date){
-      // display date short (Mon Apr 4) in user's locale
       tdDate.textContent = new Intl.DateTimeFormat(userLocales, { weekday:'short', month:'short', day:'numeric' }).format(s.date);
     } else {
       tdDate.textContent = '';
@@ -484,22 +467,16 @@ function renderGeneralConference(adminMap, admRows){
 
     const tdSession = document.createElement('td');
     tdSession.style.padding = '10px 6px';
-    tdSession.style.verticalAlign = 'top';
     tdSession.textContent = s.session;
 
     const tdTime = document.createElement('td');
     tdTime.style.padding = '10px 6px';
-    tdTime.style.verticalAlign = 'top';
-
     if(s.date){
-      // compute the UTC instant matching America/Denver local wall clock for the session
       const y = s.date.getFullYear();
       const m = s.date.getMonth() + 1;
       const d = s.date.getDate();
-      const instant = findUtcForTimeZoneLocal(y, m, d, s.hour, 0, 'America/Denver'); // returns Date (UTC instant)
-      // format in user's locale and show zone abbreviation of user's locale
+      const instant = findUtcForTimeZoneLocal(y, m, d, s.hour, 0, 'America/Denver');
       const userTimeString = new Intl.DateTimeFormat(userLocales, { hour:'numeric', minute:'2-digit', timeZoneName:'short' }).format(instant);
-      // also show the source mountain time / label
       const mountainTimeString = new Intl.DateTimeFormat('en-US', { hour:'numeric', minute:'2-digit', timeZone:'America/Denver', timeZoneName:'short' }).format(instant);
       tdTime.textContent = `${userTimeString} (${mountainTimeString})`;
     } else {
@@ -515,7 +492,7 @@ function renderGeneralConference(adminMap, admRows){
   table.appendChild(tbody);
   wrapper.appendChild(table);
 
-  // subtitle text
+  // subtitle & watch cards (reuse same platform list as before)
   const subtitle = document.createElement('div');
   subtitle.style.fontWeight = 700;
   subtitle.style.color = 'var(--muted)';
@@ -523,10 +500,9 @@ function renderGeneralConference(adminMap, admRows){
   subtitle.textContent = 'Where can I watch General Conference?';
   wrapper.appendChild(subtitle);
 
-  // card list for watch options
   const platforms = [
     { name: 'Church Broadcasts', url: 'https://www.churchofjesuschrist.org/media/broadcasts?lang=eng' },
-    { name: 'General Conference (articles & watch)', url: 'https://www.churchofjesuschrist.org/study/general-conference?lang=eng' },
+    { name: 'General Conference', url: 'https://www.churchofjesuschrist.org/study/general-conference?lang=eng' },
     { name: 'Ways to Watch', url: 'https://www.churchofjesuschrist.org/learn/ways-to-watch-general-conference?lang=eng' },
     { name: 'YouTube', url: 'https://www.youtube.com/churchofjesuschrist' },
     { name: 'Gospel Stream / Apps', url: 'https://www.churchofjesuschrist.org/learn/gospel-stream-mobile-and-ott-app?lang=eng' },
@@ -546,18 +522,16 @@ function renderGeneralConference(adminMap, admRows){
 
   platforms.forEach(p => {
     const el = document.createElement('div');
-    el.className = 'event-card'; // reuse event card style
+    el.className = 'event-card';
     el.style.cursor = 'pointer';
     el.style.alignItems = 'center';
 
-    // left: favicon + title
     const left = document.createElement('div');
     left.style.display = 'flex';
     left.style.gap = '12px';
     left.style.alignItems = 'center';
 
     const img = document.createElement('img');
-    // use google s2 favicon. If you prefer local favicons, replace domain extraction below
     try{
       const urlObj = new URL(p.url);
       img.src = `https://www.google.com/s2/favicons?sz=64&domain=${urlObj.origin}`;
@@ -590,7 +564,6 @@ function renderGeneralConference(adminMap, admRows){
 
     left.appendChild(txt);
 
-    // right: arrow
     const right = document.createElement('div');
     right.innerHTML = `<svg class="hymn-arrow" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>`;
     right.style.marginLeft = '8px';
@@ -598,10 +571,9 @@ function renderGeneralConference(adminMap, admRows){
     el.appendChild(left);
     el.appendChild(right);
 
-    // click opens url (but anchor also present)
     el.addEventListener('click', (e) => {
       const a = e.target.closest('a');
-      if(a) return; // let anchor handle it
+      if(a) return;
       window.open(p.url, '_blank', 'noopener');
     });
 
@@ -610,12 +582,7 @@ function renderGeneralConference(adminMap, admRows){
 
   wrapper.appendChild(cardsContainer);
 
-  // append the whole wrapper inside program-content (you said cards should be directly under the title inside the same card)
-  // find if there is a meeting-placeholder (for non-sacrament types) and remove it
-  const existingPlaceholder = pc.querySelector('.meeting-placeholder');
-  if(existingPlaceholder) existingPlaceholder.remove();
-
-  // Insert wrapper at the top of program content so it sits directly under the program card heading
+  // Insert wrapper at top of program content (so title + table + subtitle + cards appear inside the program card)
   pc.insertBefore(wrapper, pc.firstChild);
 }
 
