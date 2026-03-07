@@ -675,46 +675,63 @@ function renderHeaderFromAdmin(map, admRows){
   }
 
   // Stake conference behavior
-  if(isStakeConference){
+  if (isStakeConference) {
     const events = parseConferenceEvents(admRows);
     let container = document.getElementById('conference-events');
-    if(!container){
+    if (!container) {
       container = document.createElement('div');
       container.id = 'conference-events';
       container.className = 'conference-events-body';
+  
       const program = document.getElementById('program');
       const progContent = program ? program.querySelector('#program-content') : null;
-      if(progContent){
+  
+      if (progContent) {
+        // remove any leftover placeholder/wrapper so we don't duplicate content
+        const existing = progContent.querySelector('.meeting-placeholder, .stake-wrapper, .gc-wrapper');
+        if (existing) existing.remove();
+  
         const placeholder = progContent.querySelector('.meeting-placeholder');
-        if(placeholder) placeholder.after(container);
-        else progContent.appendChild(container);
-      } else if(program && program.parentNode){
+        if (placeholder) {
+          placeholder.after(container);
+        } else {
+          progContent.appendChild(container);
+        }
+      } else if (program && program.parentNode) {
         program.parentNode.insertBefore(container, program.nextSibling);
       } else {
         document.querySelector('.app').appendChild(container);
       }
     }
+  
     container.innerHTML = '';
-    if(events && events.length) events.forEach(ev => container.appendChild(createEventCard(ev)));
-    else container.innerHTML = `<div class="muted small">No stake conference events found in Administrative sheet.</div>`;
+    if (events && events.length) {
+      events.forEach(ev => container.appendChild(createEventCard(ev)));
+    } else {
+      container.innerHTML = `<div class="muted small">No stake conference events found in Administrative sheet.</div>`;
+    }
   } else {
     const container = document.getElementById('conference-events');
-    if(container && container.parentNode) container.parentNode.removeChild(container);
+    if (container && container.parentNode) container.parentNode.removeChild(container);
   }
-
+  
   // General conference behavior (place schedule + watch cards inside the program card)
-  if(isGeneralConference){
-    // call our renderer
+  if (isGeneralConference) {
+    // ensure we don't already have a GC wrapper or leftover placeholder
+    const pc = document.getElementById('program-content');
+    if (pc) {
+      const existing = pc.querySelector('.gc-wrapper, .meeting-placeholder, .stake-wrapper');
+      if (existing) existing.remove();
+    }
+  
+    // call our renderer (renderGeneralConference should create a .gc-wrapper inside #program-content)
     renderGeneralConference(map, admRows);
   } else {
     // remove any general-conference wrapper if present
     const pc = document.getElementById('program-content');
-    if(pc){
-      const existing = pc.querySelector('.stake-wrapper');
-      // careful: don't remove stake-wrapper if it contains stake conference data — only remove the GC wrapper variant
-      if(existing && existing.querySelector('#gc-watch-cards')){
-        existing.remove();
-      }
+    if (pc) {
+      const existingGC = pc.querySelector('.gc-wrapper');
+      if (existingGC) existingGC.remove();
     }
   }
 
