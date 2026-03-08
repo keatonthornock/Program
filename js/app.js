@@ -915,6 +915,28 @@ function renderHeaderFromAdmin(map, admRows){
   $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
   $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
 
+  // --- new: Meeting Time line (from Admin "Meeting Time" key) ---
+  const meetingTime = (map['meeting time'] || '').toString().trim();
+  let meetingTimeEl = document.getElementById('meeting-time');
+  if (!meetingTimeEl) {
+    meetingTimeEl = document.createElement('div');
+    meetingTimeEl.id = 'meeting-time';
+    meetingTimeEl.className = 'meeting-time';
+    // Insert before the visitor-line (if present) so it appears above the visitor CTA
+    const heroText = document.querySelector('.hero-text');
+    const visitorLine = document.getElementById('visitor-line');
+    if (heroText) {
+      if (visitorLine) heroText.insertBefore(meetingTimeEl, visitorLine);
+      else heroText.appendChild(meetingTimeEl);
+    }
+  }
+  if (meetingTime) {
+    meetingTimeEl.textContent = `Weekly Meeting Time: ${meetingTime}`;
+    meetingTimeEl.style.display = '';
+  } else {
+    meetingTimeEl.style.display = 'none';
+  }
+
   const mtLower = meetingType.toLowerCase();
   const isStakeConference = mtLower.includes('stake conference') || mtLower.includes('stake meeting') || mtLower === 'stake conference' || mtLower === 'stake';
   const isGeneralConference = mtLower.includes('general conference') || mtLower === 'general conference' || mtLower.includes('general');
