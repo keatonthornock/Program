@@ -79,6 +79,9 @@ body {
   gap:12px;
   align-items:center;
   justify-content:center;
+
+  /* ensure contents can align vertically inside the hero area */
+  min-height: 140px;            /* increase if you want more vertical space */
 }
 
 /* stack logo, title and date vertically and center */
@@ -88,7 +91,9 @@ body {
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:8px;
+  justify-content:flex-end;    /* <--- pushes small items like visitor-line toward the bottom */
+  gap:10px;
+  padding-bottom: 12px;        /* breathing room from the hero bottom */
 }
 
 /* logo: transparent PNGs will show through; keep a natural size */
@@ -276,12 +281,12 @@ body {
 }
 
 /* visitor line text */
-.visitor-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 12px;
+.visitor-line{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  margin-top:8px;
 }
 
 #info-note.notice {
@@ -302,14 +307,17 @@ body {
   text-align: center;
   background: transparent;
 }
+
 #footer-logo {
-  display: inline-block;
-  max-width: 160px;   /* size down the tall image */
-  width: 28%;
-  height: auto;
+  display:inline-block;
+  width: 220px;      /* target desktop size; tweak as needed */
+  max-width: 60%;    /* responsive fallback on tiny viewports */
+  height: auto;      /* preserve aspect ratio */
   object-fit: contain;
 }
-
+@media (max-width:520px){
+  #footer-logo { width: 160px; }
+}
 /* ---------- Conference events placed inside the program card body ---------- */
 .stake-wrapper{
   display:flex;
