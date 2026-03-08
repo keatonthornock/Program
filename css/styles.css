@@ -216,6 +216,13 @@ body {
   stroke-linejoin:round;
 }
 
+/* announcements */
+.announcements-wrapper { margin-bottom:12px; }
+.announcements-wrapper .collapsible-toggle { background:transparent; color:var(--accent); border-radius:8px; padding:10px 12px; border:1px solid rgba(11,74,106,0.06); }
+.announcements-wrapper .collapsible-panel { background: transparent; border-radius:6px; padding:8px 12px; }
+.announcements-wrapper .announcement-item p { color:#0f1724; margin:0; line-height:1.4; }
+.announcements-wrapper .announcement-item a { text-decoration:none; }
+
 /* ---------- Conference events placed inside the program card body ---------- */
 .stake-wrapper{
   display:flex;
