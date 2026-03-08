@@ -1071,12 +1071,12 @@ async function run(){
       const ll = document.getElementById('leaders-list');
       if (ll) ll.innerHTML = '<div class="muted small">No leadership data found.</div>';
     }
-
-    // render announcements (top of the three sections)
-    renderAnnouncements(admRows);
     
     // Now render header and conference events AFTER the program content has been generated.
     renderHeaderFromAdmin(adminMap, admRows);
+
+     // render announcements (top of the three sections)
+    renderAnnouncements(admRows);
 
     clearError();
 
