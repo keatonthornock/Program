@@ -226,6 +226,128 @@ function createDivider(label){
   return el;
 }
 
+/* ---------- Announcements parsing + rendering ---------- */
+function parseAnnouncements(admRows){
+  // returns [{text: '...', url: '...'}, ...] or [] if none
+  if(!Array.isArray(admRows)) return [];
+  for(let i=0;i<admRows.length;i++){
+    const row = (admRows[i] || []).map(c => (c||'').toString().trim().toLowerCase());
+    if(!row[0]) continue;
+    // find header row that includes "announcement" in first column
+    if(row[0].includes('announcement') || row[0].includes('announcements')){
+      // confirm second column is header-ish (optional)
+      // collect following rows until blank first cell
+      const out = [];
+      for(let j = i + 1; j < admRows.length; j++){
+        const r = admRows[j];
+        if(!r || !r[0] || r[0].toString().trim() === '') break;
+        const txt = (r[0]||'').toString().trim();
+        const url = (r[1]||'').toString().trim();
+        if(txt) out.push({ text: txt, url: url || null });
+      }
+      return out;
+    }
+  }
+  return [];
+}
+
+function renderAnnouncements(admRows){
+  const pc = document.getElementById('program-content');
+  if(!pc) return;
+
+  // remove existing wrapper to avoid duplicates
+  const prev = pc.querySelector('.announcements-wrapper');
+  if(prev) prev.remove();
+
+  const announcements = parseAnnouncements(admRows);
+  if(!announcements || announcements.length === 0) return; // nothing to render
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'announcements-wrapper card'; // reuse card styles for consistent look
+  wrapper.style.padding = ''; // card already has padding, preserve CSS flow
+
+  // header: collapsible
+  const headerId = 'announcements-panel';
+  const toggle = document.createElement('button');
+  toggle.className = 'collapsible-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('data-target', headerId);
+  toggle.type = 'button';
+  toggle.innerHTML = `<span style="font-weight:700">Announcements</span><span class="chev">▾</span>`;
+  wrapper.appendChild(toggle);
+
+  // panel
+  const panel = document.createElement('div');
+  panel.className = 'collapsible-panel';
+  panel.id = headerId;
+  panel.style.display = 'none';
+  panel.style.padding = '12px';
+  panel.style.paddingTop = '10px';
+
+  // build announcement entries
+  announcements.forEach((a, idx) => {
+    const item = document.createElement('div');
+    item.className = 'announcement-item';
+    item.style.padding = '8px 0';
+    item.style.display = 'flex';
+    item.style.flexDirection = 'column';
+    item.style.gap = '8px';
+
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.style.margin = '0';
+    p.style.color = '#0f1724';
+    p.style.fontSize = '14px';
+    p.textContent = a.text;
+    item.appendChild(p);
+
+    if(a.url){
+      const aWrap = document.createElement('div');
+      aWrap.style.marginTop = '2px';
+      const btn = document.createElement('a');
+      btn.className = 'lead-col-contact'; // re-use compact link style, tweak below in CSS if needed
+      btn.href = a.url;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.textContent = 'Open link';
+      // small inline style to look like a button
+      btn.style.display = 'inline-block';
+      btn.style.padding = '8px 12px';
+      btn.style.borderRadius = '8px';
+      btn.style.background = 'var(--accent-2)';
+      btn.style.color = 'var(--accent)';
+      btn.style.fontWeight = '700';
+      btn.style.textDecoration = 'none';
+      aWrap.appendChild(btn);
+      item.appendChild(aWrap);
+    }
+
+    panel.appendChild(item);
+
+    // divider between announcements (except after last)
+    if(idx < announcements.length - 1){
+      const div = document.createElement('div');
+      div.style.height = '1px';
+      div.style.background = '#e5e7eb';
+      div.style.margin = '8px 0';
+      panel.appendChild(div);
+    }
+  });
+
+  wrapper.appendChild(panel);
+
+  // insert wrapper at top of program-content so it becomes the top of the three sections
+  pc.insertBefore(wrapper, pc.firstChild);
+
+  // wire the collapsible toggle (immediate wiring so it works even before the global wiring runs)
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', (!expanded).toString());
+    toggle.querySelector('.chev').textContent = expanded ? '▾' : '▴';
+    panel.style.display = expanded ? 'none' : 'block';
+  });
+}
+
 /* ---------- Conference event parsing + rendering ---------- */
 function parseConferenceEvents(admRows){
   if(!Array.isArray(admRows)) return [];
@@ -950,8 +1072,10 @@ async function run(){
       if (ll) ll.innerHTML = '<div class="muted small">No leadership data found.</div>';
     }
 
+    // render announcements (top of the three sections)
+    renderAnnouncements(admRows);
+    
     // Now render header and conference events AFTER the program content has been generated.
-    // This prevents inserted conference-events from being wiped by the agenda rendering.
     renderHeaderFromAdmin(adminMap, admRows);
 
     clearError();
