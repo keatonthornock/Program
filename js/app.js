@@ -885,6 +885,7 @@ async function run(){
   let adminCsvUrl = config.admin_csv_url || (config.sheet_id && config.admin_gid ? buildCsvUrl(config.sheet_id, config.admin_gid) : null);
   let agendaCsvUrl = config.agenda_csv_url || (config.sheet_id && config.agenda_gid ? buildCsvUrl(config.sheet_id, config.agenda_gid) : null);
   let leadershipCsvUrl = config.leadership_csv_url || (config.sheet_id && config.leadership_gid ? buildCsvUrl(config.sheet_id, config.leadership_gid) : null);
+  let announcementsCsvUrl = config.announcements_csv_url || (config.sheet_id && config.announcements_gid ? buildCsvUrl(config.sheet_id, config.announcements_gid) : null);
 
   if(!adminCsvUrl){
     showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
@@ -898,11 +899,17 @@ async function run(){
   try {
     const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
     if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
+    if (announcementsCsvUrl) fetches.push(fetch(announcementsCsvUrl));
     const responses = await Promise.all(fetches);
 
     const admResp = responses[0];
     const agResp = responses[1];
-    const leadResp = responses[2] || null;
+
+    // derive indices for optional responses
+    const hasLead = Boolean(leadershipCsvUrl);
+    const hasAnn  = Boolean(announcementsCsvUrl);
+    const leadResp = hasLead ? responses[2] : null;
+    const annResp  = hasAnn  ? responses[2 + (hasLead ? 1 : 0)] : null;
 
     if(!admResp.ok) throw new Error('Admin sheet fetch failed: ' + admResp.status);
     if(!agResp.ok) throw new Error('Agenda sheet fetch failed: ' + agResp.status);
@@ -911,14 +918,17 @@ async function run(){
     const admText = await admResp.text();
     const agText = await agResp.text();
     const leadText = leadResp ? await leadResp.text() : null;
+    const annText  = annResp  ? await annResp.text()  : null;
 
     if(/<html|doctype html/i.test(admText.slice(0,200))) { showError('Admin sheet returned HTML (not public)'); return; }
     if(/<html|doctype html/i.test(agText.slice(0,200))) { showError('Agenda sheet returned HTML (not public)'); return; }
     if(leadText && /<html|doctype html/i.test(leadText.slice(0,200))) { showError('Leadership sheet returned HTML (not public)'); return; }
+    if(annText && /<html|doctype html/i.test(annText.slice(0,200))) { showError('Announcements sheet returned HTML (not public)'); return; }
 
     const admRows = parseCSVtoRows(admText);
     const agRows = parseCSVtoRows(agText);
     const leadRows = leadText ? parseCSVtoRows(leadText) : null;
+    const annRows  = annText  ? parseCSVtoRows(annText)  : null;
 
     // build admin map
     const adminMap = {};
@@ -1089,7 +1099,7 @@ async function run(){
     renderHeaderFromAdmin(adminMap, admRows);
 
      // render announcements (top of the three sections)
-    renderAnnouncements(admRows);
+    renderAnnouncements(annRows || admRows);
 
     clearError();
 
