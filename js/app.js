@@ -252,39 +252,46 @@ function parseAnnouncements(admRows){
 }
 
 function renderAnnouncements(admRows){
-  const pc = document.getElementById('program-content');
-  if(!pc) return;
-
-  // remove existing wrapper to avoid duplicates
-  const prev = pc.querySelector('.announcements-wrapper');
-  if(prev) prev.remove();
-
+  // parse
   const announcements = parseAnnouncements(admRows);
-  if(!announcements || announcements.length === 0) return; // nothing to render
+  if(!announcements || announcements.length === 0) {
+    // if none, remove any existing announcements section to keep UI tidy
+    const old = document.getElementById('announcements-section');
+    if(old && old.parentNode) old.parentNode.removeChild(old);
+    return;
+  }
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'announcements-wrapper card'; // reuse card styles for consistent look
-  wrapper.style.padding = ''; // card already has padding, preserve CSS flow
+  // remove existing to avoid duplicates
+  const existing = document.getElementById('announcements-section');
+  if(existing) existing.remove();
 
-  // header: collapsible
-  const headerId = 'announcements-panel';
+  // build section (match structure used by Activities / Ward Leadership)
+  const section = document.createElement('section');
+  section.className = 'card collapsible';
+  section.id = 'announcements-section';
+
+  // toggle button (match markup/style of other toggles)
   const toggle = document.createElement('button');
   toggle.className = 'collapsible-toggle';
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.setAttribute('data-target', headerId);
+  toggle.setAttribute('data-target','announcements-panel');
+  toggle.setAttribute('aria-expanded','false');
   toggle.type = 'button';
-  toggle.innerHTML = `<span style="font-weight:700">Announcements</span><span class="chev">▾</span>`;
-  wrapper.appendChild(toggle);
+  toggle.innerHTML = `
+    <span>Announcements</span>
+    <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+      <path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/>
+    </svg>
+  `;
+  section.appendChild(toggle);
 
   // panel
   const panel = document.createElement('div');
   panel.className = 'collapsible-panel';
-  panel.id = headerId;
-  panel.style.display = 'none';
+  panel.id = 'announcements-panel';
+  panel.style.display = 'none'; // keep closed by default (global wiring will toggle)
   panel.style.padding = '12px';
-  panel.style.paddingTop = '10px';
 
-  // build announcement entries
+  // populate announcements inside the panel
   announcements.forEach((a, idx) => {
     const item = document.createElement('div');
     item.className = 'announcement-item';
@@ -305,12 +312,12 @@ function renderAnnouncements(admRows){
       const aWrap = document.createElement('div');
       aWrap.style.marginTop = '2px';
       const btn = document.createElement('a');
-      btn.className = 'lead-col-contact'; // re-use compact link style, tweak below in CSS if needed
+      btn.className = 'ann-link-btn';
       btn.href = a.url;
       btn.target = '_blank';
       btn.rel = 'noopener';
       btn.textContent = 'Open link';
-      // small inline style to look like a button
+      // small inline style to look like a button (you can move to CSS)
       btn.style.display = 'inline-block';
       btn.style.padding = '8px 12px';
       btn.style.borderRadius = '8px';
@@ -324,7 +331,6 @@ function renderAnnouncements(admRows){
 
     panel.appendChild(item);
 
-    // divider between announcements (except after last)
     if(idx < announcements.length - 1){
       const div = document.createElement('div');
       div.style.height = '1px';
@@ -334,18 +340,25 @@ function renderAnnouncements(admRows){
     }
   });
 
-  wrapper.appendChild(panel);
+  section.appendChild(panel);
 
-  // insert wrapper at top of program-content so it becomes the top of the three sections
-  pc.insertBefore(wrapper, pc.firstChild);
+  // Insert BEFORE the activities section (top of the three)
+  const activities = document.getElementById('activities-section');
+  if(activities && activities.parentNode){
+    activities.parentNode.insertBefore(section, activities);
+  } else {
+    // fallback: append after program card
+    const program = document.getElementById('program');
+    if(program && program.parentNode){
+      program.parentNode.insertBefore(section, program.nextSibling);
+    } else {
+      document.querySelector('.app').appendChild(section);
+    }
+  }
 
-  // wire the collapsible toggle (immediate wiring so it works even before the global wiring runs)
-  toggle.addEventListener('click', () => {
-    const expanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', (!expanded).toString());
-    toggle.querySelector('.chev').textContent = expanded ? '▾' : '▴';
-    panel.style.display = expanded ? 'none' : 'block';
-  });
+  // IMPORTANT:
+  // Do NOT attach a local click handler here for the toggle — the global wiring in run()
+  // (document.querySelectorAll('.collapsible-toggle')...) will attach the handler.
 }
 
 /* ---------- Conference event parsing + rendering ---------- */
