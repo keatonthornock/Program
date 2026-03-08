@@ -83,6 +83,15 @@ function slugify(text){
     .replace(/^-|-$/g,'');
 }
 
+/* ---------- ensure external links have a scheme so the browser doesn't treat them as relative ---------- */
+function normalizeHref(href){
+  if(!href) return '';
+  href = href.toString().trim();
+  // Allow protocol-relative (//), mailto:, tel:, and already-schemed urls
+  if (/^(\/\/|[a-z][a-z0-9+.-]*:)/i.test(href)) return href;
+  return 'https://' + href;
+}
+
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const extra = (extraInfo || '').toString().toLowerCase();
   const t = (title || '').toString().trim();
@@ -309,16 +318,18 @@ function renderAnnouncements(admRows){
     item.appendChild(p);
 
     if (a.url) {
+      const normalized = normalizeHref(a.url);
+    
       const aWrap = document.createElement('div');
       aWrap.style.marginTop = '6px';
     
       const btn = document.createElement('a');
       btn.className = 'announcement-link';
-      btn.href = a.url;
+      btn.href = normalized;
       btn.target = '_blank';
-      btn.rel = 'noopener';
-      btn.title = a.url;
-      // inline layout so it works immediately; you can move to CSS later
+      btn.rel = 'noopener noreferrer';
+      btn.title = normalized;
+    
       btn.style.display = 'inline-flex';
       btn.style.alignItems = 'center';
       btn.style.gap = '8px';
@@ -329,11 +340,10 @@ function renderAnnouncements(admRows){
       btn.style.fontWeight = '700';
       btn.style.textDecoration = 'none';
     
-      // favicon (use google s2 fallback)
+      // favicon
       const fav = document.createElement('img');
       try {
-        const u = new URL(a.url);
-        // google s2 favicon service (small square)
+        const u = new URL(normalized);
         fav.src = `https://www.google.com/s2/favicons?sz=64&domain=${u.origin}`;
       } catch (e) {
         fav.src = './icons/link.svg';
@@ -347,16 +357,16 @@ function renderAnnouncements(admRows){
       fav.style.flex = '0 0 auto';
       btn.appendChild(fav);
     
-      // shortened URL text
+      // shortened display text
       const text = document.createElement('span');
-      text.textContent = getDisplayUrl(a.url);
+      text.textContent = getDisplayUrl(normalized);
       text.style.whiteSpace = 'nowrap';
       text.style.overflow = 'hidden';
       text.style.textOverflow = 'ellipsis';
-      text.style.maxWidth = 'calc(100% - 64px)'; // allow room for icon + arrow
+      text.style.maxWidth = 'calc(100% - 64px)';
       btn.appendChild(text);
     
-      // arrow glyph (matching hymn arrow style)
+      // arrow glyph
       const arrow = document.createElement('svg');
       arrow.className = 'hymn-arrow';
       arrow.setAttribute('viewBox', '0 0 24 24');
