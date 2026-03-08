@@ -260,6 +260,56 @@ body {
   max-width:100%;
 }
 
+.btn-accent,
+.announcement-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--accent-2);
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* visitor line text */
+.visitor-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#info-note.notice {
+  display: block;
+  margin-top: 12px;
+  background: #fff4e6; /* keep your existing notice style */
+  border: 1px solid #f0d7bd;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #7a4b00;
+  font-size: 14px;
+}
+
+/* footer */
+.site-footer {
+  margin-top: 18px;
+  padding: 22px 12px 36px;
+  text-align: center;
+  background: transparent;
+}
+#footer-logo {
+  display: inline-block;
+  max-width: 160px;   /* size down the tall image */
+  width: 28%;
+  height: auto;
+  object-fit: contain;
+}
+
 /* ---------- Conference events placed inside the program card body ---------- */
 .stake-wrapper{
   display:flex;
