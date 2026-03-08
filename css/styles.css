@@ -335,13 +335,20 @@ body {
 
 #footer-logo {
   display:inline-block;
-  width: 220px;      /* target desktop size; tweak as needed */
-  max-width: 60%;    /* responsive fallback on tiny viewports */
+  width: 360px;      /* target desktop size; tweak as needed */
+  max-width: 80%;    /* responsive fallback on tiny viewports */
   height: auto;      /* preserve aspect ratio */
   object-fit: contain;
 }
 @media (max-width:520px){
-  #footer-logo { width: 160px; }
+  #footer-logo { width: 420px; }
+}
+
+.site-footer {
+  margin-top: 28px;
+  padding: 32px 12px 40px;
+  text-align: center;
+  opacity: 0.9;
 }
 /* ---------- Conference events placed inside the program card body ---------- */
 .stake-wrapper{
