@@ -80,8 +80,8 @@ body {
   align-items:center;
   justify-content:center;
 
-  /* ensure contents can align vertically inside the hero area */
-  min-height: 140px;            /* increase if you want more vertical space */
+  /* increased vertical space for the banner — tweak if you want more/less */
+  min-height: 240px;
 }
 
 /* stack logo, title and date vertically and center */
@@ -91,9 +91,9 @@ body {
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-end;    /* <--- pushes small items like visitor-line toward the bottom */
   gap:10px;
-  padding-bottom: 12px;        /* breathing room from the hero bottom */
+  padding-top: 6px;    /* small top padding so heading isn't flush to top of hero */
+  padding-bottom: 12px;/* breathing room at bottom */
 }
 
 /* logo: transparent PNGs will show through; keep a natural size */
@@ -286,7 +286,21 @@ body {
   gap:10px;
   align-items:center;
   justify-content:center;
-  margin-top:8px;
+  margin-top: auto;
+  /* small offset from bottom of the banner */
+  margin-bottom: 6px;
+}
+
+/* make the "Visitor?" label bold */
+.visitor-line .visitor-text{
+  font-weight: 700;
+  color: #ffffff; /* optional: keep it bright on the banner */
+}
+
+/* responsive tweaks */
+@media (max-width:520px){
+  .hero-inner{ min-height: 160px; }
+  .hero-text{ padding-top: 6px; padding-bottom: 10px; }
 }
 
 #info-note.notice {
