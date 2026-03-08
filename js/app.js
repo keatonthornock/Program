@@ -1021,12 +1021,6 @@ function renderHeaderFromAdmin(map, admRows){
       if (existingGC) existingGC.remove();
     }
   }
-
-  const visitorTextEl = document.querySelector('.visitor-text');
-  if(visitorTextEl){
-    const dateText = dateRaw ? (new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' })) : '';
-    visitorTextEl.textContent = dateText ? `${dateText}${ward ? `, ${ward}` : ''}${stake ? `, ${stake}` : ''}` : 'Visitor?';
-  }
   
     document.body.dataset.meetingType = meetingType.toLowerCase();
   }
