@@ -129,6 +129,104 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   return null;
 }
 
+// small html-escape helper for safe insertion of text
+function escapeHtml(s){
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// find executive secretary row from leadership rows array (rows = parseCSVtoRows result)
+function findExecutiveSecretaryFromRows(rows){
+  if(!Array.isArray(rows)) return null;
+  let start = 0;
+  if(rows[0] && rows[0][0]){
+    const h = rows[0][0].toString().toLowerCase();
+    if(h.includes('role') || h.includes('key') || h.includes('name') || h.includes('contact')) start = 1;
+  }
+  for(let i = start; i < rows.length; i++){
+    const r = rows[i];
+    if(!r || !r[0]) continue;
+    const role = (r[0]||'').toString().trim().toLowerCase();
+    if(/executive secretary|exec(utive)? sec|ward executive/i.test(role)){
+      const name = (r[1]||'').toString().trim();
+      const contact = (r[2]||'').toString().trim();
+      return { name, contact };
+    }
+  }
+  return null;
+}
+
+function normalizeTel(contact){
+  if(!contact) return null;
+  const digits = contact.replace(/[^\d+]/g,'');
+  if((digits.match(/\d/g)||[]).length >= 7) return digits;
+  return null;
+}
+
+function updateAppointmentsInfoBox(exec){
+  const info = document.getElementById('info-note');
+  if(!info) return;
+  if(exec && (exec.name || exec.contact)){
+    const nameHtml = exec.name ? `<strong>${escapeHtml(exec.name)}</strong>` : '';
+    const tel = normalizeTel(exec.contact);
+    const phoneHtml = exec.contact ? (tel ? `<a href="tel:${tel}">${escapeHtml(exec.contact)}</a>` : `<span>${escapeHtml(exec.contact)}</span>`) : '';
+    info.hidden = false;
+    info.innerHTML = `Appointments with the Bishop can be scheduled with the Ward Executive Secretary: ${nameHtml} ${phoneHtml}`.trim();
+  } else {
+    // hide if no data
+    info.hidden = true;
+    info.innerHTML = '';
+  }
+}
+
+// small html-escape helper for safe insertion of text
+function escapeHtml(s){
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// find executive secretary row from leadership rows array (rows = parseCSVtoRows result)
+function findExecutiveSecretaryFromRows(rows){
+  if(!Array.isArray(rows)) return null;
+  let start = 0;
+  if(rows[0] && rows[0][0]){
+    const h = rows[0][0].toString().toLowerCase();
+    if(h.includes('role') || h.includes('key') || h.includes('name') || h.includes('contact')) start = 1;
+  }
+  for(let i = start; i < rows.length; i++){
+    const r = rows[i];
+    if(!r || !r[0]) continue;
+    const role = (r[0]||'').toString().trim().toLowerCase();
+    if(/executive secretary|exec(utive)? sec|ward executive/i.test(role)){
+      const name = (r[1]||'').toString().trim();
+      const contact = (r[2]||'').toString().trim();
+      return { name, contact };
+    }
+  }
+  return null;
+}
+
+function normalizeTel(contact){
+  if(!contact) return null;
+  const digits = contact.replace(/[^\d+]/g,'');
+  if((digits.match(/\d/g)||[]).length >= 7) return digits;
+  return null;
+}
+
+function updateAppointmentsInfoBox(exec){
+  const info = document.getElementById('info-note');
+  if(!info) return;
+  if(exec && (exec.name || exec.contact)){
+    const nameHtml = exec.name ? `<strong>${escapeHtml(exec.name)}</strong>` : '';
+    const tel = normalizeTel(exec.contact);
+    const phoneHtml = exec.contact ? (tel ? `<a href="tel:${tel}">${escapeHtml(exec.contact)}</a>` : `<span>${escapeHtml(exec.contact)}</span>`) : '';
+    info.hidden = false;
+    info.innerHTML = `Appointments with the Bishop can be scheduled with the Ward Executive Secretary: ${nameHtml} ${phoneHtml}`.trim();
+  } else {
+    // hide if no data
+    info.hidden = true;
+    info.innerHTML = '';
+  }
+}
+
 /* ---------- small UI helpers ---------- */
 function showError(msg){
   const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
@@ -923,6 +1021,12 @@ function renderHeaderFromAdmin(map, admRows){
       if (existingGC) existingGC.remove();
     }
   }
+
+  const visitorTextEl = document.querySelector('.visitor-text');
+  if(visitorTextEl){
+    const dateText = dateRaw ? (new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' })) : '';
+    visitorTextEl.textContent = dateText ? `${dateText}${ward ? `, ${ward}` : ''}${stake ? `, ${stake}` : ''}` : 'Visitor?';
+  }
   
     document.body.dataset.meetingType = meetingType.toLowerCase();
   }
@@ -1141,9 +1245,15 @@ async function run(){
     // Leadership
     if (leadRows && leadRows.length) {
       renderLeadership(leadRows);
+    
+      // find Exec Secretary and populate the appointments info line
+      const exec = findExecutiveSecretaryFromRows(leadRows);
+      updateAppointmentsInfoBox(exec);
     } else {
       const ll = document.getElementById('leaders-list');
       if (ll) ll.innerHTML = '<div class="muted small">No leadership data found.</div>';
+      // no leadership -> hide info
+      updateAppointmentsInfoBox(null);
     }
     
     // Now render header and conference events AFTER the program content has been generated.
