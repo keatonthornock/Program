@@ -121,6 +121,17 @@ body {
 .meeting-heading{ font-family: "Merriweather", serif; margin:10px 0 0; font-size:22px; }
 .meeting-date{ margin-top:6px; color:rgba(255,255,255,0.95); font-size:14px; }
 
+/* Meeting time line (appears between date and visitor CTA) */
+.meeting-time {
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.95); /* white-ish to sit on the banner */
+  line-height: 1.3;
+}
+@media (max-width:520px){
+  .meeting-time { font-size: 13px; }
+}
+
 /* ---------- Generic card ---------- */
 .card{
   margin-top:14px;
