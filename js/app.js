@@ -308,23 +308,64 @@ function renderAnnouncements(admRows){
     p.textContent = a.text;
     item.appendChild(p);
 
-    if(a.url){
+    if (a.url) {
       const aWrap = document.createElement('div');
-      aWrap.style.marginTop = '2px';
+      aWrap.style.marginTop = '6px';
+    
       const btn = document.createElement('a');
-      btn.className = 'ann-link-btn';
+      btn.className = 'announcement-link';
       btn.href = a.url;
       btn.target = '_blank';
       btn.rel = 'noopener';
-      btn.textContent = 'Open link';
-      // small inline style to look like a button (you can move to CSS)
-      btn.style.display = 'inline-block';
+      btn.title = a.url;
+      // inline layout so it works immediately; you can move to CSS later
+      btn.style.display = 'inline-flex';
+      btn.style.alignItems = 'center';
+      btn.style.gap = '8px';
       btn.style.padding = '8px 12px';
       btn.style.borderRadius = '8px';
       btn.style.background = 'var(--accent-2)';
       btn.style.color = 'var(--accent)';
       btn.style.fontWeight = '700';
       btn.style.textDecoration = 'none';
+    
+      // favicon (use google s2 fallback)
+      const fav = document.createElement('img');
+      try {
+        const u = new URL(a.url);
+        // google s2 favicon service (small square)
+        fav.src = `https://www.google.com/s2/favicons?sz=64&domain=${u.origin}`;
+      } catch (e) {
+        fav.src = './icons/link.svg';
+      }
+      fav.alt = '';
+      fav.style.width = '18px';
+      fav.style.height = '18px';
+      fav.style.borderRadius = '4px';
+      fav.style.background = '#fff';
+      fav.style.padding = '2px';
+      fav.style.flex = '0 0 auto';
+      btn.appendChild(fav);
+    
+      // shortened URL text
+      const text = document.createElement('span');
+      text.textContent = getDisplayUrl(a.url);
+      text.style.whiteSpace = 'nowrap';
+      text.style.overflow = 'hidden';
+      text.style.textOverflow = 'ellipsis';
+      text.style.maxWidth = 'calc(100% - 64px)'; // allow room for icon + arrow
+      btn.appendChild(text);
+    
+      // arrow glyph (matching hymn arrow style)
+      const arrow = document.createElement('svg');
+      arrow.className = 'hymn-arrow';
+      arrow.setAttribute('viewBox', '0 0 24 24');
+      arrow.innerHTML = '<path d="M9 6l6 6-6 6"/>';
+      arrow.style.width = '18px';
+      arrow.style.height = '18px';
+      arrow.style.flex = '0 0 auto';
+      btn.appendChild(arrow);
+    
       aWrap.appendChild(btn);
       item.appendChild(aWrap);
     }
