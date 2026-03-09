@@ -1047,26 +1047,6 @@ function renderHeaderFromAdmin(map, admRows){
     document.body.dataset.meetingType = meetingType.toLowerCase();
   }
 
-const meetingTimeValue = map['meeting time'] || map['meeting_time'] || '';
-let mtEl = document.getElementById('meeting-time');
-if(!mtEl){
-  // create if missing (keeps backward compatibility)
-  mtEl = document.createElement('div');
-  mtEl.id = 'meeting-time';
-  mtEl.className = 'meeting-time';
-  const meetingDateEl = document.getElementById('meeting-date');
-  if(meetingDateEl && meetingDateEl.parentNode){
-    meetingDateEl.parentNode.insertBefore(mtEl, meetingDateEl.nextSibling);
-  }
-}
-if(meetingTimeValue && meetingTimeValue.toString().trim() !== ''){
-  mtEl.textContent = `Weekly Meeting Time: ${meetingTimeValue}`;
-  mtEl.style.display = '';
-} else {
-  mtEl.textContent = '';
-  mtEl.style.display = 'none';
-}
-
 /* ---------- main run flow ---------- */
 async function run(){
   clearError();
