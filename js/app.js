@@ -1400,6 +1400,61 @@ async function run(){
 
     clearError();
 
+    // Ensure hero-controls exists and move visitor-line + share button into it
+(function moveHeroControls() {
+  const heroInner = document.querySelector('.hero-inner') || document.querySelector('.hero');
+  if(!heroInner) return;
+
+  // create controls container if missing
+  let controls = document.querySelector('.hero-controls');
+  if(!controls) {
+    controls = document.createElement('div');
+    controls.className = 'hero-controls';
+    heroInner.appendChild(controls);
+  }
+
+  // move visitor-line into controls
+  const visitor = document.getElementById('visitor-line');
+  if(visitor) {
+    // remove inline margin that might be set elsewhere
+    visitor.style.marginTop = '0';
+    controls.appendChild(visitor);
+  }
+
+  // find an existing share element (you may have .share-btn or #share-button)
+  let share = document.querySelector('.share-btn') || document.getElementById('share-button');
+
+  // if no share button exists yet, create one
+  if(!share) {
+    share = document.createElement('button');
+    share.id = 'share-button';
+    share.className = 'share-btn';
+    // place your share icon path here
+    share.innerHTML = '<img src="images/share.svg" alt="Share">';
+    controls.appendChild(share);
+  } else {
+    // ensure the share element is inside controls
+    controls.appendChild(share);
+    // strip any unwanted background (in case it was white)
+    share.style.background = 'transparent';
+    share.style.border = 'none';
+  }
+
+  // attach behaviour for share button that opens your existing share menu function
+  // (if you already have a showShareMenu function, call it; otherwise toggle a menu).
+  if(typeof showShareMenu === 'function') {
+    share.addEventListener('click', showShareMenu);
+  } else {
+    // placeholder: simple alert if no custom share menu exists yet
+    share.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // open your share menu here — replace with your real code
+      const ev = new Event('openShareMenu');
+      document.dispatchEvent(ev);
+    });
+  }
+})();
+
     // wire collapsibles
     document.querySelectorAll('.collapsible-toggle').forEach(btn => {
       btn.addEventListener('click', () => {
