@@ -35,6 +35,21 @@
           </div>
         </div>
       </div>
+      <button id="share-btn" class="share-btn" aria-haspopup="true" aria-expanded="false" title="Share this page">
+        <img src="images/share.svg" alt="Share">
+      </button>
+      
+      <div id="share-menu" class="share-menu" role="menu" aria-hidden="true" aria-qr="false">
+        <div id="share-copy" class="share-action" role="menuitem">📋 <span>Copy link</span></div>
+        <div id="share-text" class="share-action" role="menuitem">💬 <span>Text</span></div>
+        <div id="share-qr" class="share-action" role="menuitem">🔲 <span>Show QR code</span></div>
+      
+        <div class="qr-preview" aria-hidden="true">
+          <img id="share-qr-img" src="" alt="QR code">
+        </div>
+      
+        <div id="share-status" class="muted-small" style="padding:6px 6px 0 6px; display:none;"></div>
+      </div>
     </header>
 
     <!-- Presiding / Conducting -->
