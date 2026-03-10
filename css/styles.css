@@ -42,14 +42,13 @@ body {
    - margin-top pulls the hero above the body's top so the image sits under the status bar.
    - padding-top includes the safe-area inset so content avoids the notch.
 */
-.hero{
+.hero {
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-top: calc(-1 * env(safe-area-inset-top, 0px));
   min-height: 320px;
-  /* give generous bottom padding so hero looks spacious */
-  padding: calc(40px + env(safe-area-inset-top, 0px)) 18px 140px 18px;
+  padding: calc(40px + env(safe-area-inset-top, 0px)) 18px calc(140px + env(safe-area-inset-bottom, 0px)) 18px;
   color: #fff;
   overflow: visible;
   background-image: url("../images/banner.png");
@@ -75,38 +74,38 @@ body {
   z-index: 0;
 }
 
-.hero-inner{
+.hero-inner {
   position: relative;
   z-index: 2;
   display: flex;
-  flex-direction: column;    /* stack children vertically */
-  align-items: stretch;      /* allow hero-text to take full width */
-  justify-content: center;   /* center main block unless expanded */
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
   min-height: 100%;
 }
 
 /* stack logo, title and date vertically and center */
-.hero-text{
+.hero-text {
   flex: 1 1 auto;
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-end;
-  gap:14px;
-  padding-bottom: 34px; /* breathing room from hero bottom */
-  min-height: 220px; /* increases vertical space inside the hero */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  gap: 14px;
+  padding-bottom: 100px;  
+  min-height: 220px;
 }
 
 /* ---------- hero bottom-right controls (visitor + CTA + share) ---------- */
 .hero-controls {
   position: absolute;
-  right: 18px;               /* matches hero horizontal padding */
-  bottom: 18px;              /* how far above hero bottom the controls sit */
+  right: 18px;
+  bottom: 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  z-index: 3;                /* above hero overlay */
+  z-index: 3;
   pointer-events: auto;
 }
 
@@ -115,7 +114,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0;                
+  margin: 0;
 }
 
 /* visually emphasize the "Visitor?" text */
@@ -128,9 +127,9 @@ body {
 
 /* keep the CTA button appearance (but reduce center alignment since it's now right) */
 .hero-controls .btn-accent {
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 16px;
   border-radius: 10px;
   background: var(--accent);
@@ -138,7 +137,7 @@ body {
   font-weight: 700;
   text-decoration: none;
   border: none;
-  box-shadow: 0 8px 24px rgba(11,74,106,0.18);
+  box-shadow: 0 12px 30px rgba(11,74,106,0.18), 0 2px 6px rgba(0,0,0,0.06);
   font-size: 15px;
 }
 
@@ -205,12 +204,11 @@ body {
   justify-content: center;
   width: 44px;
   height: 44px;
-  padding: 6px;
+  padding: 0;          
   border-radius: 10px;
-  background: transparent;       
+  background: transparent;
   border: none;
   cursor: pointer;
-  box-shadow: none;
   transition: transform .12s ease, box-shadow .12s ease;
 }
 
@@ -228,9 +226,10 @@ body {
 }
 
 /* make the svg occupy the whole hit area */
-.share-btn img {
-  width: 28px;   /* icon size inside the 44px button — tweak if you prefer larger */
-  height: 28px;
+.share-btn img,
+.share-btn svg {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   display: block;
 }
@@ -256,7 +255,7 @@ body {
 /* visible state */
 .share-menu[aria-hidden="false"] { display: flex; }
 
-/* action rows */
+/* action rows with icons */
 .share-menu .share-action {
   display:flex;
   gap:10px;
@@ -267,8 +266,13 @@ body {
   color: #0f1724;
 }
 .share-menu .share-action:hover,
-.share-menu .share-action:focus {
-  background:#f4f7f9;
+.share-menu .share-action:focus { background:#f4f7f9; }
+
+.share-menu .share-action img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 /* QR preview */
@@ -278,8 +282,8 @@ body {
   justify-content:center;
 }
 .share-menu .qr-preview img {
-  width:150px;
-  height:150px;
+  width:250px;
+  height:250px;
   object-fit:contain;
   border-radius:8px;
   border: 1px solid rgba(0,0,0,0.04);
