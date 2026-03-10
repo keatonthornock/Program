@@ -583,7 +583,7 @@ body {
 
 @media (max-width:520px){
   .meeting-heading{ font-size: 26px; }
-  .hero{ padding-bottom: 110px; }
+  .hero{ padding-bottom: 10px; }
   .hero-text{ min-height: 180px; gap:10px; padding-bottom:12px; }
   .meeting-date{ font-size: 14px; max-width: 88%;}
   #meeting-time { font-size: 14px; }
