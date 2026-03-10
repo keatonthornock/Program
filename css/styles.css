@@ -529,7 +529,7 @@ body {
 }
 
 /* hero fallback if cards end up in hero */
-.hero #conference-events, .conference-events-hero{ margin-top: 12px; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding-bottom: 8px; }
+.hero #conference-events, .conference-events-hero{ margin-top: 80px; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding-bottom: 8px; }
 
 .program-content .agenda-item:first-child{ border-top:none; }
 .program-content > *:last-child{ border-bottom:none; }
