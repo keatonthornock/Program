@@ -159,41 +159,56 @@ body {
   position: absolute;
   bottom: 16px;
   right: 16px;
+  width: 44px;
+  height: 44px;
+  padding: 0;  
+  border-radius: 8px;
+  background: none;   
+  border: none;
+  box-shadow: none;      
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width:44px;
-  height:44px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 10px 22px rgba(11,74,106,0.12), 0 2px 6px rgba(0,0,0,0.06);
-  border: 1px solid rgba(11,74,106,0.06);
-  cursor: pointer;
-  padding: 8px;
-  z-index: 30; /* above hero content */
+  z-index: 30;
 }
-.share-btn img { width:20px; height:20px; display:block; }
 
+/* keep a subtle focus ring for keyboard users */
+.share-btn:focus {
+  outline: 3px solid rgba(11,74,106,0.12);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* make the svg occupy the whole hit area */
+.share-btn img {
+  width: 28px;   /* icon size inside the 44px button — tweak if you prefer larger */
+  height: 28px;
+  display: block;
+}
+
+/* share menu (floating card) */
 .share-menu {
   position: absolute;
-  bottom: 70px; /* position above button */
+  bottom: 70px;
   right: 12px;
-  min-width:180px;
+  min-width: 190px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 14px 40px rgba(11,74,106,0.12);
   border: 1px solid rgba(11,74,106,0.06);
   padding: 8px;
   z-index: 40;
-  display: none;      /* toggled by JS */
+  display: none;
   flex-direction: column;
   gap: 6px;
   font-size: 14px;
 }
 
+/* visible state */
 .share-menu[aria-hidden="false"] { display: flex; }
 
-/* each action row */
+/* action rows */
 .share-menu .share-action {
   display:flex;
   gap:10px;
@@ -203,14 +218,12 @@ body {
   cursor:pointer;
   color: #0f1724;
 }
-.share-menu .share-action:hover {
+.share-menu .share-action:hover,
+.share-menu .share-action:focus {
   background:#f4f7f9;
 }
 
-/* small muted helper text inside menu (for "Copied!" or QR hint) */
-.share-menu .muted-small { color:var(--muted); font-size:12px; }
-
-/* QR preview styling (hidden initially) */
+/* QR preview */
 .share-menu .qr-preview {
   display:none;
   padding:8px;
@@ -223,9 +236,13 @@ body {
   border-radius:8px;
   border: 1px solid rgba(0,0,0,0.04);
 }
-
-/* When qr preview flag is on show it (JS will toggle attribute) */
 .share-menu[aria-qr="true"] .qr-preview { display:flex; }
+
+/* small status text */
+.share-menu .muted-small { color:var(--muted); font-size:12px; }
+
+/* ensure icons inside the action rows are constrained */
+.share-menu .share-action img { width:20px; height:20px; display:block; }
 
 /* ---------- Generic card ---------- */
 .card{
