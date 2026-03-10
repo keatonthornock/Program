@@ -158,9 +158,9 @@ body {
 .share-btn {
   position: absolute;
   bottom: 16px;
-  right: 16px;
+  right: -5px;
   width: 44px;
-  height: 44px;
+  height: 35px;
   padding: 0;  
   border-radius: 8px;
   background: none;   
@@ -420,7 +420,7 @@ body {
   gap:12px;
   align-items:center;
   justify-content:center;
-  margin-top: 32px;
+  margin-top: 80px;
 }
 
 .visitor-text{ font-weight:700; font-size:16px; color:rgba(255,255,255,0.95); }
