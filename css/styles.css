@@ -60,7 +60,7 @@ body {
 }
 
 .hero + * {
-  margin-top: 18px;
+  margin-top: 80px;
 }
 
 /* hide any old gradient pseudo-element that might remain */
