@@ -98,6 +98,50 @@ body {
   min-height: 220px; /* increases vertical space inside the hero */
 }
 
+/* ---------- hero bottom-right controls (visitor + CTA + share) ---------- */
+.hero-controls {
+  position: absolute;
+  right: 18px;               /* matches hero horizontal padding */
+  bottom: 18px;              /* how far above hero bottom the controls sit */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3;                /* above hero overlay */
+  pointer-events: auto;
+}
+
+/* make visitor-line fit horizontally inside controls */
+.hero-controls .visitor-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;                
+}
+
+/* visually emphasize the "Visitor?" text */
+.hero-controls .visitor-text {
+  font-weight: 700;
+  color: rgba(255,255,255,0.98);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* keep the CTA button appearance (but reduce center alignment since it's now right) */
+.hero-controls .btn-accent {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 8px 24px rgba(11,74,106,0.18);
+  font-size: 15px;
+}
+
 /* logo: transparent PNGs will show through; keep a natural size */
 .hero img{
   display:block;
@@ -156,21 +200,18 @@ body {
 }
 
 .share-btn {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  width: 44px;
-  height: 44px;
-  padding: 0;  
-  border-radius: 8px;
-  background: none;   
-  border: none;
-  box-shadow: none;      
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 30;
+  width: 44px;
+  height: 44px;
+  padding: 6px;
+  border-radius: 10px;
+  background: transparent;       
+  border: none;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform .12s ease, box-shadow .12s ease;
 }
 
 /* keep a subtle focus ring for keyboard users */
@@ -180,10 +221,17 @@ body {
   border-radius: 8px;
 }
 
+/* subtle hover affordance for the share icon */
+.share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
 /* make the svg occupy the whole hit area */
 .share-btn img {
   width: 28px;   /* icon size inside the 44px button — tweak if you prefer larger */
   height: 28px;
+  object-fit: contain;
   display: block;
 }
 
@@ -247,6 +295,18 @@ body {
   height:22px;
   object-fit:contain;
   flex-shrink:0;
+}
+
+/* small-screen fallback: stack to the right edge but allow wrapping */
+@media (max-width: 420px) {
+  .hero-controls {
+    right: 12px;
+    bottom: 12px;
+    gap: 8px;
+  }
+  .hero-controls .visitor-text { font-size: 15px; }
+  .hero-controls .btn-accent { padding: 8px 12px; font-size: 14px; }
+  .share-btn { width:40px; height:40px; }
 }
 
 /* ---------- Generic card ---------- */
