@@ -1478,6 +1478,7 @@ function moveHeroControlsAndEnsureShare() {
   }
 }
     
+    moveHeroControlsAndEnsureShare();
     initShare();
 
     clearError();
