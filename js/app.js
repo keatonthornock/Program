@@ -264,6 +264,118 @@ function shouldRenderAgendaItem(key, meetingType){
   return true;
 }
 
+/* ---------- share button + menu ---------- */
+function initShare(){
+  const shareBtn = document.getElementById('share-btn');
+  const menu = document.getElementById('share-menu');
+  const copyBtn = document.getElementById('share-copy');
+  const textBtn = document.getElementById('share-text');
+  const qrBtn = document.getElementById('share-qr');
+  const qrImg = document.getElementById('share-qr-img');
+  const status = document.getElementById('share-status');
+
+  if(!shareBtn || !menu) return;
+
+  // Helpers
+  const pageUrl = () => (location.href || window.location.toString());
+  const hideMenu = () => {
+    menu.setAttribute('aria-hidden','true');
+    shareBtn.setAttribute('aria-expanded','false');
+    menu.setAttribute('aria-qr','false');
+    menu.style.display = 'none';
+    // hide status
+    status.style.display = 'none';
+  };
+  const showMenu = () => {
+    menu.setAttribute('aria-hidden','false');
+    shareBtn.setAttribute('aria-expanded','true');
+    menu.style.display = 'flex';
+  };
+
+  // click on share button toggles menu
+  shareBtn.addEventListener('click', (e) => {
+    const hidden = menu.getAttribute('aria-hidden') === 'true';
+    if(hidden) showMenu(); else hideMenu();
+  });
+
+  // copy link
+  copyBtn.addEventListener('click', async (e) => {
+    const url = pageUrl();
+    try {
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(url);
+      } else {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      status.textContent = 'Copied to clipboard';
+      status.style.display = 'block';
+      setTimeout(()=> status.style.display = 'none', 2000);
+      // keep menu open so users can also open QR if they want
+    } catch(err){
+      status.textContent = 'Copy failed';
+      status.style.display = 'block';
+      setTimeout(()=> status.style.display = 'none', 2000);
+    }
+  });
+
+  // text — attempt sms on mobile, fallback to mailto on desktop
+  textBtn.addEventListener('click', (e) => {
+    const url = pageUrl();
+    const ua = navigator.userAgent || '';
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+    if(isMobile){
+      // many mobile devices support sms:?body=
+      window.location.href = `sms:?&body=${encodeURIComponent(url)}`;
+    } else {
+      // open mail client with link in body
+      window.location.href = `mailto:?subject=${encodeURIComponent(document.title || 'Link')}&body=${encodeURIComponent(url)}`;
+    }
+  });
+
+  // QR code: show/hide a QR preview. Uses qrserver.com API to generate image
+  qrBtn.addEventListener('click', (e) => {
+    const url = pageUrl();
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    qrImg.src = qrSrc;
+    // show the QR preview inside the menu
+    menu.setAttribute('aria-qr','true');
+    // reveal status area with helper text
+    status.textContent = 'Scan this code to open the page';
+    status.style.display = 'block';
+  });
+
+  // close the menu on outside click
+  document.addEventListener('click', (ev) => {
+    if(!menu || !shareBtn) return;
+    const target = ev.target;
+    if(target === shareBtn || shareBtn.contains(target) || menu.contains(target)) return;
+    hideMenu();
+  });
+
+  // close on escape
+  document.addEventListener('keydown', (ev) => {
+    if(ev.key === 'Escape' || ev.key === 'Esc'){
+      hideMenu();
+    }
+  });
+
+  // Small a11y: close on focusout when nothing inside is focused
+  menu.addEventListener('focusout', (ev) => {
+    // tiny delay to allow focus to move
+    setTimeout(() => {
+      if(!menu.contains(document.activeElement)){
+        hideMenu();
+      }
+    }, 0);
+  });
+}
+
 /* ---------- icon/image helpers ---------- */
 function getAgendaIcon(type){
   if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
@@ -1277,6 +1389,8 @@ async function run(){
 
      // render announcements (top of the three sections)
     renderAnnouncements(annRows || admRows);
+
+    initShare();
 
     clearError();
 
