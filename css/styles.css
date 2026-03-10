@@ -242,7 +242,12 @@ body {
 .share-menu .muted-small { color:var(--muted); font-size:12px; }
 
 /* ensure icons inside the action rows are constrained */
-.share-menu .share-action img { width:20px; height:20px; display:block; }
+.share-menu .share-action img{
+  width:22px;
+  height:22px;
+  object-fit:contain;
+  flex-shrink:0;
+}
 
 /* ---------- Generic card ---------- */
 .card{
