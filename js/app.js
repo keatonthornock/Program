@@ -1396,64 +1396,91 @@ async function run(){
      // render announcements (top of the three sections)
     renderAnnouncements(annRows || admRows);
 
-    initShare();
-
-    clearError();
-
-    // Ensure hero-controls exists and move visitor-line + share button into it
-(function moveHeroControls() {
+    // Move visitor into a bottom hero controls container, ensure share button + menu exist
+function moveHeroControlsAndEnsureShare() {
   const heroInner = document.querySelector('.hero-inner') || document.querySelector('.hero');
-  if(!heroInner) return;
+  if (!heroInner) return;
 
   // create controls container if missing
   let controls = document.querySelector('.hero-controls');
-  if(!controls) {
+  if (!controls) {
     controls = document.createElement('div');
     controls.className = 'hero-controls';
     heroInner.appendChild(controls);
   }
 
-  // move visitor-line into controls
+  // move visitor-line into controls (if present)
   const visitor = document.getElementById('visitor-line');
-  if(visitor) {
-    // remove inline margin that might be set elsewhere
+  if (visitor && !controls.contains(visitor)) {
     visitor.style.marginTop = '0';
     controls.appendChild(visitor);
   }
 
-  // find an existing share element (you may have .share-btn or #share-button)
-  let share = document.querySelector('.share-btn') || document.getElementById('share-button');
-
-  // if no share button exists yet, create one
-  if(!share) {
-    share = document.createElement('button');
-    share.id = 'share-button';
-    share.className = 'share-btn';
-    // place your share icon path here
-    share.innerHTML = '<img src="images/share.svg" alt="Share">';
-    controls.appendChild(share);
+  // Ensure the share button exists and has the id/class initShare expects
+  let shareBtn = document.getElementById('share-btn') || document.querySelector('.share-btn');
+  if (!shareBtn) {
+    shareBtn = document.createElement('button');
+    shareBtn.id = 'share-btn';        // matches initShare() expectations
+    shareBtn.className = 'share-btn';
+    shareBtn.type = 'button';
+    // Use your share.svg in images/
+    shareBtn.innerHTML = '<img src="images/share.svg" alt="Share">';
+    controls.appendChild(shareBtn);
   } else {
-    // ensure the share element is inside controls
-    controls.appendChild(share);
-    // strip any unwanted background (in case it was white)
-    share.style.background = 'transparent';
-    share.style.border = 'none';
+    // ensure it has the expected id/class and is inside controls
+    if (!shareBtn.id) shareBtn.id = 'share-btn';
+    if (!shareBtn.classList.contains('share-btn')) shareBtn.classList.add('share-btn');
+    if (!controls.contains(shareBtn)) controls.appendChild(shareBtn);
+    shareBtn.style.background = 'transparent';
+    shareBtn.style.border = 'none';
+    shareBtn.style.padding = '0';
   }
 
-  // attach behaviour for share button that opens your existing share menu function
-  // (if you already have a showShareMenu function, call it; otherwise toggle a menu).
-  if(typeof showShareMenu === 'function') {
-    share.addEventListener('click', showShareMenu);
+  // Create share-menu DOM if missing (so initShare() finds #share-menu, #share-email, #share-qr, #share-link, #share-qr-img, #share-status)
+  if (!document.getElementById('share-menu')) {
+    const menu = document.createElement('div');
+    menu.id = 'share-menu';
+    menu.className = 'share-menu';
+    menu.setAttribute('aria-hidden', 'true');
+    menu.setAttribute('aria-qr', 'false');
+
+    menu.innerHTML = `
+      <div id="share-email" class="share-action" role="button" tabindex="0">
+        <img src="icons/email.svg" alt="" aria-hidden>
+        <div>Email</div>
+      </div>
+
+      <div id="share-qr" class="share-action" role="button" tabindex="0">
+        <img src="icons/qrcode.svg" alt="" aria-hidden>
+        <div>QR Code</div>
+      </div>
+
+      <div id="share-link" class="share-action" role="button" tabindex="0">
+        <img src="icons/link.svg" alt="" aria-hidden>
+        <div>Link</div>
+      </div>
+
+      <div class="qr-preview" aria-hidden="true">
+        <img id="share-qr-img" src="" alt="QR code">
+      </div>
+
+      <div id="share-status" class="muted-small" style="display:none"></div>
+    `;
+
+    // Append the menu to heroInner so its absolute positioning relative to hero works.
+    heroInner.appendChild(menu);
   } else {
-    // placeholder: simple alert if no custom share menu exists yet
-    share.addEventListener('click', (e) => {
-      e.stopPropagation();
-      // open your share menu here — replace with your real code
-      const ev = new Event('openShareMenu');
-      document.dispatchEvent(ev);
-    });
+    // ensure menu is a child of heroInner (so absolute position works) and has default aria attrs
+    const existingMenu = document.getElementById('share-menu');
+    if (!heroInner.contains(existingMenu)) heroInner.appendChild(existingMenu);
+    existingMenu.setAttribute('aria-hidden', existingMenu.getAttribute('aria-hidden') || 'true');
+    existingMenu.setAttribute('aria-qr', 'false');
   }
-})();
+}
+    
+    initShare();
+
+    clearError();
 
     // wire collapsibles
     document.querySelectorAll('.collapsible-toggle').forEach(btn => {
