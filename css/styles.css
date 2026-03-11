@@ -1,587 +1,186 @@
-:root{
-  --bg:#f6f4f1;
-  --card:#ffffff;
-  --muted:#6b7280;
-  --accent:#0b4a6a; /* church blue */
-  --accent-2:#e9f3f6;
-  --radius:12px;
-  --max-width:720px;
+:root {
+  --page-bg: #ede9d8;
+  --scroll-strip: #0290b6;
+  --text-dark: #1f2937;
+  --card-bg: #ffffff;
+  --border-soft: rgba(0, 0, 0, 0.08);
+  --max-width: 960px;
 }
 
-/* ---------- Reset & layout ---------- */
-*{box-sizing:border-box}
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+* {
+  box-sizing: border-box;
 }
 
-/* Keep horizontal page inset, but remove top padding so full-bleed hero can reach the top */
+html,
 body {
   margin: 0;
-  padding: 0 18px 18px;           /* top padding removed here */
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: var(--bg);
-  color: #111827;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  display: flex;
-  justify-content: center;
+  padding: 0;
+  width: 100%;
 }
 
-/* App container receives the horizontal inset (and the old top spacing) */
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--page-bg);
+  color: var(--text-dark);
+}
+
 .app {
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  box-sizing: border-box;
+  padding: 0 16px 32px;
 }
 
-/* Hero: full-bleed banner that reaches into the safe area on iOS.
-   - margin-left keeps the full-bleed (like your previous calc).
-   - margin-top pulls the hero above the body's top so the image sits under the status bar.
-   - padding-top includes the safe-area inset so content avoids the notch.
-*/
-.hero{
+.mobile-scroll-strip {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: calc(env(safe-area-inset-top, 0px) + 16px);
+  background: var(--scroll-strip);
+  transform: translateY(-100%);
+  transition: transform 0.25s ease;
+  z-index: 50;
+}
+
+body.mobile-scrolled .mobile-scroll-strip {
+  transform: translateY(0);
+}
+
+.hero {
   position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+  margin: 0 -16px 20px;
   min-height: 320px;
-  /* give generous bottom padding so hero looks spacious */
-  padding: calc(40px + env(safe-area-inset-top, 0px)) 18px 140px 18px;
-  color: #fff;
-  overflow: visible;
-  background-image: url("../images/banner.png");
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  z-index: 0;
+  overflow: hidden;
+  border-radius: 0 0 20px 20px;
+  background: #111;
 }
 
-/* hide any old gradient pseudo-element that might remain */
-.hero::before { display: none !important; }
+.hero-image {
+  display: block;
+  width: 100%;
+  height: 58vh;
+  min-height: 320px;
+  max-height: 620px;
+  object-fit: cover;
+}
 
-.hero::after{
+.hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.28) 45%, rgba(0,0,0,0.36) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.18));
   pointer-events: none;
-  z-index: 0;
 }
 
-.hero-inner{
-  position: relative;
-  z-index: 2;
+.hero-inner {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;    /* stack children vertically */
-  align-items: stretch;      /* allow hero-text to take full width */
-  justify-content: center;   /* center main block unless expanded */
-  min-height: 100%;
-}
-
-/* stack logo, title and date vertically and center */
-.hero-text{
-  flex: 1 1 auto;
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-end;
-  gap:14px;
-  padding-bottom: 34px; /* breathing room from hero bottom */
-  min-height: 220px; /* increases vertical space inside the hero */
-}
-
-/* logo: transparent PNGs will show through; keep a natural size */
-.hero img{
-  display:block;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  width: auto;
-  height: auto;
-  max-height: 120px;        /* desktop */
-  max-width: 48%;
-  object-fit: contain;
-  box-shadow: none;
-}
-
-/* smaller logo on small screens */
-@media (max-width:520px){
-  .hero img { max-height: 84px; max-width: 60%; }
-}
-
-/* hero text styles */
-.org{ font-size:13px; font-weight:600; letter-spacing:0.08em; opacity:0.95; }
-.suborg{ display:block; font-weight:400; font-size:11px; letter-spacing:0.08em; margin-top:2px;}
-
-.meeting-heading{
-  font-family: "Merriweather", serif;
-  font-weight: 700;
-  font-size: 34px;
-  margin: 6px 0 0;
-  line-height: 1.03;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.06);
-}
-
-.meeting-date {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  font-weight: 500;
-  font-size: 15px;
-  color: rgba(255,255,255,0.95);
-  max-width: 74%;
-  margin: 0;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-#meeting-time {
-  font-family: "Inter", system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.95);
-  margin-top: 6px;
-  line-height: 1.3;
-}
-
-@media (max-width:520px){
-  .meeting-time { font-size: 13px; }
-}
-
-.share-btn {
-  position: absolute;
-  bottom: 16px;
-  right: -5px;
-  width: 44px;
-  height: 35px;
-  padding: 0;  
-  border-radius: 8px;
-  background: none;   
-  border: none;
-  box-shadow: none;      
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  z-index: 30;
+  text-align: center;
+  padding: 24px 18px;
+  z-index: 2;
 }
 
-/* keep a subtle focus ring for keyboard users */
-.share-btn:focus {
-  outline: 3px solid rgba(11,74,106,0.12);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-/* make the svg occupy the whole hit area */
-.share-btn img {
-  width: 28px;   /* icon size inside the 44px button — tweak if you prefer larger */
-  height: 28px;
-  display: block;
-}
-
-/* share menu (floating card) */
-.share-menu {
-  position: absolute;
-  bottom: 70px;
-  right: 12px;
-  min-width: 190px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 14px 40px rgba(11,74,106,0.12);
-  border: 1px solid rgba(11,74,106,0.06);
-  padding: 8px;
-  z-index: 40;
-  display: none;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 14px;
-}
-
-/* visible state */
-.share-menu[aria-hidden="false"] { display: flex; }
-
-/* action rows */
-.share-menu .share-action {
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:8px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  color: #0f1724;
-}
-.share-menu .share-action:hover,
-.share-menu .share-action:focus {
-  background:#f4f7f9;
-}
-
-/* QR preview */
-.share-menu .qr-preview {
-  display:none;
-  padding:8px;
-  justify-content:center;
-}
-.share-menu .qr-preview img {
-  width:150px;
-  height:150px;
-  object-fit:contain;
-  border-radius:8px;
-  border: 1px solid rgba(0,0,0,0.04);
-}
-.share-menu[aria-qr="true"] .qr-preview { display:flex; }
-
-/* small status text */
-.share-menu .muted-small { color:var(--muted); font-size:12px; }
-
-/* ensure icons inside the action rows are constrained */
-.share-menu .share-action img { width:20px; height:20px; display:block; }
-
-/* ---------- Generic card ---------- */
-.card{
-  margin-top:14px;
-  background:rgba(255,255,255,0.92);
-  backdrop-filter: blur(2px);
-  border-radius:var(--radius);
-  padding:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.08);
-  border:1px solid rgba(0,0,0,0.04);
-}
-
-/* ---------- Meta box ---------- */
-.meta-box{
-  margin-top:12px;
-  background:#fff;
-  border-radius:var(--radius);
-  padding:12px 14px;
-  border:1px solid rgba(12,18,22,0.035);
-  box-shadow:0 6px 18px rgba(12,18,22,0.04);
-}
-.meta-line{ font-size:15px; color:var(--muted); margin-bottom:6px; }
-.meta-line:last-child{ margin-bottom:0; }
-
-/* Chorister / Organist neat spacing */
-.meta-extra{
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-  padding:0 18px;
-  font-size:14px;
-  color:var(--muted);
-  max-width:720px;
-  margin:10px auto 0 auto;
-}
-.meta-left{ text-align:left; padding-left:6px; }
-.meta-right{ text-align:right; padding-right:6px; }
-
-/* ---------- Program list / agenda ---------- */
-.program-content{ display:flex; flex-direction:column; gap:10px; padding:0; }
-
-.agenda-icon{ width:40px; height:40px; display:block; object-fit:contain; }
-
-.agenda-item .icon{
-  width:44px;
-  height:44px;
-  min-width:44px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* generic agenda row: simplified lined look (non-hymn items) */
-.agenda-item{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px 6px;
-  background:none;
-  border:none;
-  border-top:1px solid #e5e7eb;
-  border-bottom:1px solid #e5e7eb;
-  border-radius:0;
-}
-.agenda-item + .agenda-item{ border-top:none; }
-
-.agenda-item .title{ font-weight:600; font-size:16px; color:#111827; }
-.agenda-item .sub{ font-size:14px; color:var(--muted); margin-top:2px; }
-.agenda-item .content{ flex:1; }
-.agenda-item .right{ font-size:13px; color:var(--muted) }
-
-/* ---------- Hymn card ---------- */
-.hymn-card{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px;
-  border-radius:10px;
-  background:#f4f6f7; /* slightly darker interior as requested */
-  border:1px solid rgba(0,0,0,0.04);
-  box-shadow:0 1px 3px rgba(0,0,0,0.04);
-  margin:0;
-  margin-bottom:6px;
-  border-bottom:1px solid #e5e7eb;
-}
-.hymn-card .left{ display:flex; gap:12px; align-items:center; }
-.hymn-icon{ width:44px; height:44px; background:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(11,74,106,0.08) }
-.hymn-title{ font-weight:600; color:#0f1724; }
-.hymn-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
-.hymn-card:hover{ background:#eef6f9; }
-.hymn-link{ text-decoration:none; color:inherit; display:block; }
-.hymn-arrow{
-  width:25px;
-  height:25px;
-  stroke:#0b4a6a;
-  stroke-width:2.2;
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-
-/* announcements */
-.announcements-wrapper { margin-bottom:12px; }
-.announcements-wrapper .collapsible-toggle { background:transparent; color:var(--accent); border-radius:8px; padding:10px 12px; border:1px solid rgba(11,74,106,0.06); }
-.announcements-wrapper .collapsible-panel { background: transparent; border-radius:6px; padding:8px 12px; }
-.announcements-wrapper .announcement-item p { color:#0f1724; margin:0; line-height:1.4; }
-.announcements-wrapper .announcement-item a { text-decoration:none; }
-
-/* Announcements link button */
-.announcement-link{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 12px;
-  border-radius:8px;
-  background:var(--accent-2);
-  color:var(--accent);
-  font-weight:700;
-  text-decoration:none;
-}
-
-.announcement-link img{
-  width:18px;
-  height:18px;
-  border-radius:4px;
-  background:#fff;
-  padding:2px;
-  flex:0 0 auto;
-}
-
-.announcement-link .hymn-arrow,
-.announcement-link svg.hymn-arrow{
-  width:18px;
-  height:18px;
-  flex:0 0 auto;
-}
-
-/* ensure the URL text wraps/truncates nicely on small screens */
-.announcement-link span{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  max-width:100%;
-}
-
-.btn-accent {
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  background: var(--accent);
+.hero-text {
   color: #fff;
+}
+
+#church-logo {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: auto;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.meeting-heading {
+  margin: 0;
+  font-family: "Merriweather", Georgia, serif;
   font-weight: 700;
-  text-decoration: none;
-  border: none;
-  font-size:16px;
-  font-family: "Inter", system-ui, sans-serif;
-
-  /* stronger, soft shadow for elevated CTA */
-  box-shadow: 0 12px 30px rgba(11,74,106,0.18), 0 2px 6px rgba(0,0,0,0.06);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.08;
 }
 
-.btn-accent:hover,
-.btn-accent:focus{
-  transform: translateY(-4px);
-  box-shadow: 0 20px 44px rgba(11,74,106,0.20), 0 8px 18px rgba(0,0,0,0.08);
-  outline: none;
+.meeting-date,
+.meeting-time,
+.visitor-line {
+  margin-top: 10px;
+  font-weight: 600;
 }
 
-/* visitor line text */
-.visitor-line{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:center;
-  margin-top: 80px;
+.share-btn,
+#share-menu {
+  display: none !important;
 }
 
-.visitor-text{ font-weight:700; font-size:16px; color:rgba(255,255,255,0.95); }
-
-/* responsive tweaks */
-@media (max-width:520px){
-  .hero-inner{ min-height: 160px; }
-  .hero{ min-height: 260px; padding-bottom: 10px; margin-top: -12px; padding-top: calc(40px + env(safe-area-inset-top, 0px)) }
-  .hero-text{ min-height: 180px; gap:10px; padding-bottom:12px; }
-  .btn-accent { padding: 10px 16px; font-size:15px; }
+.card,
+.meta-box,
+.meta-extra,
+.notice,
+.site-footer {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 14px 0;
 }
 
-#info-note.notice {
-  display: block;
-  margin-top: 12px;
-  background: #fff4e6; /* keep your existing notice style */
-  border: 1px solid #f0d7bd;
-  padding: 10px 12px;
-  border-radius: 8px;
-  color: #7a4b00;
-  font-size: 14px;
+.meta-line,
+.meta-left,
+.meta-right {
+  margin: 4px 0;
+}
+
+.program-content .placeholder,
+.muted {
+  color: #6b7280;
+}
+
+.collapsible-toggle {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #fff;
+  background: #0a7fa0;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collapsible-panel {
+  padding-top: 12px;
 }
 
 #footer-logo {
-  display:inline-block;
-  width: 360px;      /* target desktop size; tweak as needed */
-  max-width: 80%;    /* responsive fallback on tiny viewports */
-  height: auto;      /* preserve aspect ratio */
-  object-fit: contain;
-}
-@media (max-width:520px){
-  #footer-logo { width: 420px; }
-}
-
-.site-footer {
-  margin-top: 28px;
-  padding: 32px 12px 40px;
-  text-align: center;
-  opacity: 0.95;
-}
-/* ---------- Conference events placed inside the program card body ---------- */
-.stake-wrapper{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  padding: 6px 12px 18px 12px;
-}
-.stake-title{
-  font-size:20px; font-weight:700; color:#6b7280; text-align:center;
-  padding: 8px 8px 6px 8px; margin:0 auto;
-}
-.conference-events-body {
-  margin: 0; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding: 0;
-}
-#conference-events{ margin-top:0; }
-
-.gc-schedule th, .gc-schedule td {
-  border: none;
-  padding: 8px 6px;
-}
-.gc-schedule tbody tr td {
-  font-size: 14px;
-  color: #0f1724;
-}
-#gc-watch-cards .event-card { cursor: pointer; }
-
-/* General Conference watch card URL: compact label + wrap safely */
-#gc-watch-cards a.gc-url,
-#gc-watch-cards .gc-url {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
+  max-width: 160px;
+  width: 100%;
   display: block;
-  overflow-wrap: anywhere;    /* allow long URLs to wrap */
-  word-break: break-word;     /* fallback for older browsers */
-  hyphens: none;
-  max-width: 100%;
+  margin: 0 auto;
 }
 
-/* Keep the left area (icon + name) from squashing the URL area */
-#gc-watch-cards .event-card > div:first-child {
-  min-width: 0; /* allow flex shrinking */
+@media (min-width: 900px) {
+  .app {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+  .hero {
+    margin-left: -28px;
+    margin-right: -28px;
+    border-radius: 0 0 28px 28px;
+  }
+  .hero-image {
+    height: min(68vh, 760px);
+  }
+  #church-logo {
+    width: 76px;
+    top: 16px;
+  }
 }
 
-/* ensure the text column can shrink/wrap within the card */
-#gc-watch-cards .event-card .gc-url,
-#gc-watch-cards .event-card .event-left {
-  min-width: 0;
-}
 
-/* Optional: if you want a lighter visual for very long links, limit font-size on the URL */
-#gc-watch-cards a.gc-url { font-size: 13px; }
-
-/* ---------- Event cards ---------- */
-.event-card { background:#fff; border-radius:10px; padding:12px; border:1px solid rgba(11,74,106,0.06); box-shadow:0 6px 18px rgba(12,18,22,0.04); display:flex; align-items:center; justify-content:space-between; }
-.event-left{ display:flex; flex-direction:column; gap:6px; }
-.event-title{ font-weight:700; font-size:16px; color:#0f1724; }
-.event-meta{ color:var(--muted); font-size:13px; }
-.event-loc, .event-time { margin-top:2px; }
-.event-address a{ color:var(--accent); text-decoration:none; font-weight:600; display:inline-block; margin-top:6px; }
-.event-right .hymn-arrow{ width:24px; height:24px; stroke:var(--accent); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
-
-@media (max-width:520px){
-  .event-card{ padding:12px; }
-  .event-right{ margin-left:10px; }
-}
-
-/* hero fallback if cards end up in hero */
-.hero #conference-events, .conference-events-hero{ margin-top: 12px; display:flex; flex-direction:column; gap:12px; position: relative; z-index: 1; padding-bottom: 8px; }
-
-.program-content .agenda-item:first-child{ border-top:none; }
-.program-content > *:last-child{ border-bottom:none; }
-
-/* ---------- Small utility styles ---------- */
-.muted{ color:var(--muted); }
-.small{ font-size:12px; }
-
-/* ---------- Collapsibles ---------- */
-.collapsible{ padding:0; overflow:hidden; }
-.collapsible-toggle{ width:100%; background:var(--accent); color:#fff; padding:12px; border-radius:10px; border:none; display:flex; align-items:center; justify-content:space-between; font-weight:600; cursor:pointer; margin-bottom:8px; }
-.collapsible-panel{ display:none; padding:12px; background:#fff; border-radius:8px; border:1px solid rgba(12,18,22,0.04); }
-.list .card-mini{ margin-bottom:8px; padding:10px; border-radius:8px; background:#f8fbfc; border:1px solid rgba(11,74,106,0.04) }
-.chev{ transform: rotate(0deg); transition: transform .25s ease; }
-.collapsible-toggle[aria-expanded="true"] .chev{ transform: rotate(180deg); }
-
-/* Leadership table styling */
-.leadership-table{ width:100%; border-collapse:collapse; background:#fff; margin:0; border-radius:8px; overflow:hidden; border:1px solid rgba(11,74,106,0.06); }
-.leadership-table tbody tr{ border-bottom:1px solid rgba(11,74,106,0.06); }
-.leadership-table tbody tr:last-child{ border-bottom:none; }
-.leadership-table td{ padding:14px 12px; vertical-align:middle; font-size:13px; color:#0f1724; }
-.lead-col-role{ width:40%; font-weight:600; font-size:13px; color:#0b4a6a; }
-.lead-col-name{ width:40%; font-weight:500; font-size:13px; color:#111827; }
-.lead-col-contact{
-  width:20%; text-align:right; font-size:12px; color:var(--muted);
-  white-space:nowrap; word-break:keep-all; overflow-wrap:normal;
-  min-width:120px;
-}
-.lead-col-contact a{ color:var(--accent); text-decoration:none; display:inline-block; padding:6px 10px; border-radius:8px; white-space:nowrap; }
-
-/* Notices, dividers, placeholders */
-.notice{ display:block; margin-top:12px; background:#fff4e6; border:1px solid #f0d7bd; padding:8px; border-radius:8px; color:#7a4b00 }
-.agenda-divider{ display:flex; align-items:center; gap:10px; margin:16px 0; }
-.divider-line{ flex:1; height:1px; background:#e5e7eb; }
-.divider-text{ font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#6b7280; white-space:nowrap; }
-
-/* Large centered placeholder for non-sacrament meeting types */
-.meeting-placeholder{ display:flex; align-items:center; justify-content:center; min-height:260px; margin:36px 0; border-radius:12px; background: transparent; box-shadow: none; border: none; width:100%; }
-.meeting-placeholder .placeholder-text{ font-size:22px; font-weight:700; color:var(--muted); text-align:center; padding:56px 18px; letter-spacing:0.02em; }
-
-/* Testimony banner */
-.testimony-banner{ display:flex; justify-content:center; margin:12px 0 18px 0; }
-.testimony-banner .testimony-text{ text-transform:uppercase; font-weight:700; letter-spacing:0.06em; color:var(--accent); font-size:14px; border-top:1px solid rgba(11,74,106,0.06); padding-top:12px; }
-.agenda-divider + .testimony-banner{ margin-top:6px; }
-
-@media (max-width:420px){
-  .hero-inner{ flex-direction:column; gap:6px; }
-  .meeting-heading{ font-size:20px; }
-  .agenda-item .icon{ width:40px; height:40px; }
-}
-
-@media (max-width:520px){
-  .meeting-heading{ font-size: 26px; }
-  .hero{ padding-bottom: 10px; }
-  .hero-text{ min-height: 180px; gap:10px; padding-bottom:12px; }
-  .meeting-date{ font-size: 14px; max-width: 88%;}
-  #meeting-time { font-size: 14px; }
-  .btn-accent { padding: 10px 16px; font-size:15px; }
-}
