@@ -1419,14 +1419,32 @@ async function run(){
 
 function initMobileScrollStrip(){
   const threshold = 28;
+  const getScrollY = () => Math.max(
+    window.pageYOffset || 0,
+    document.documentElement ? document.documentElement.scrollTop || 0 : 0,
+    document.body ? document.body.scrollTop || 0 : 0
+  );
+
   const update = () => {
     const isMobile = window.matchMedia('(max-width: 900px)').matches;
-    document.body.classList.toggle('mobile-scrolled', isMobile && window.scrollY > threshold);
+    const y = getScrollY();
+    const atTop = y <= 2;
+    document.body.classList.toggle('mobile-scrolled', isMobile && y > threshold && !atTop);
   };
+
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+  window.addEventListener('orientationchange', update);
+  window.addEventListener('touchend', update, { passive: true });
+  window.addEventListener('pageshow', update);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', update);
+    window.visualViewport.addEventListener('scroll', update);
+  }
+
   update();
 }
+
 
 initMobileScrollStrip();
 run();
