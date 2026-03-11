@@ -34,7 +34,7 @@ body {
 .mobile-scroll-strip {
   position: fixed;
   inset: 0 0 auto 0;
-  height: calc(env(safe-area-inset-top, 0px) + 36px);
+  height: calc(env(safe-area-inset-top, 0px) + 78px);
   padding-top: env(safe-area-inset-top, 0px);
   background: var(--scroll-strip);
   align-items: center;
