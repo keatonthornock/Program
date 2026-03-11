@@ -126,37 +126,5 @@
   </main>
 
   <script src="js/app.js"></script>
-
-  <script src="js/app.js"></script>
-
-  <script>
-  (function(){
-    const dbg = document.createElement('div');
-    dbg.style.position = 'fixed';
-    dbg.style.left = '10px';
-    dbg.style.top = '10px';
-    dbg.style.background = 'black';
-    dbg.style.color = 'white';
-    dbg.style.padding = '8px';
-    dbg.style.fontSize = '14px';
-    dbg.style.zIndex = 9999;
-    document.body.appendChild(dbg);
-  
-    const test = document.createElement('div');
-    test.style.height = 'env(safe-area-inset-top)';
-    document.body.appendChild(test);
-  
-    const safeTop = test.getBoundingClientRect().height;
-    const hero = document.querySelector('.hero');
-  
-    dbg.innerHTML =
-      "safe-area-inset-top: " + safeTop + "<br>" +
-      "hero.top: " + hero.getBoundingClientRect().top + "<br>" +
-      "hero.marginTop: " + getComputedStyle(hero).marginTop;
-  
-    test.remove();
-  })();
-  </script>
-  
 </body>
 </html>
