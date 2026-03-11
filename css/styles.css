@@ -167,7 +167,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   margin: 0 -16px 20px;
   min-height: 320px;
   overflow: hidden;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0;
   background: #111;
 }
 
@@ -279,7 +279,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   .hero {
     margin-left: -28px;
     margin-right: -28px;
-    border-radius: 0 0 28px 28px;
+    border-radius: 0;
   }
   .hero-image {
     height: min(68vh, 760px);
@@ -293,4 +293,89 @@ body.mobile-scrolled .mobile-scroll-strip {
   .mobile-scroll-strip,
   .floating-learn-more,
   .menu-overlay { display: none; }
+}
+
+
+.program-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.agenda-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 2px;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.hymn-button {
+  border: 2px solid #111;
+  border-radius: 999px;
+  background: #fff;
+  padding: 10px 14px;
+  margin: 6px 0;
+  cursor: pointer;
+}
+
+.hymn-button .icon,
+.agenda-item .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agenda-icon {
+  color: #111;
+  font-size: 20px;
+  width: 20px;
+  text-align: center;
+}
+
+.material-icons.agenda-icon {
+  font-size: 22px;
+}
+
+.agenda-textline {
+  font-size: 1.08rem;
+  line-height: 1.4;
+}
+
+.agenda-label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.agenda-separator {
+  margin: 0 8px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.agenda-value {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.hymn-button .agenda-value {
+  letter-spacing: 0.01em;
+}
+
+.agenda-item .right {
+  color: #111;
+}
+
+.hymn-arrow {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #111;
+  stroke-width: 2;
+}
+
+.agenda-divider {
+  margin: 12px 0 8px;
 }
