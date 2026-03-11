@@ -34,17 +34,15 @@ body {
 .mobile-scroll-strip {
   position: fixed;
   inset: 0 0 auto 0;
-  height: calc(env(safe-area-inset-top, 0px) + 78px);
+  height: calc(env(safe-area-inset-top, 0px) + 36px);
   padding-top: env(safe-area-inset-top, 0px);
   background: var(--scroll-strip);
-  align-items: center;
-  justify-content: flex-start;
-  padding-left: 14px;
+  display: block;
   transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
   transition: transform 0.22s ease, opacity 0.22s ease;
-  z-index: 58;
+  z-index: 80;
 }
 
 body.mobile-scrolled .mobile-scroll-strip {
@@ -68,11 +66,18 @@ body.mobile-scrolled .mobile-scroll-strip {
   background: transparent;
 }
 
+.floating-learn-more {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  right: 14px;
+  z-index: 95;
+}
+
 .menu-open {
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + 14px);
   left: 14px;
-  z-index: 70;
+  z-index: 95;
   border: 0;
   background: transparent;
   color: #fff;
@@ -121,6 +126,13 @@ body.mobile-scrolled .mobile-scroll-strip {
   filter: brightness(0) saturate(100%);
 }
 
+.menu-close {
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  color: #444;
+}
+
 .side-menu-nav {
   display: grid;
   gap: 12px;
@@ -137,13 +149,6 @@ body.mobile-scrolled .mobile-scroll-strip {
   font-size: 1.1rem;
   font-weight: 700;
   padding: 10px 0;
-}
-
-.menu-close {
-  border: 0;
-  background: transparent;
-  font-size: 28px;
-  color: #444;
 }
 
 .side-menu-link svg {
@@ -200,7 +205,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   transform: translateX(-50%);
   width: 128px;
   height: auto;
-  z-index: 72;
+  z-index: 96;
   pointer-events: none;
 }
 
@@ -213,7 +218,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .meeting-date,
-.meeting-time,
+.meeting-time { margin-top: 10px; font-weight: 600; }
 
 #visitor-line,
 .share-btn,
