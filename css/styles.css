@@ -42,7 +42,7 @@ body {
 }
 
 body.mobile-scrolled .mobile-scroll-strip {
-  transform: translateY(0);
+  top: 0;
 }
 
 .hero {
