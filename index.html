@@ -17,13 +17,15 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <div class="mobile-scroll-strip" aria-hidden="true"></div>
   <main id="app" class="app">
     <!-- Top hero / header -->
     <header class="hero">
+      <img class="hero-image" src="images/banner-picture.png" alt="Top banner image">
       <div class="hero-inner">
         <div class="hero-text">
           <!-- larger logo above the heading, and allowed to be transparent -->
-          <img id="church-logo" src="logo.png" alt="Church logo" onerror="this.style.display='none'">
+          <img id="church-logo" src="icons/logo.png" alt="Site logo" onerror="this.style.display='none'">
           <h1 id="meeting-heading" class="meeting-heading">Sacrament Meeting</h1>
           <div id="meeting-date" class="meeting-date">Loading…</div>
           <div id="meeting-time" class="meeting-time" aria-hidden="true"></div>
