@@ -34,7 +34,7 @@ body {
 .mobile-scroll-strip {
   position: fixed;
   inset: 0 0 auto 0;
-  height: calc(env(safe-area-inset-top, 0px) + 85px);
+  height: calc(env(safe-area-inset-top, 0px) + 78px);
   background: var(--scroll-strip);
   transform: translateY(-100%);
   transition: transform 0.25s ease;
