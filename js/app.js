@@ -408,6 +408,24 @@ function createAgendaText(typeLabel, value){
   `;
   }
 
+function formatHymnDetails(title, hymnNumber, extraInfo){
+  const parts = [];
+  if(hymnNumber) parts.push(`<span>#${escapeHtml(hymnNumber)}</span>`);
+  if(title) parts.push(`<span>${escapeHtml(title)}</span>`);
+
+  if(extraInfo){
+    const sourceText = extraInfo.toString().trim();
+    const isMutedSource = /^(hymns|hymns for home and church|childrens songbook)$/i.test(sourceText);
+    if(isMutedSource){
+      parts.push(`<span class="hymn-source">${escapeHtml(sourceText)}</span>`);
+    } else {
+      parts.push(`<span>${escapeHtml(sourceText)}</span>`);
+    }
+  }
+
+  return parts.length ? parts.join(' <span class="agenda-separator">·</span> ') : '';
+}
+
 function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null, extraInfo=''){
   const el = document.createElement(url ? 'button' : 'div');
   el.className = `agenda-item hymn-card${url ? ' hymn-button' : ''}`;
@@ -417,13 +435,7 @@ function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null, extra
     el.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
   }
 
-  const hymnSummary = [
-    hymnNumber ? `#${hymnNumber}` : '',
-    title || '',
-    extraInfo || ''
-  ].filter(Boolean).join(' · ');
-
-  const details = hymnSummary || title || hymnNumber || '';
+  const details = formatHymnDetails(title, hymnNumber, extraInfo);
 
   el.innerHTML = `
     <div class="icon">${getAgendaIcon("hymn")}</div>
@@ -537,7 +549,7 @@ function renderAnnouncements(admRows){
     const p = document.createElement('p');
     p.className = 'muted';
     p.style.margin = '0';
-    p.style.color = '#0f1724';
+    p.style.color = '#e8f5fb';
     p.style.fontSize = '14px';
     p.textContent = a.text;
     item.appendChild(p);
