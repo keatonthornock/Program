@@ -17,14 +17,41 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <div class="mobile-scroll-strip" aria-hidden="true"></div>
+  <div class="mobile-scroll-strip" aria-hidden="true">
+    <a id="strip-learn-more" class="strip-learn-more" href="https://www.churchofjesuschrist.org/comeuntochrist" target="_blank" rel="noopener noreferrer">Learn More</a>
+  </div>
+
+  <div class="menu-overlay" id="menu-overlay" hidden>
+    <aside class="side-menu" id="side-menu" aria-label="Navigation menu">
+      <div class="side-menu-header">
+        <img src="icons/logo.png" alt="Site logo" class="side-menu-logo" onerror="this.style.display='none'">
+        <button id="menu-close" class="menu-close" type="button" aria-label="Close menu">✕</button>
+      </div>
+      <nav class="side-menu-nav" aria-label="Section shortcuts">
+        <button class="side-menu-link" data-section="announcements-section" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l12-5v10L4 12zm12 2v4a2 2 0 0 1-2 2h-1"/></svg>
+          <span>Announcements</span>
+        </button>
+        <button class="side-menu-link" data-section="activities-section" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+          <span>Activities &amp; Events</span>
+        </button>
+        <button class="side-menu-link" data-section="leaders-section" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.3-5 8-5s6.5 1.5 8 5"/></svg>
+          <span>Ward Leadership</span>
+        </button>
+      </nav>
+    </aside>
+    <button id="menu-scrim" class="menu-scrim" type="button" aria-label="Close menu"></button>
+  </div>
+  
   <main id="app" class="app">
     <!-- Top hero / header -->
     <header class="hero">
       <img class="hero-image" src="images/banner-picture.png" alt="Top banner image">
+      <button id="menu-open" class="menu-open" type="button" aria-label="Open menu">☰</button>
       <div class="hero-inner">
         <div class="hero-text">
-          <!-- larger logo above the heading, and allowed to be transparent -->
           <img id="church-logo" src="icons/logo.png" alt="Site logo" onerror="this.style.display='none'">
           <h1 id="meeting-heading" class="meeting-heading">Sacrament Meeting</h1>
           <div id="meeting-date" class="meeting-date">Loading…</div>
@@ -65,7 +92,6 @@
       </div>
     </header>
 
-    <!-- Presiding / Conducting -->
     <div class="meta-box">
       <div class="meta-line" id="presiding-line">
         <strong>Presiding:</strong> <span id="presiding"></span>
@@ -86,9 +112,7 @@
       </div>
     </div>
 
-    <!-- Program / agenda -->
     <section id="program" class="card program">
-      <!-- Program content will be injected here by JS -->
       <div id="program-content" class="program-content">
         <div class="placeholder">
           <p class="muted">No agenda items loaded yet. When Agenda is configured the program will appear here.</p>
@@ -96,9 +120,8 @@
       </div>
     </section>
 
-    <!-- Collapsible Activities -->
     <section class="card collapsible" id="activities-section">
-      <button class="collapsible-toggle" data-target="activities-panel">
+      <button class="collapsible-toggle" data-target="activities-panel" aria-expanded="false" type="button">
         <span>Activities &amp; Events</span>
         <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden><path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
       </button>
@@ -108,9 +131,8 @@
       </div>
     </section>
 
-    <!-- Collapsible Ward Leadership -->
     <section class="card collapsible" id="leaders-section">
-      <button class="collapsible-toggle" data-target="leaders-panel">
+      <button class="collapsible-toggle" data-target="leaders-panel" aria-expanded="false" type="button">
         <span>Ward Leadership</span>
         <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden><path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
       </button>
