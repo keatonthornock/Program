@@ -1400,22 +1400,78 @@ async function run(){
 
     clearError();
 
-    // wire collapsibles
-    document.querySelectorAll('.collapsible-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.getAttribute('data-target');
-        const panel = document.getElementById(target);
-        const expanded = btn.getAttribute('aria-expanded') === 'true';
-        btn.setAttribute('aria-expanded', (!expanded).toString());
-        if(panel) panel.style.display = expanded ? 'none' : 'block';
-      });
-    });
+    // wire collapsibles + menu section shortcuts
+    initCollapsibles();
+    initSideMenu();
 
   } catch(err){
     console.error('[app] error', err);
     showError('Failed to fetch sheets: ' + err.message);
   }
 }
+
+
+
+function setCollapsibleState(btn, expanded){
+  if(!btn) return;
+  const target = btn.getAttribute('data-target');
+  const panel = target ? document.getElementById(target) : null;
+  btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  if(panel) panel.style.display = expanded ? 'block' : 'none';
+}
+
+function initCollapsibles(){
+  document.querySelectorAll('.collapsible-toggle').forEach(btn => {
+    if(btn.dataset.boundCollapsible === 'true') return;
+    setCollapsibleState(btn, false);
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      setCollapsibleState(btn, !expanded);
+    });
+    btn.dataset.boundCollapsible = 'true';
+  });
+}
+
+function expandAndScrollToSection(sectionId){
+  const section = document.getElementById(sectionId);
+  if(!section) return;
+  const toggle = section.querySelector('.collapsible-toggle');
+  if(toggle) setCollapsibleState(toggle, true);
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initSideMenu(){
+  const overlay = document.getElementById('menu-overlay');
+  const openBtn = document.getElementById('menu-open');
+  const closeBtn = document.getElementById('menu-close');
+  const scrim = document.getElementById('menu-scrim');
+  if(!overlay || !openBtn || !closeBtn || !scrim) return;
+  if(overlay.dataset.boundMenu === 'true') return;
+
+  const openMenu = () => {
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+  const closeMenu = () => {
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  openBtn.addEventListener('click', openMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  scrim.addEventListener('click', closeMenu);
+
+  overlay.querySelectorAll('.side-menu-link').forEach(link => {
+    link.addEventListener('click', () => {
+      closeMenu();
+      const id = link.getAttribute('data-section');
+      if(id) expandAndScrollToSection(id);
+    });
+  });
+
+  overlay.dataset.boundMenu = 'true';
+}
+
 
 function initMobileScrollStrip(){
   const threshold = 28;
