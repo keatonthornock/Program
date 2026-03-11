@@ -28,7 +28,7 @@ body {
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 16px 32px;
+  padding: 0 16px 64px;
 }
 
 .mobile-scroll-strip {
@@ -230,13 +230,32 @@ body.mobile-scrolled .mobile-scroll-strip {
 .card,
 .meta-box,
 .meta-extra,
-.notice,
-.site-footer {
+.notice {
   background: var(--card-bg);
   border: 1px solid var(--border-soft);
   border-radius: 16px;
   padding: 16px;
   margin: 14px 0;
+}
+
+.bottom-content-zone {
+  background: var(--scroll-strip);
+  margin: 20px -16px -64px;
+  padding: 10px 16px 90px;
+}
+
+.bottom-content-zone .card,
+.bottom-content-zone .notice {
+  background: rgba(4, 68, 95, 0.32);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #f6fbff;
+}
+
+.bottom-content-zone .muted,
+.bottom-content-zone .small,
+.bottom-content-zone .list,
+.bottom-content-zone .notice a {
+  color: #e8f5fb;
 }
 
 .meta-line,
@@ -253,7 +272,8 @@ body.mobile-scrolled .mobile-scroll-strip {
   padding: 12px 14px;
   color: #fff;
   background: #0a7fa0;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.08rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -265,10 +285,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 #footer-logo {
-  max-width: 160px;
-  width: 100%;
+  max-width: 175px;
+  width: min(175px, 65%);
   display: block;
-  margin: 0 auto;
+  margin: 18px auto 0;
 }
 
 @media (min-width: 900px) {
@@ -309,16 +329,17 @@ body.mobile-scrolled .mobile-scroll-strip {
   align-items: center;
   gap: 10px;
   padding: 14px 2px;
-  border-bottom: 1px solid #d1d5db;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 }
 
 .hymn-button {
-  border: 2px solid #111;
-  border-radius: 999px;
+  border: 1px solid #9ca3af;
+  border-radius: 18px;
   background: #fff;
   padding: 10px 14px;
   margin: 6px 0;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 }
 
 .hymn-button .icon,
@@ -344,6 +365,10 @@ body.mobile-scrolled .mobile-scroll-strip {
   line-height: 1.4;
 }
 
+.hymn-button .agenda-textline {
+  font-size: 1rem;
+}
+
 .agenda-label {
   font-weight: 700;
   color: #111827;
@@ -364,6 +389,12 @@ body.mobile-scrolled .mobile-scroll-strip {
   letter-spacing: 0.01em;
 }
 
+.hymn-source {
+  color: #6b7280;
+  font-size: 0.93em;
+  font-weight: 500;
+}
+
 .agenda-item .right {
   color: #111;
 }
@@ -372,10 +403,19 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 20px;
   height: 20px;
   fill: none;
-  stroke: #111;
+  stroke: #4b5563;
   stroke-width: 2;
 }
 
 .agenda-divider {
   margin: 12px 0 8px;
+}
+
+@media (min-width: 900px) {
+  .bottom-content-zone {
+    margin-left: -28px;
+    margin-right: -28px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
 }
