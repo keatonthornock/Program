@@ -384,10 +384,10 @@ function initShare(){
 
 /* ---------- icon/image helpers ---------- */
 function getAgendaIcon(type){
-  if(type === "hymn") return `<img src="./icons/hymn.svg" class="agenda-icon" alt="">`;
-  if(type === "speaker") return `<img src="./icons/speaker.svg" class="agenda-icon" alt="">`;
-  if(type === "prayer") return `<img src="./icons/prayer.svg" class="agenda-icon" alt="">`;
-  if(type === "music") return `<img src="./icons/musicnumber.svg" class="agenda-icon" alt="">`;
+  if(type === "hymn") return `<i class="fi-music agenda-icon" aria-hidden="true"></i>`;
+  if(type === "speaker") return `<i class="fa fa-user-alt agenda-icon" aria-hidden="true"></i>`;
+  if(type === "prayer") return `<i class="fa fa-praying-hands agenda-icon" aria-hidden="true"></i>`;
+  if(type === "music") return `<i class="material-icons agenda-icon" aria-hidden="true">library_music</i>`;
   return "";
 }
 
@@ -398,44 +398,53 @@ function createElemFromHTML(html){
   return div.firstChild;
 }
 
-function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null){
-  const el = document.createElement('div');
-  el.className = 'hymn-card';
-  el.innerHTML = `
-    <div class="left">
-      ${getAgendaIcon("hymn")}
-      <div>
-        <div class="hymn-title">${label}</div>
-        <div class="hymn-sub">${hymnNumber ? `#${hymnNumber}` : ''}${title ? (hymnNumber ? ` — ${title}` : title) : ''}</div>
-      </div>
+function createAgendaText(typeLabel, value){
+  return `
+    <div class="agenda-textline">
+      <span class="agenda-label">${typeLabel}</span>
+      <span class="agenda-separator">—</span>
+      <span class="agenda-value">${value || ''}</span>
     </div>
-    <div class="right">${url? `
-      <svg class="hymn-arrow" viewBox="0 0 24 24">
-        <path d="M9 6l6 6-6 6"/>
-      </svg>` : ''}</div>
   `;
-  if(url){
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.className = 'hymn-link';
-    a.appendChild(el);
-    return a;
   }
+
+function createHymnCard(title, hymnNumber, label='Opening Hymn', url=null, extraInfo=''){
+  const el = document.createElement(url ? 'button' : 'div');
+  el.className = `agenda-item hymn-card${url ? ' hymn-button' : ''}`;
+  if(url){
+    el.type = 'button';
+    el.setAttribute('aria-label', `${label}: ${hymnNumber ? `hymn ${hymnNumber}` : ''}${title ? ` ${title}` : ''}`.trim());
+    el.addEventListener('click', () => window.open(url, '_blank', 'noopener'));
+  }
+
+  const hymnSummary = [
+    hymnNumber ? `#${hymnNumber}` : '',
+    title || '',
+    extraInfo || ''
+  ].filter(Boolean).join(' · ');
+
+  const details = hymnSummary || title || hymnNumber || '';
+
+  el.innerHTML = `
+    <div class="icon">${getAgendaIcon("hymn")}</div>
+    <div class="content hymn-content">
+      ${createAgendaText(label, details)}
+    </div>
+    <div class="right">${url ? `<svg class="hymn-arrow" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>` : ''}</div>
+  `;
   return el;
 }
 
 function createRow(typeLabel, name, extra, iconType = 'default'){
   const el = document.createElement('div');
   el.className = 'agenda-item';
+  const value = [name || '', extra || ''].filter(Boolean).join(' · ');
   el.innerHTML = `
     <div class="icon">${getAgendaIcon(iconType)}</div>
     <div class="content">
-      <div class="title">${typeLabel}</div>
-      <div class="sub">${name || ''}</div>
+      ${createAgendaText(typeLabel, value)}
     </div>
-    <div class="right">${extra || ''}</div>
+    <div class="right"></div>
   `;
   return el;
 }
@@ -1293,7 +1302,7 @@ async function run(){
           if(m2) hymnNumber = m2[1];
         }
         const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
-        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl));
+        container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl, extra));
         any = true;
         continue;
       }
