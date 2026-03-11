@@ -55,22 +55,24 @@ body.mobile-scrolled .mobile-scroll-strip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 32px;
-  padding: 0 18px;
+  min-height: 28px;
+  padding: 0 12px;
   border: 2px solid #fff;
   border-radius: 999px;
   color: #fff;
   text-decoration: none;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
+  line-height: 1;
   background: transparent;
+  white-space: nowrap;
 }
 
 .floating-learn-more {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
   right: 14px;
-  z-index: 95;
+  z-index: 98;
 }
 
 .menu-open {
@@ -205,7 +207,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   transform: translateX(-50%);
   width: 128px;
   height: auto;
-  z-index: 96;
+  z-index: 101;
   pointer-events: none;
 }
 
@@ -284,8 +286,10 @@ body.mobile-scrolled .mobile-scroll-strip {
   #church-logo {
     width: 152px;
     top: 16px;
+  }
+
   .menu-open,
   .mobile-scroll-strip,
+  .floating-learn-more,
   .menu-overlay { display: none; }
-  }
 }

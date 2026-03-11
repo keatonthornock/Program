@@ -17,8 +17,9 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <a id="strip-learn-more" class="strip-learn-more floating-learn-more" href="https://www.churchofjesuschrist.org/comeuntochrist" target="_blank" rel="noopener noreferrer">Learn More</a>
+
   <div class="mobile-scroll-strip" aria-hidden="true">
-    <a id="strip-learn-more" class="strip-learn-more" href="https://www.churchofjesuschrist.org/comeuntochrist" target="_blank" rel="noopener noreferrer">Learn More</a>
   </div>
 
   <div class="menu-overlay" id="menu-overlay" hidden>
@@ -45,6 +46,8 @@
     <button id="menu-scrim" class="menu-scrim" type="button" aria-label="Close menu"></button>
   </div>
   
+  <img id="church-logo" src="icons/logo.png" alt="Site logo" onerror="this.style.display='none'">
+
   <main id="app" class="app">
     <!-- Top hero / header -->
     <header class="hero">
@@ -52,7 +55,6 @@
       <button id="menu-open" class="menu-open" type="button" aria-label="Open menu">☰</button>
       <div class="hero-inner">
         <div class="hero-text">
-          <img id="church-logo" src="icons/logo.png" alt="Site logo" onerror="this.style.display='none'">
           <h1 id="meeting-heading" class="meeting-heading">Sacrament Meeting</h1>
           <div id="meeting-date" class="meeting-date">Loading…</div>
           <div id="meeting-time" class="meeting-time" aria-hidden="true"></div>
