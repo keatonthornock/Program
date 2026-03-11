@@ -1417,4 +1417,16 @@ async function run(){
   }
 }
 
+function initMobileScrollStrip(){
+  const threshold = 28;
+  const update = () => {
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    document.body.classList.toggle('mobile-scrolled', isMobile && window.scrollY > threshold);
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+}
+
+initMobileScrollStrip();
 run();
