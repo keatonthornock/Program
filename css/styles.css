@@ -91,7 +91,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   top: calc(env(safe-area-inset-top, 0px) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  width: 96px;
+  width: 128px;
   height: auto;
   z-index: 60;
   pointer-events: none;
@@ -178,7 +178,7 @@ body.mobile-scrolled .mobile-scroll-strip {
     height: min(68vh, 760px);
   }
   #church-logo {
-    width: 114px;
+    width: 152px;
     top: 16px;
   }
 }
