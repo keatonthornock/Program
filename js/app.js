@@ -549,7 +549,7 @@ function renderAnnouncements(admRows){
     const p = document.createElement('p');
     p.className = 'muted';
     p.style.margin = '0';
-    p.style.color = '#e8f5fb';
+    p.style.color = '#374151';
     p.style.fontSize = '14px';
     p.textContent = a.text;
     item.appendChild(p);
@@ -722,6 +722,15 @@ function renderLeadership(rows){
 
   const table = document.createElement('table');
   table.className = 'leadership-table';
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th scope="col">Calling</th>
+      <th scope="col">Name</th>
+      <th scope="col">Contact</th>
+    </tr>
+  `;
+  table.appendChild(thead);
   const tbody = document.createElement('tbody');
 
   for(let i = start; i < rows.length; i++){
