@@ -246,7 +246,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .footer-brand-zone {
   background: var(--scroll-strip);
   margin: 16px -16px -64px;
-  padding: 0 16px 90px;
+  padding: 20px 16px 90px;
 }
 
 .bottom-content-zone .card,
@@ -295,10 +295,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 #footer-logo {
-  max-width: 175px;
-  width: min(175px, 65%);
+  max-width: 145px;
+  width: min(145px, 54%);
   display: block;
-  margin: 18px auto 0;
+  margin: 34px auto 0;
 }
 
 @media (min-width: 900px) {
@@ -333,54 +333,36 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .agenda-item {
-  position: relative;
   width: 100%;
   display: grid;
   grid-template-columns: 30px 1fr auto;
   align-items: center;
   gap: 10px;
-  padding: 14px 2px;
+  padding: 18px 2px;
   border: 0;
 }
 
-.program-content .agenda-item::before,
-.program-content .agenda-item::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(17, 24, 39, 0.12);
+.program-content > .agenda-item,
+.program-content > .agenda-divider {
+  border-top: 1px solid rgba(17, 24, 39, 0.12);
 }
 
-.program-content .agenda-item::before {
-  top: 0;
+.program-content > :first-child {
+  border-top: 0;
 }
 
-.program-content .agenda-item::after {
-  bottom: 0;
-}
-
-.program-content .agenda-item:first-child::before {
+.program-content .agenda-divider:last-child {
   display: none;
-}
-
-.program-content .agenda-item:last-child::after {
-  display: none;
-}
-
-.program-content .agenda-item + .agenda-item {
-  margin-top: -1px;
 }
 
 .hymn-button {
-  border: 1px solid #c4cbd4;
-  border-radius: 18px;
-  background: #fff;
-  padding: 10px 14px;
-  margin: 6px 0;
+  border: 1px solid #b8c4d2;
+  border-radius: 20px;
+  background: #fcfdff;
+  padding: 14px 16px;
+  margin: 8px 0;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
 }
 
 .hymn-button .icon,
@@ -449,7 +431,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .agenda-divider {
-  margin: 14px 0 12px;
+  margin: 20px 0 10px;
   text-align: center;
 }
 
@@ -458,6 +440,12 @@ body.mobile-scrolled .mobile-scroll-strip {
   font-weight: 700;
   line-height: 1.15;
   color: #111827;
+}
+
+.agenda-divider--sacrament .divider-text {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #6b7280;
 }
 
 .announcement-item .muted {
