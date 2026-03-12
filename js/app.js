@@ -463,7 +463,8 @@ function createRow(typeLabel, name, extra, iconType = 'default'){
 
 function createDivider(label){
   const el = document.createElement('div');
-  el.className = 'agenda-divider';
+  const isSacramentDivider = /administration of the sacrament/i.test(label || '');
+  el.className = `agenda-divider${isSacramentDivider ? ' agenda-divider--sacrament' : ''}`;
   el.innerHTML = `<div class="divider-text">${label}</div>`;
   return el;
 }
