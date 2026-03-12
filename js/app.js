@@ -1069,9 +1069,16 @@ function renderHeaderFromAdmin(map, admRows){
   const meetingType = meetingTypeRaw.trim();
   const chorister = map['chorister'] || '';
   const organist = map['organist'] || '';
+  const wardDetails = [ward, stake].filter(Boolean).join(' · ');
 
   $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
-  $('#meeting-date').textContent = (dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '') + (ward ? `\n${ward} · ${stake}` : '');
+  $('#meeting-date').textContent = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '';
+
+  const wardDetailsEl = document.getElementById('ward-details');
+  if (wardDetailsEl) {
+    wardDetailsEl.textContent = wardDetails;
+    wardDetailsEl.style.display = wardDetails ? '' : 'none';
+  }
 
   // --- new: Meeting Time line (from Admin "Meeting Time" key) ---
   const meetingTime = (map['meeting time'] || '').toString().trim();
@@ -1089,7 +1096,7 @@ function renderHeaderFromAdmin(map, admRows){
     }
   }
   if (meetingTime) {
-    meetingTimeEl.textContent = `Weekly Meeting Time: ${meetingTime}`;
+    meetingTimeEl.textContent = meetingTime;
     meetingTimeEl.style.display = '';
   } else {
     meetingTimeEl.style.display = 'none';

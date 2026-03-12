@@ -50,13 +50,18 @@
   <main id="app" class="app">
     <!-- Top hero / header -->
     <header class="hero">
-      <img class="hero-image" src="images/banner-picture.png" alt="Top banner image">
+      <div class="hero-media">
+        <img class="hero-image" src="images/banner-picture.png" alt="Top banner image">
+      </div>
       <button id="menu-open" class="menu-open" type="button" aria-label="Open menu">☰</button>
       <div class="hero-inner">
         <div class="hero-text">
           <h1 id="meeting-heading" class="meeting-heading">Sacrament Meeting</h1>
-          <div id="meeting-date" class="meeting-date">Loading…</div>
-          <div id="meeting-time" class="meeting-time" aria-hidden="true"></div>
+          <div id="ward-details" class="ward-details">Ward details</div>
+          <div class="meeting-meta" aria-label="Meeting details">
+            <div id="meeting-date" class="meeting-date">Loading…</div>
+            <div id="meeting-time" class="meeting-time" aria-hidden="true"></div>
+          </div>
           <div id="visitor-line" class="visitor-line" aria-hidden="false">
             <span class="visitor-text">Visitor?</span>
             <a id="come-link" class="btn-accent" href="https://www.churchofjesuschrist.org/comeuntochrist" target="_blank" rel="noopener noreferrer" style="margin-left:10px;">
