@@ -997,9 +997,7 @@ function renderGeneralConference(adminMap, admRows){
     el.style.alignItems = 'center';
 
     const left = document.createElement('div');
-    left.style.display = 'flex';
-    left.style.gap = '12px';
-    left.style.alignItems = 'center';
+    left.className = 'gc-card-left';
 
     const img = document.createElement('img');
     try{
@@ -1018,13 +1016,10 @@ function renderGeneralConference(adminMap, admRows){
     left.appendChild(img);
 
     const txt = document.createElement('div');
-    txt.style.display = 'flex';
-    txt.style.flexDirection = 'column';
-    txt.style.gap = '4px';
+    txt.className = 'gc-card-text';
 
     const nameEl = document.createElement('div');
-    nameEl.style.fontWeight = 700;
-    nameEl.style.color = '#0f1724';
+    nameEl.className = 'gc-card-name';
     nameEl.textContent = p.name;
     txt.appendChild(nameEl);
 
@@ -1035,7 +1030,7 @@ function renderGeneralConference(adminMap, admRows){
     a.target = '_blank';
     a.rel = 'noopener';
     a.className = 'gc-url';
-    a.textContent = getDisplayUrl(p.url);  // shortened display
+    a.textContent = getDisplayUrl(p.url, 38);  // shortened display
     a.title = p.url;                       // full URL on hover
     urlEl.appendChild(a);
     txt.appendChild(urlEl);

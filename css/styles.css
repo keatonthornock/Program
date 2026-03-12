@@ -411,12 +411,36 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .hymn-button {
   border: 2px solid #b8c4d2;
-  border-radius: 20px;
+  border-radius: 14px;
   background: #fcfdff;
-  padding: 14px 16px;
+  padding: 12px 14px;
   margin: 8px 0;
   cursor: pointer;
   box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+}
+
+.gc-card-left,
+.gc-card-text {
+  min-width: 0;
+}
+
+.gc-card-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+}
+
+.gc-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.gc-card-name {
+  font-weight: 700;
+  color: #0f1724;
 }
 
 .conference-card {
