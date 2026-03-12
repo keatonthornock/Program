@@ -535,7 +535,6 @@ function renderAnnouncements(admRows){
   panel.className = 'collapsible-panel';
   panel.id = 'announcements-panel';
   panel.style.display = 'none'; // keep closed by default (global wiring will toggle)
-  panel.style.padding = '12px';
 
   // populate announcements inside the panel
   announcements.forEach((a, idx) => {
