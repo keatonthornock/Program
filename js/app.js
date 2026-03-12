@@ -264,6 +264,19 @@ function shouldRenderAgendaItem(key, meetingType){
   return true;
 }
 
+function shouldInsertLineDivider(currentKey, previousKey){
+  if(!currentKey) return false;
+
+  const isSacramentBoundary = k => /administration of the sacrament/i.test(k || '');
+  if(isSacramentBoundary(currentKey) || isSacramentBoundary(previousKey)) return false;
+
+  const isInvocation = /invocation|opening prayer/i.test(previousKey || '');
+  const isIntermediateHymn = /intermediate hymn/i.test(currentKey);
+  const isClosingHymn = /closing hymn/i.test(currentKey);
+
+  return isInvocation || isIntermediateHymn || isClosingHymn;
+}
+
 /* ---------- share button + menu (Email, QR Code, Link/native share) ---------- */
 function initShare(){
   const shareBtn = document.getElementById('share-btn');
@@ -466,6 +479,13 @@ function createDivider(label){
   const isSacramentDivider = /administration of the sacrament/i.test(label || '');
   el.className = `agenda-divider${isSacramentDivider ? ' agenda-divider--sacrament' : ''}`;
   el.innerHTML = `<div class="divider-text">${label}</div>`;
+  return el;
+}
+
+function createLineDivider(){
+  const el = document.createElement('div');
+  el.className = 'agenda-divider agenda-divider--line';
+  el.innerHTML = '<div class="divider-text" aria-hidden="true"></div>';
   return el;
 }
 
@@ -1264,6 +1284,7 @@ async function run(){
     const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
 
     for (let i = 0; i < agRows.length; i++) {
+    let previousRenderedKey = '';
       const r = agRows[i];
       if (!r || !r[0]) continue;
       const colA = (r[0] || '').toString().trim();
@@ -1289,6 +1310,7 @@ async function run(){
         if(isSacrament || isTestimony){
           container.appendChild(createDivider(item));
           any = true;
+          previousRenderedKey = normalizeItemKey(item);
         }
         if(isTestimony){
           const tb = document.createElement('div');
@@ -1308,6 +1330,11 @@ async function run(){
         continue;
       }
 
+      if(shouldInsertLineDivider(key, previousRenderedKey)){
+        container.appendChild(createLineDivider());
+        any = true;
+      }
+
       // hymn handling
       if(key.includes('hymn')){
         let hymnNumber = null;
@@ -1321,18 +1348,21 @@ async function run(){
         const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
         container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl, extra));
         any = true;
+        previousRenderedKey = key;
         continue;
       }
 
       if(key.startsWith('speaker') || key === 'testimony' || key.includes('testimon')){
         container.appendChild(createRow('Speaker', name, '', 'speaker'));
         any = true;
+        previousRenderedKey = key;
         continue;
       }
 
       if(key.includes('invocation') || key.includes('opening prayer') || key.includes('closing prayer') || key.includes('benediction') || key.includes('closing')){
         container.appendChild(createRow(item, name, '', 'prayer'));
         any = true;
+        previousRenderedKey = key;
         continue;
       }
 
@@ -1340,6 +1370,7 @@ async function run(){
         if(!isTestimony){
           container.appendChild(createRow('Musical Number', name, extra, 'music'));
           any = true;
+          previousRenderedKey = key;
         }
         continue;
       }
@@ -1347,6 +1378,7 @@ async function run(){
       // fallback generic
       container.appendChild(createRow(item, name, extra));
       any = true;
+      previousRenderedKey = key;
     }
 
     // If meeting type is neither sacrament nor testimony -> show centered placeholder with meeting-type text
