@@ -361,7 +361,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .hymn-button {
-  border: 1px solid #b8c4d2;
+  border: 2px solid #b8c4d2;
   border-radius: 20px;
   background: #fcfdff;
   padding: 14px 16px;
@@ -386,6 +386,13 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .material-icons.agenda-icon {
   font-size: 22px;
+}
+
+.agenda-icon--image {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
 }
 
 .agenda-textline {
