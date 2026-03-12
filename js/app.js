@@ -837,12 +837,11 @@ function renderGeneralConference(adminMap, admRows){
   const wrapper = document.createElement('div');
   wrapper.className = 'stake-wrapper gc-wrapper';
 
-  // Title
-  const titleDiv = document.createElement('div');
-  titleDiv.className = 'stake-title';
-  titleDiv.textContent = 'GENERAL CONFERENCE';
-  wrapper.appendChild(titleDiv);
-
+  // Title (match "Administration of the Sacrament" muted/bold/centered treatment)
+  const titleDivider = createDivider('General Conference');
+  titleDivider.classList.add('conference-title', 'agenda-divider--sacrament');
+  wrapper.appendChild(titleDivider);
+  
   // Determine the saturday & sunday to display:
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight local
@@ -964,9 +963,10 @@ function renderGeneralConference(adminMap, admRows){
 
   // subtitle & watch cards (reuse same platform list as before)
   const subtitle = document.createElement('div');
+  subtitle.className = 'gc-watch-title';
   subtitle.style.fontWeight = 700;
   subtitle.style.color = 'var(--muted)';
-  subtitle.style.margin = '6px 4px 6px 4px';
+  subtitle.style.margin = '24px 4px 12px 4px';
   subtitle.textContent = 'Where can I watch General Conference?';
   wrapper.appendChild(subtitle);
 
@@ -988,7 +988,7 @@ function renderGeneralConference(adminMap, admRows){
   cardsContainer.style.display = 'flex';
   cardsContainer.style.flexDirection = 'column';
   cardsContainer.style.gap = '12px';
-  cardsContainer.style.marginTop = '6px';
+  cardsContainer.style.marginTop = '0';
 
   platforms.forEach(p => {
     const el = document.createElement('div');
@@ -1029,11 +1029,12 @@ function renderGeneralConference(adminMap, admRows){
     txt.appendChild(nameEl);
 
     const urlEl = document.createElement('div');
+    urlEl.className = 'gc-url-wrap';
     const a = document.createElement('a');
     a.href = p.url;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.className = 'gc-url';                // CSS class we'll style
+    a.className = 'gc-url';
     a.textContent = getDisplayUrl(p.url);  // shortened display
     a.title = p.url;                       // full URL on hover
     urlEl.appendChild(a);
@@ -1048,9 +1049,7 @@ function renderGeneralConference(adminMap, admRows){
     el.appendChild(left);
     el.appendChild(right);
 
-    el.addEventListener('click', (e) => {
-      const a = e.target.closest('a');
-      if(a) return;
+    el.addEventListener('click', () => {
       window.open(p.url, '_blank', 'noopener');
     });
 
@@ -1430,6 +1429,11 @@ async function run(){
     
           // append wrapper to program content (so title sits above the cards, both inside the same card)
           pc.appendChild(stakeWrapper);
+          any = true;
+        } else if ((adminMap['meeting type'] || '').toString().toLowerCase().includes('general conference')) {
+          // General Conference content is rendered by renderGeneralConference().
+          // Suppress the fallback placeholder so "General Conference" does not appear twice.
+          pc.innerHTML = '';
           any = true;
         } else {
           // generic non-sacrament non-testimony placeholder (unchanged)
