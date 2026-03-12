@@ -464,11 +464,7 @@ function createRow(typeLabel, name, extra, iconType = 'default'){
 function createDivider(label){
   const el = document.createElement('div');
   el.className = 'agenda-divider';
-  el.innerHTML = `
-    <div class="divider-line"></div>
-    <div class="divider-text">${label}</div>
-    <div class="divider-line"></div>
-  `;
+  el.innerHTML = `<div class="divider-text">${label}</div>`;
   return el;
 }
 
