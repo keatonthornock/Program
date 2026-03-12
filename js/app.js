@@ -1283,8 +1283,8 @@ async function run(){
     const isTestimony = meetingType.includes('testimony');
     const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
 
-    for (let i = 0; i < agRows.length; i++) {
     let previousRenderedKey = '';
+    for (let i = 0; i < agRows.length; i++) {
       const r = agRows[i];
       if (!r || !r[0]) continue;
       const colA = (r[0] || '').toString().trim();
