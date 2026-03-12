@@ -239,14 +239,13 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .bottom-content-zone {
-  background: var(--scroll-strip);
-  margin: 20px -16px -64px;
-  padding: 10px 16px 90px;
+  margin: 20px 0 0;
+  padding: 0;
 }
 
 .footer-brand-zone {
   background: var(--scroll-strip);
-  margin: 0 -16px -64px;
+  margin: 16px -16px -64px;
   padding: 0 16px 90px;
 }
 
@@ -334,17 +333,44 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .agenda-item {
+  position: relative;
   width: 100%;
   display: grid;
   grid-template-columns: 30px 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 14px 2px;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.12);
+  border: 0;
 }
 
-.program-content .agenda-item:last-child {
-  border-bottom: 0;
+.program-content .agenda-item::before,
+.program-content .agenda-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(17, 24, 39, 0.12);
+}
+
+.program-content .agenda-item::before {
+  top: 0;
+}
+
+.program-content .agenda-item::after {
+  bottom: 0;
+}
+
+.program-content .agenda-item:first-child::before {
+  display: none;
+}
+
+.program-content .agenda-item:last-child::after {
+  display: none;
+}
+
+.program-content .agenda-item + .agenda-item {
+  margin-top: -1px;
 }
 
 .hymn-button {
@@ -423,13 +449,15 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .agenda-divider {
-  margin: 12px 0 8px;
+  margin: 14px 0 12px;
+  text-align: center;
 }
 
-.agenda-divider .divider-line {
-  height: 1px;
-  width: 100%;
-  background: rgba(17, 24, 39, 0.12);
+.agenda-divider .divider-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #111827;
 }
 
 .announcement-item .muted {
@@ -464,10 +492,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 @media (min-width: 900px) {
   .bottom-content-zone {
-    margin-left: -28px;
-    margin-right: -28px;
-    padding-left: 28px;
-    padding-right: 28px;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .footer-brand-zone {
