@@ -397,10 +397,10 @@ function initShare(){
 
 /* ---------- icon/image helpers ---------- */
 function getAgendaIcon(type){
-  if(type === "hymn") return `<i class="fi-music agenda-icon" aria-hidden="true"></i>`;
-  if(type === "speaker") return `<i class="fa fa-user-alt agenda-icon" aria-hidden="true"></i>`;
-  if(type === "prayer") return `<i class="fa fa-praying-hands agenda-icon" aria-hidden="true"></i>`;
-  if(type === "music") return `<i class="material-icons agenda-icon" aria-hidden="true">library_music</i>`;
+  if(type === "hymn") return `<img src="./icons/hymn.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
+  if(type === "speaker") return `<img src="./icons/speaker.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
+  if(type === "prayer") return `<img src="./icons/prayer.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
+  if(type === "music") return `<img src="./icons/musicnumber.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   return "";
 }
 
@@ -1330,20 +1330,29 @@ async function run(){
         continue;
       }
 
-      if(shouldInsertLineDivider(key, previousRenderedKey)){
+      const hymnWithoutCard = key.includes('hymn') && !/\d+\s*\./.test(name);
+
+      if(!hymnWithoutCard && shouldInsertLineDivider(key, previousRenderedKey)){
         container.appendChild(createLineDivider());
         any = true;
       }
 
       // hymn handling
       if(key.includes('hymn')){
+        const hasNumberAndPeriod = /\d+\s*\./.test(name);
+        if(!hasNumberAndPeriod){
+          container.appendChild(createRow(item, name, '', 'music'));
+          any = true;
+          previousRenderedKey = key;
+          continue;
+        }
+
         let hymnNumber = null;
         let hymnTitle = name;
-        const m = name.match(/^\s*([0-9]{1,4})\s*[\.\-:]?\s*(.+)$/);
-        if (m) { hymnNumber = m[1]; hymnTitle = m[2] || ''; }
-        else {
-          const m2 = name.match(/([0-9]{3,4})/);
-          if(m2) hymnNumber = m2[1];
+        const m = name.match(/([0-9]{1,4})\s*\.\s*(.+)$/);
+        if (m) {
+          hymnNumber = m[1];
+          hymnTitle = m[2] || '';
         }
         const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
         container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl, extra));
