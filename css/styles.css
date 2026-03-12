@@ -279,7 +279,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .footer-brand-zone {
-  background: linear-gradient(180deg, #067d9e 0%, var(--scroll-strip) 58%, #06708c 100%);
+  background-color: #067d9e;
+  background-image: url('../images/footer-picture.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   margin: 22px -16px -64px;
   padding: 28px 16px calc(84px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(255, 255, 255, 0.22);
