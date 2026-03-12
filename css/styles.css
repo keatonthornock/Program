@@ -448,6 +448,23 @@ body.mobile-scrolled .mobile-scroll-strip {
   color: #6b7280;
 }
 
+.program-content > .agenda-divider--sacrament {
+  border-top: 0;
+}
+
+.program-content > .agenda-divider--sacrament + .agenda-item,
+.program-content > .agenda-divider--sacrament + .agenda-divider {
+  border-top: 0;
+}
+
+.agenda-divider--line {
+  margin: 2px 0;
+}
+
+.agenda-divider--line .divider-text {
+  display: none;
+}
+
 .announcement-item .muted {
   color: #374151;
 }
