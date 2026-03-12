@@ -119,17 +119,22 @@ body.mobile-scrolled .mobile-scroll-strip {
 .side-menu-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  position: relative;
   margin-bottom: 26px;
 }
 
 .side-menu-logo {
-  width: 84px;
+  width: 168px;
   height: auto;
   filter: brightness(0) saturate(100%);
 }
 
 .menu-close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   border: 0;
   background: transparent;
   font-size: 28px;
@@ -278,7 +283,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   color: #fff;
   background: #0a7fa0;
   font-weight: 700;
-  font-size: 1.08rem;
+  font-size: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
