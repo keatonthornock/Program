@@ -207,7 +207,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .hero-inner {
   position: relative;
   z-index: 2;
-  margin-top: -86px;
+  margin-top: -52px;
   padding: 0 16px 0;
 }
 
@@ -443,6 +443,31 @@ body.mobile-scrolled .mobile-scroll-strip {
   border-radius: 14px;
   background: #fcfdff;
   box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+}
+
+.conference-events-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+  object-fit: contain;
+}
+
+.event-right {
+  margin-left: 8px;
+}
+
+.event-loc,
+.event-time,
+.event-address {
+  margin-top: 2px;
 }
 
 .event-left {
