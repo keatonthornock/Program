@@ -235,6 +235,23 @@ function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textCo
 
 function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
 
+
+function updateFooterWardWebsite(wardName, wardWebsiteRaw){
+  const footerSiteEl = document.getElementById('footer-ward-site');
+  if(!footerSiteEl) return;
+
+  const website = (wardWebsiteRaw || '').toString().trim();
+  if(!website){
+    footerSiteEl.hidden = true;
+    footerSiteEl.innerHTML = '';
+    return;
+  }
+
+  const safeWardName = escapeHtml((wardName || 'Ward').toString().trim() || 'Ward');
+  const href = normalizeHref(website);
+  footerSiteEl.hidden = false;
+  footerSiteEl.innerHTML = `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${safeWardName} Homepage</a>`;
+}
 function shouldRenderAgendaItem(key, meetingType){
 
   const isTestimony = meetingType.includes('testimony');
@@ -1070,6 +1087,7 @@ function renderHeaderFromAdmin(map, admRows){
   const chorister = map['chorister'] || '';
   const organist = map['organist'] || '';
   const wardDetails = [ward, stake].filter(Boolean).join(' · ');
+  const wardWebsite = map['ward website (optional)'] || '';
 
   $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
   $('#meeting-date').textContent = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '';
@@ -1079,6 +1097,8 @@ function renderHeaderFromAdmin(map, admRows){
     wardDetailsEl.textContent = wardDetails;
     wardDetailsEl.style.display = wardDetails ? '' : 'none';
   }
+
+  updateFooterWardWebsite(ward, wardWebsite);
 
   // --- new: Meeting Time line (from Admin "Meeting Time" key) ---
   const meetingTime = (map['meeting time'] || '').toString().trim();
