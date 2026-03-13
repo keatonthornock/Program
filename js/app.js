@@ -238,12 +238,17 @@ function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
 
 function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   const footerSiteEl = document.getElementById('footer-ward-site');
+  const sideSiteEl = document.getElementById('side-ward-homepage');
   if(!footerSiteEl) return;
 
   const website = (wardWebsiteRaw || '').toString().trim();
   if(!website){
     footerSiteEl.hidden = true;
     footerSiteEl.innerHTML = '';
+    if(sideSiteEl){
+      sideSiteEl.hidden = true;
+      sideSiteEl.removeAttribute('href');
+    }
     return;
   }
 
@@ -251,6 +256,11 @@ function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   const href = normalizeHref(website);
   footerSiteEl.hidden = false;
   footerSiteEl.innerHTML = `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${safeWardName} Homepage</a>`;
+  if(sideSiteEl){
+    sideSiteEl.hidden = false;
+    sideSiteEl.href = href;
+    sideSiteEl.textContent = `${(wardName || 'Ward').toString().trim() || 'Ward'} Homepage`;
+  }
 }
 function shouldRenderAgendaItem(key, meetingType){
 
@@ -313,12 +323,14 @@ function initShare(){
     menu.setAttribute('aria-hidden','true');
     shareBtn.setAttribute('aria-expanded','false');
     menu.setAttribute('aria-qr','false');
+    qrImg.src = '';
     menu.style.display = 'none';
     status.style.display = 'none';
   };
   const showMenu = () => {
     menu.setAttribute('aria-hidden','false');
     shareBtn.setAttribute('aria-expanded','true');
+    menu.setAttribute('aria-qr','false');
     menu.style.display = 'flex';
   };
 
