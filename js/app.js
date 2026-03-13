@@ -889,9 +889,6 @@ function createDescriptionWithInlineLinks(rawText, options = {}){
 function createActivityCard(ev){
   const card = document.createElement('article');
   card.className = 'activity-card';
-  card.setAttribute('role', 'button');
-  card.setAttribute('tabindex', '0');
-  card.setAttribute('aria-expanded', 'false');
 
   const parsedDescription = extractUrls(ev.description || '');
   const descriptionText = parsedDescription.text;
@@ -902,14 +899,18 @@ function createActivityCard(ev){
   const mapHref = ev.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}` : '';
   const hasMore = (descriptionText && descriptionText.length > preview.length) || parsedDescription.urls.length > 0;
 
+  card.setAttribute('aria-expanded', 'false');
+  if(hasMore){
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+  }
+
   card.innerHTML = `
     <div class="activity-card-header">
       <div class="activity-card-title-row">
         <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
       </div>
-      <span class="activity-arrow-wrap" aria-hidden="true">
-        <svg class="activity-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
-      </span>
+      ${hasMore ? `<span class="activity-arrow-wrap" aria-hidden="true"><svg class="activity-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg></span>` : ''}
     </div>
     <div class="activity-card-body">
       <div class="activity-meta-line activity-card-time">
@@ -927,6 +928,7 @@ function createActivityCard(ev){
 
   const seeMore = card.querySelector('.activity-see-more');
   const details = card.querySelector('.activity-card-details');
+  const header = card.querySelector('.activity-card-header');
 
   const setExpanded = (expanded) => {
     card.setAttribute('aria-expanded', expanded ? 'true' : 'false');
@@ -940,17 +942,19 @@ function createActivityCard(ev){
     setExpanded(!expanded);
   };
 
-  card.addEventListener('click', (e) => {
-    if(e.target.closest('a') || e.target.closest('.activity-see-more')) return;
-    onToggle();
-  });
-
-  card.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
+  if(hasMore && header){
+    header.addEventListener('click', (e) => {
+      if(e.target.closest('a') || e.target.closest('.activity-see-more')) return;
       onToggle();
-    }
-  });
+    });
+
+    card.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        onToggle();
+      }
+    });
+  }
 
   if(seeMore){
     seeMore.addEventListener('click', (e) => {
