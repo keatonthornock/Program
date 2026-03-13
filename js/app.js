@@ -610,8 +610,14 @@ function renderAnnouncements(admRows){
       btn.style.fontWeight = '700';
       btn.style.textDecoration = 'none';
     
+      // favicon
       const fav = document.createElement('img');
-      fav.src = './icons/link.svg';
+      try {
+        const u = new URL(normalized);
+        fav.src = `https://www.google.com/s2/favicons?sz=64&domain=${u.origin}`;
+      } catch (e) {
+        fav.src = './icons/link.svg';
+      }
       fav.alt = '';
       fav.style.width = '18px';
       fav.style.height = '18px';
@@ -710,20 +716,13 @@ function createEventCard(ev){
   const el = document.createElement('div');
   el.className = 'event-card';
   const mapHref = ev.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.address)}` : '';
-  const eventName = (ev.event || '').toString().toLowerCase();
-  const isPrimaryStakeSession = eventName.includes('adult session') || eventName.includes('sunday session');
-  const iconSrc = isPrimaryStakeSession ? './icons/map.png' : './icons/link.svg';
-
   el.innerHTML = `
-    <div class="gc-card-left">
-      <img src="${iconSrc}" alt="" class="event-icon" aria-hidden="true">
-      <div class="gc-card-text">
-        <div class="gc-card-name">${ev.event || ''}</div>
-        <div class="conference-subtext">
-          ${ev.location ? `<div class="event-loc">${ev.location}</div>` : ''}
-          ${ev.date || ev.time ? `<div class="event-time">${ev.date ? ev.date : ''}${ev.date && ev.time ? ' · ' : ''}${ev.time ? ev.time : ''}</div>` : ''}
-          ${ev.address ? `<div class="event-address"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
-        </div>
+    <div class="event-left">
+      <div class="event-title">${ev.event || ''}</div>
+      <div class="event-meta">
+        ${ev.location ? `<div class="event-loc">${ev.location}</div>` : ''}
+        ${ev.date || ev.time ? `<div class="event-time">${ev.date ? ev.date : ''}${ev.date && ev.time ? ' · ' : ''}${ev.time ? ev.time : ''}</div>` : ''}
+        ${ev.address ? `<div class="event-address"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
       </div>
     </div>
     <div class="event-right">
@@ -732,6 +731,7 @@ function createEventCard(ev){
   `;
   if(mapHref){
     el.addEventListener('click', (e) => {
+      // let native anchor clicks behave normally
       const a = e.target.closest('a');
       if(a) return;
       window.open(mapHref, '_blank', 'noopener');
@@ -1017,7 +1017,12 @@ function renderGeneralConference(adminMap, admRows){
     left.className = 'gc-card-left';
 
     const img = document.createElement('img');
-    img.src = './icons/link.svg';
+    try{
+      const urlObj = new URL(p.url);
+      img.src = `https://www.google.com/s2/favicons?sz=64&domain=${urlObj.origin}`;
+    }catch(e){
+      img.src = './icons/link.svg';
+    }
     img.alt = '';
     img.style.width = '36px';
     img.style.height = '36px';
@@ -1088,6 +1093,10 @@ function renderHeaderFromAdmin(map, admRows){
   $('#meeting-date').textContent = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '';
 
   const wardDetailsEl = document.getElementById('ward-details');
+  if (wardDetailsEl) {
+    wardDetailsEl.textContent = wardDetails;
+    wardDetailsEl.style.display = wardDetails ? '' : 'none';
+  }
 
   updateFooterWardWebsite(ward, wardWebsite);
 
@@ -1106,25 +1115,18 @@ function renderHeaderFromAdmin(map, admRows){
       else heroText.appendChild(meetingTimeEl);
     }
   }
-  const mtLower = meetingType.toLowerCase();
-  const isStakeConference = mtLower.includes('stake conference') || mtLower.includes('stake meeting') || mtLower === 'stake conference' || mtLower === 'stake';
-  const isGeneralConference = mtLower.includes('general conference') || mtLower === 'general conference' || mtLower.includes('general');
-  const isVerbalConference = mtLower.includes('verbal');
-  const hideHeaderMeta = isStakeConference || isGeneralConference || isVerbalConference;
-
-  if (wardDetailsEl) {
-    wardDetailsEl.textContent = wardDetails;
-    wardDetailsEl.style.display = !hideHeaderMeta && wardDetails ? '' : 'none';
-  }
-
   if (meetingTime) {
     meetingTimeEl.textContent = meetingTime;
-    meetingTimeEl.style.display = hideHeaderMeta ? 'none' : '';
+    meetingTimeEl.style.display = '';
   } else {
     meetingTimeEl.style.display = 'none';
   }
 
-  if(hideHeaderMeta){
+  const mtLower = meetingType.toLowerCase();
+  const isStakeConference = mtLower.includes('stake conference') || mtLower.includes('stake meeting') || mtLower === 'stake conference' || mtLower === 'stake';
+  const isGeneralConference = mtLower.includes('general conference') || mtLower === 'general conference' || mtLower.includes('general');
+
+  if(isStakeConference || isGeneralConference){
     const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = 'none';
     const me = document.querySelector('.meta-extra'); if(me) me.style.display = 'none';
   } else {
@@ -1423,8 +1425,10 @@ async function run(){
           const stakeWrapper = document.createElement('div');
           stakeWrapper.className = 'stake-wrapper';
     
-          const titleDiv = createDivider((adminMap['meeting type']||'Stake Conference').toString());
-          titleDiv.classList.add('conference-title', 'agenda-divider--sacrament');
+          // Title (small padded area only for the text, not a giant box)
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'stake-title';
+          titleDiv.textContent = (adminMap['meeting type']||'Stake Conference').toString();
           stakeWrapper.appendChild(titleDiv);
     
           // events container (cards will be appended here)
