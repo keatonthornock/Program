@@ -250,8 +250,9 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .ward-details {
   margin-top: 8px;
-  color: #0b5fa7;
-  font-weight: 600;
+  color: #4b5563;
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .meeting-meta {
@@ -594,10 +595,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #1d4ed8;
+  border: 1px solid #3f4754;
   border-radius: 999px;
   background: #ffffff;
-  color: #1d4ed8;
+  color: #3f4754;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -606,7 +607,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #1d4ed8;
+  background: #3f4754;
   color: #ffffff;
 }
 
