@@ -714,15 +714,20 @@ function parseConferenceEvents(admRows){
 
 function createEventCard(ev){
   const el = document.createElement('div');
-  el.className = 'event-card';
+  el.className = 'event-card conference-card';
   const mapHref = ev.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.address)}` : '';
+  const locationInfo = [
+    ev.location,
+    ev.date || ev.time ? `${ev.date ? ev.date : ''}${ev.date && ev.time ? ' · ' : ''}${ev.time ? ev.time : ''}` : ''
+  ].filter(Boolean).join(' <span class="agenda-separator">·</span> ');
+
   el.innerHTML = `
-    <div class="event-left">
-      <div class="event-title">${ev.event || ''}</div>
-      <div class="event-meta">
-        ${ev.location ? `<div class="event-loc">${ev.location}</div>` : ''}
-        ${ev.date || ev.time ? `<div class="event-time">${ev.date ? ev.date : ''}${ev.date && ev.time ? ' · ' : ''}${ev.time ? ev.time : ''}</div>` : ''}
-        ${ev.address ? `<div class="event-address"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
+    <div class="gc-card-left">
+      <img src="./icons/map.png" class="event-icon" alt="" aria-hidden="true">
+      <div class="gc-card-text">
+        <div class="event-title">${ev.event || ''}</div>
+        ${locationInfo ? `<div class="agenda-textline conference-subtext">${locationInfo}</div>` : ''}
+        ${ev.address ? `<div class="conference-subtext"><a href="${mapHref}" target="_blank" rel="noopener">${ev.address}</a></div>` : ''}
       </div>
     </div>
     <div class="event-right">
@@ -842,6 +847,44 @@ function formatLocalForInstant(date /* Date object */, locales){
   }
 }
 
+function getConferenceWeekendDates(adminMap, conferenceType){
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const day = today.getDay();
+  const keys = Object.keys(adminMap || {});
+  const typeNeedle = (conferenceType || '').toLowerCase();
+
+  function parseAdminDate(val){
+    if(!val) return null;
+    const d = new Date(val);
+    if(!isNaN(d)) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return null;
+  }
+
+  function findDateKey(dayName){
+    const typed = keys.find(k => k.includes(typeNeedle) && k.includes(dayName) && k.includes('date'));
+    if(typed) return typed;
+    return keys.find(k => k.includes(dayName) && k.includes('date'));
+  }
+
+  let satDate = parseAdminDate(adminMap[findDateKey('saturday')]);
+  let sunDate = parseAdminDate(adminMap[findDateKey('sunday')]);
+
+  if(!satDate || !sunDate){
+    if(day === 0){
+      satDate = satDate || new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      sunDate = sunDate || new Date(today);
+    } else {
+      const daysUntilSat = (6 - day + 7) % 7;
+      const upcomingSat = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilSat);
+      satDate = satDate || upcomingSat;
+      sunDate = sunDate || new Date(upcomingSat.getFullYear(), upcomingSat.getMonth(), upcomingSat.getDate() + 1);
+    }
+  }
+
+  return { satDate, sunDate };
+}
+
 function renderGeneralConference(adminMap, admRows){
   const pc = document.getElementById('program-content');
   if(!pc) return;
@@ -859,52 +902,7 @@ function renderGeneralConference(adminMap, admRows){
   titleDivider.classList.add('conference-title', 'agenda-divider--sacrament');
   wrapper.appendChild(titleDivider);
   
-  // Determine the saturday & sunday to display:
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight local
-  const day = today.getDay(); // 0 = Sunday ... 6 = Saturday
-  let satDate, sunDate;
-
-  // If adminMap provided explicit keys use them (same logic as earlier)
-  const gcSatKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('saturday') && k.includes('date'));
-  const gcSunKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('sunday') && k.includes('date'));
-  const gcAnyKey = Object.keys(adminMap).find(k => k.includes('general') && k.includes('date') && !k.includes('time'));
-
-  function parseAdminDate(val){
-    if(!val) return null;
-    const d = new Date(val);
-    if(!isNaN(d)) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    return null;
-  }
-
-  if(gcSatKey) satDate = parseAdminDate(adminMap[gcSatKey]);
-  if(gcSunKey) sunDate = parseAdminDate(adminMap[gcSunKey]);
-  if(!satDate && !sunDate && gcAnyKey){
-    const base = parseAdminDate(adminMap[gcAnyKey]);
-    if(base){
-      // derive saturday and sunday around that base date
-      const bDay = base.getDay();
-      // move to nearest saturday of that week
-      const saturday = new Date(base);
-      saturday.setDate(base.getDate() + ((6 - bDay + 7) % 7));
-      const sunday = new Date(saturday); sunday.setDate(saturday.getDate() + 1);
-      satDate = saturday;
-      sunDate = sunday;
-    }
-  }
-
-  // If admin didn't give dates, compute the "conference weekend" as the upcoming Saturday & Sunday,
-  // but special-case Sunday so that Sunday shows the Saturday from the same weekend (yesterday).
-  if(!satDate || !sunDate){
-    if(day === 0){ // Sunday -> show yesterday (sat) and today (sun)
-      satDate = new Date(today); satDate.setDate(today.getDate() - 1);
-      sunDate = new Date(today);
-    } else {
-      const daysUntilSat = (6 - day + 7) % 7; // 0..6 (if today saturday => 0)
-      satDate = new Date(today); satDate.setDate(today.getDate() + daysUntilSat);
-      sunDate = new Date(satDate); sunDate.setDate(satDate.getDate() + 1);
-    }
-  }
+  const { satDate, sunDate } = getConferenceWeekendDates(adminMap, 'general');
 
   // Build schedule table (no Saturday Evening session)
   const table = document.createElement('table');
@@ -1115,16 +1113,26 @@ function renderHeaderFromAdmin(map, admRows){
       else heroText.appendChild(meetingTimeEl);
     }
   }
-  if (meetingTime) {
-    meetingTimeEl.textContent = meetingTime;
-    meetingTimeEl.style.display = '';
-  } else {
-    meetingTimeEl.style.display = 'none';
-  }
-
   const mtLower = meetingType.toLowerCase();
   const isStakeConference = mtLower.includes('stake conference') || mtLower.includes('stake meeting') || mtLower === 'stake conference' || mtLower === 'stake';
   const isGeneralConference = mtLower.includes('general conference') || mtLower === 'general conference' || mtLower.includes('general');
+
+  if (isStakeConference || isGeneralConference) {
+    const { satDate, sunDate } = getConferenceWeekendDates(map, isGeneralConference ? 'general' : 'stake');
+    const fmt = new Intl.DateTimeFormat(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+    const satLabel = satDate ? `Saturday: ${fmt.format(satDate)}` : '';
+    const sunLabel = sunDate ? `Sunday: ${fmt.format(sunDate)}` : '';
+    $('#meeting-date').textContent = [satLabel, sunLabel].filter(Boolean).join(' • ');
+    if (wardDetailsEl) wardDetailsEl.style.display = 'none';
+    meetingTimeEl.style.display = 'none';
+  } else if (meetingTime) {
+    meetingTimeEl.textContent = meetingTime;
+    meetingTimeEl.style.display = '';
+    if (wardDetailsEl) wardDetailsEl.style.display = wardDetails ? '' : 'none';
+  } else {
+    meetingTimeEl.style.display = 'none';
+    if (wardDetailsEl) wardDetailsEl.style.display = wardDetails ? '' : 'none';
+  }
 
   if(isStakeConference || isGeneralConference){
     const mb = document.querySelector('.meta-box'); if(mb) mb.style.display = 'none';
@@ -1425,10 +1433,9 @@ async function run(){
           const stakeWrapper = document.createElement('div');
           stakeWrapper.className = 'stake-wrapper';
     
-          // Title (small padded area only for the text, not a giant box)
-          const titleDiv = document.createElement('div');
-          titleDiv.className = 'stake-title';
-          titleDiv.textContent = (adminMap['meeting type']||'Stake Conference').toString();
+          // Title (match General Conference title styling)
+          const titleDiv = createDivider((adminMap['meeting type']||'Stake Conference').toString());
+          titleDiv.classList.add('conference-title', 'agenda-divider--sacrament');
           stakeWrapper.appendChild(titleDiv);
     
           // events container (cards will be appended here)
