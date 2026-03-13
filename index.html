@@ -28,6 +28,10 @@
         <button id="menu-close" class="menu-close" type="button" aria-label="Close menu">✕</button>
       </div>
       <nav class="side-menu-nav" aria-label="Section shortcuts">
+        <button class="side-menu-link" data-section="program" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+          <span>Service Program</span>
+        </button>
         <button class="side-menu-link" data-section="announcements-section" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l12-5v10L4 12zm12 2v4a2 2 0 0 1-2 2h-1"/></svg>
           <span>Announcements</span>
@@ -40,6 +44,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.3-5 8-5s6.5 1.5 8 5"/></svg>
           <span>Ward Leadership</span>
         </button>
+        <a id="side-ward-homepage" class="side-menu-home-link" href="#" target="_blank" rel="noopener" hidden>Ward Homepage</a>
       </nav>
     </aside>
     <button id="menu-scrim" class="menu-scrim" type="button" aria-label="Close menu"></button>
@@ -53,6 +58,9 @@
       <div class="hero-media">
         <img class="hero-image" src="images/banner-picture.png" alt="Top banner image">
       </div>
+      <button id="share-btn" class="share-btn" aria-haspopup="true" aria-expanded="false" title="Share this page">
+        <img src="icons/share.png" alt="Share" aria-hidden="true">
+      </button>
       <button id="menu-open" class="menu-open" type="button" aria-label="Open menu">☰</button>
       <div class="hero-inner">
         <div class="hero-text">
@@ -68,9 +76,6 @@
               Learn more here
             </a>
           </div>
-          <button id="share-btn" class="share-btn" aria-haspopup="true" aria-expanded="false" title="Share this page">
-            <img src="images/share.svg" alt="Share" aria-hidden="true">
-          </button>
         </div>
       </div>
       
@@ -80,14 +85,14 @@
           <span>Email</span>
         </div>
       
+        <div id="share-link" class="share-action share-action--icon-right" role="menuitem">
+          <span>Link</span>
+          <img src="icons/link.svg" alt="" aria-hidden="true" style="width:20px;height:20px">
+        </div>
+
         <div id="share-qr" class="share-action" role="menuitem">
           <img src="icons/qrcode.svg" alt="" aria-hidden="true" style="width:20px;height:20px">
           <span>QR Code</span>
-        </div>
-      
-        <div id="share-link" class="share-action" role="menuitem">
-          <img src="icons/link.svg" alt="" aria-hidden="true" style="width:20px;height:20px">
-          <span>Link</span>
         </div>
       
         <div class="qr-preview" aria-hidden="true">
