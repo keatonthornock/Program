@@ -419,8 +419,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 .collapsible-toggle .chev {
   width: 18px;
   height: 18px;
-  fill: #ffffff;
-  stroke: none;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transform: rotate(180deg);
   transition: transform .2s ease;
   filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
@@ -461,8 +464,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #3f4754;
-  border-bottom: 1px solid #363d49;
+  background: #004267;
+  border-bottom: 1px solid #003454;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -486,6 +489,18 @@ body.mobile-scrolled .mobile-scroll-strip {
   margin-top: 4px;
   color: #6b7280;
   font-size: 0.9rem;
+}
+
+.activity-card-time {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.activity-time-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .activity-meta-icon {
@@ -525,8 +540,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 .activity-arrow {
   width: 18px;
   height: 18px;
-  fill: #ffffff;
-  stroke: none;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: transform .2s ease;
   transform: rotate(180deg);
   filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
@@ -595,10 +613,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #3f4754;
+  border: 1px solid #004267;
   border-radius: 999px;
   background: #ffffff;
-  color: #3f4754;
+  color: #004267;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -607,7 +625,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #3f4754;
+  background: #004267;
   color: #ffffff;
 }
 
@@ -621,14 +639,16 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  color: #3f4754;
+  background: #003454;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1;
   padding: 4px 8px;
+  white-space: nowrap;
 }
+
 
 #activities-list {
   display: flex;
@@ -651,8 +671,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #3f4754;
-  border-bottom: 1px solid #363d49;
+  background: #004267;
+  border-bottom: 1px solid #003454;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -715,8 +735,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 .activity-arrow {
   width: 18px;
   height: 18px;
-  fill: #ffffff;
-  stroke: none;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: transform .2s ease;
   transform: rotate(180deg);
   filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
