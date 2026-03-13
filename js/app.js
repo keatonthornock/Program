@@ -1935,6 +1935,7 @@ function detectInstallPlatform(){
 }
 
 let deferredInstallPrompt = null;
+let installPromptEventSeen = false;
 
 function updateInstallStatus(msg){
   const statusEl = document.getElementById('side-install-status');
@@ -1973,7 +1974,15 @@ async function handleInstallAppClick(){
   const { isIos, isAndroid } = detectInstallPlatform();
   if(isIos){
     updateInstallStatus('On iPhone/iPad: tap Share, then choose “Add to Home Screen”.');
-  } else if(isAndroid){
+    return;
+  }
+
+  if(isAndroid && installPromptEventSeen){
+    updateInstallStatus('Install is not available yet. Visit this page again after browsing for a bit, then tap Install.');
+    return;
+  }
+
+  if(isAndroid){
     updateInstallStatus('If no install prompt appears, open your browser menu and tap “Install app” or “Add to Home screen”.');
   } else {
     updateInstallStatus('Use your browser menu to install this app to your device.');
@@ -1985,6 +1994,7 @@ function initPwaInstall(){
   if(!installBtn || installBtn.dataset.boundInstall === 'true') return;
 
   window.addEventListener('beforeinstallprompt', (event) => {
+    installPromptEventSeen = true;
     event.preventDefault();
     deferredInstallPrompt = event;
     updateInstallStatus('Ready to install — tap the button above.');
@@ -1994,6 +2004,13 @@ function initPwaInstall(){
     deferredInstallPrompt = null;
     updateInstallStatus('App installed successfully.');
   });
+
+  const installSupportDetected = window.matchMedia('(display-mode: browser)').matches || detectInstallPlatform().isAndroid || detectInstallPlatform().isIos;
+  if(!installSupportDetected){
+    installBtn.disabled = true;
+    installBtn.setAttribute('aria-disabled', 'true');
+    updateInstallStatus('This browser does not support installing this app from the menu button.');
+  }
 
   installBtn.addEventListener('click', () => {
     handleInstallAppClick().catch(() => {
