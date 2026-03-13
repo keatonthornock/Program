@@ -1888,6 +1888,7 @@ async function run(){
     // wire collapsibles + menu section shortcuts
     initCollapsibles();
     initSideMenu();
+    initPwaInstall();
 
   } catch(err){
     console.error('[app] error', err);
@@ -1923,6 +1924,84 @@ function expandAndScrollToSection(sectionId){
   const toggle = section.querySelector('.collapsible-toggle');
   if(toggle) setCollapsibleState(toggle, true);
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+function detectInstallPlatform(){
+  const ua = (navigator.userAgent || '').toLowerCase();
+  const isIos = /iphone|ipad|ipod/.test(ua);
+  const isAndroid = /android/.test(ua);
+  return { isIos, isAndroid };
+}
+
+let deferredInstallPrompt = null;
+
+function updateInstallStatus(msg){
+  const statusEl = document.getElementById('side-install-status');
+  if(!statusEl) return;
+  if(msg){
+    statusEl.hidden = false;
+    statusEl.textContent = msg;
+  } else {
+    statusEl.hidden = true;
+    statusEl.textContent = '';
+  }
+}
+
+function isRunningStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+async function handleInstallAppClick(){
+  if(isRunningStandalone()){
+    updateInstallStatus('This app is already installed on your device.');
+    return;
+  }
+
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if(choice && choice.outcome === 'accepted'){
+      updateInstallStatus('Great! Follow your device prompts to finish installing.');
+    } else {
+      updateInstallStatus('Install cancelled. You can try again anytime.');
+    }
+    return;
+  }
+
+  const { isIos, isAndroid } = detectInstallPlatform();
+  if(isIos){
+    updateInstallStatus('On iPhone/iPad: tap Share, then choose “Add to Home Screen”.');
+  } else if(isAndroid){
+    updateInstallStatus('If no install prompt appears, open your browser menu and tap “Install app” or “Add to Home screen”.');
+  } else {
+    updateInstallStatus('Use your browser menu to install this app to your device.');
+  }
+}
+
+function initPwaInstall(){
+  const installBtn = document.getElementById('side-install-app');
+  if(!installBtn || installBtn.dataset.boundInstall === 'true') return;
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallStatus('Ready to install — tap the button above.');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    updateInstallStatus('App installed successfully.');
+  });
+
+  installBtn.addEventListener('click', () => {
+    handleInstallAppClick().catch(() => {
+      updateInstallStatus('Unable to start install right now. Please use your browser menu.');
+    });
+  });
+
+  installBtn.dataset.boundInstall = 'true';
 }
 
 function initSideMenu(){

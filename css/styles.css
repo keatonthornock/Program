@@ -107,6 +107,8 @@ body.mobile-scrolled .mobile-scroll-strip {
   background: #fff;
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px 20px;
   box-shadow: 8px 0 32px rgba(0, 0, 0, 0.16);
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-scrim {
@@ -144,16 +146,38 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .side-menu-nav {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+  flex: 1;
+  padding-top: 8px;
 }
 
 .side-menu-home-link {
-  margin-top: min(30vh, 230px);
+  margin-top: 10px;
   display: inline-block;
   color: #0b4a6a;
   text-decoration: none;
   font-weight: 700;
+}
+
+.side-menu-install-btn {
+  margin-top: auto;
+  border: 0;
+  border-radius: 10px;
+  background: #004267;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+.side-menu-install-status {
+  margin: 2px 0 0;
+  color: #334155;
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 .side-menu-link {
