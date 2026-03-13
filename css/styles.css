@@ -277,30 +277,29 @@ body.mobile-scrolled .mobile-scroll-strip {
 .share-btn {
   position: absolute;
   right: 16px;
-  bottom: 88px;
+  bottom: 188px;
   z-index: 4;
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.66);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.42);
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 .share-btn img {
   width: 20px;
   height: 20px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) saturate(100%);
 }
 
 .share-menu {
   position: absolute;
   right: 16px;
-  bottom: 138px;
+  bottom: 194px;
   z-index: 6;
   display: none;
   flex-direction: column;
@@ -321,8 +320,6 @@ body.mobile-scrolled .mobile-scroll-strip {
   border-radius: 8px;
   font-weight: 600;
 }
-
-.share-action--icon-right { justify-content: space-between; }
 
 .share-action:hover {
   background: #f3f4f6;
