@@ -571,7 +571,7 @@ function renderAnnouncements(admRows){
   toggle.innerHTML = `
     <span>Announcements</span>
     <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-      <path d="M12 17L4 9h16z"/>
+      <path d="M7 10l5 5 5-5"/>
     </svg>
   `;
   section.appendChild(toggle);
@@ -906,16 +906,15 @@ function createActivityCard(ev){
     <div class="activity-card-header">
       <div class="activity-card-title-row">
         <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
-        ${ev.calendarType ? `<span class="activity-calendar-pill">${escapeHtml(ev.calendarType)}</span>` : ''}
       </div>
       <span class="activity-arrow-wrap" aria-hidden="true">
-        <svg class="activity-arrow" viewBox="0 0 24 24"><path d="M12 17L4 9h16z"/></svg>
+        <svg class="activity-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>
       </span>
     </div>
     <div class="activity-card-body">
       <div class="activity-meta-line activity-card-time">
-        <img src="./icons/calendar.png" class="activity-meta-icon" alt="" aria-hidden="true">
-        <span>${escapeHtml(schedule)}</span>
+        <span class="activity-time-main"><img src="./icons/calendar.png" class="activity-meta-icon" alt="" aria-hidden="true"><span>${escapeHtml(schedule)}</span></span>
+        ${ev.calendarType ? `<span class="activity-calendar-pill">${escapeHtml(ev.calendarType)}</span>` : ''}
       </div>
       ${ev.location ? `<a class="activity-meta-line activity-location-link" href="${mapHref}" target="_blank" rel="noopener"><img src="./icons/map.png" class="activity-meta-icon" alt="" aria-hidden="true"><span>${escapeHtml(ev.location)}</span></a>` : ''}
       ${preview ? `<div class="activity-card-preview">${previewHtml}</div>` : ''}
