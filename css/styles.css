@@ -573,6 +573,12 @@ body.mobile-scrolled .mobile-scroll-strip {
   text-decoration: underline;
 }
 
+.event-card .conference-subtext,
+.event-card .conference-subtext a {
+  margin-top: 2px;
+}
+
+
 .hymn-button .icon,
 .agenda-item .icon {
   display: flex;
