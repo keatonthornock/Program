@@ -250,7 +250,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .ward-details {
   margin-top: 8px;
-  color: #4b5563;
+  color: #0b5fa7;
   font-weight: 600;
 }
 
@@ -391,7 +391,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .bottom-content-zone .small,
 .bottom-content-zone .list,
 .bottom-content-zone .notice a {
-  color: #4b5563;
+  color: #0b5fa7;
 }
 
 .meta-line,
@@ -415,6 +415,20 @@ body.mobile-scrolled .mobile-scroll-strip {
   align-items: center;
 }
 
+.collapsible-toggle .chev {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+  stroke: none;
+  transform: rotate(180deg);
+  transition: transform .2s ease;
+  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
+}
+
+.collapsible-toggle[aria-expanded='true'] .chev {
+  transform: rotate(0deg);
+}
+
 .card.collapsible {
   padding: 0;
   overflow: hidden;
@@ -423,6 +437,298 @@ body.mobile-scrolled .mobile-scroll-strip {
 .collapsible-panel {
   display: none;
   padding: 12px 16px 16px;
+}
+
+#activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-card {
+  border: 1px solid #d8dee7;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+}
+
+.activity-card:focus-visible {
+  outline: 2px solid #0b5fa7;
+  outline-offset: 2px;
+}
+
+.activity-card-header {
+  background: #3f4754;
+  border-bottom: 1px solid #363d49;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+}
+
+.activity-card-body {
+  padding: 10px 12px 12px;
+}
+
+.activity-card-title {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.activity-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.activity-meta-icon {
+  width: 15px;
+  height: 15px;
+  opacity: 0.65;
+  filter: grayscale(1);
+  flex: 0 0 auto;
+}
+
+.activity-location-link {
+  color: #0b5fa7;
+  text-decoration: none;
+}
+
+.activity-location-link:hover,
+.activity-location-link:focus-visible {
+  color: #0b5fa7;
+}
+
+.activity-card-preview {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.activity-preview-link {
+  color: #0b5fa7;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.activity-arrow-wrap {
+  flex: 0 0 auto;
+}
+
+.activity-arrow {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+  stroke: none;
+  transition: transform .2s ease;
+  transform: rotate(180deg);
+  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
+}
+
+.activity-card[aria-expanded='true'] .activity-arrow {
+  transform: rotate(0deg);
+}
+
+.activity-card[aria-expanded='true'] .activity-card-preview {
+  display: none;
+}
+
+.activity-card-details {
+  padding-top: 8px;
+}
+
+.activity-detail-line {
+  margin: 0 0 8px;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.activity-inline-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--accent-2);
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  max-width: 100%;
+  vertical-align: baseline;
+  margin: 0 2px;
+}
+
+.activity-see-more {
+  border: 0;
+  background: transparent;
+  color: #0b5fa7;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 0;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.activities-placeholder {
+  margin-top: 2px;
+}
+
+.activities-home-link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-card {
+  border: 1px solid #d8dee7;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+}
+
+.activity-card:focus-visible {
+  outline: 2px solid #0b5fa7;
+  outline-offset: 2px;
+}
+
+.activity-card-header {
+  background: #3f4754;
+  border-bottom: 1px solid #363d49;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+}
+
+.activity-card-body {
+  padding: 10px 12px 12px;
+}
+
+.activity-card-title {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.activity-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.activity-meta-icon {
+  width: 15px;
+  height: 15px;
+  opacity: 0.65;
+  filter: grayscale(1);
+  flex: 0 0 auto;
+}
+
+.activity-location-link {
+  color: #0b5fa7;
+  text-decoration: none;
+}
+
+.activity-location-link:hover,
+.activity-location-link:focus-visible {
+  color: #0b5fa7;
+}
+
+.activity-card-preview {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.activity-preview-link {
+  color: #0b5fa7;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.activity-arrow-wrap {
+  flex: 0 0 auto;
+}
+
+.activity-arrow {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+  stroke: none;
+  transition: transform .2s ease;
+  transform: rotate(180deg);
+  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
+}
+
+.activity-card[aria-expanded='true'] .activity-arrow {
+  transform: rotate(0deg);
+}
+
+.activity-card[aria-expanded='true'] .activity-card-preview {
+  display: none;
+}
+
+.activity-card-details {
+  padding-top: 8px;
+}
+
+.activity-detail-line {
+  margin: 0 0 8px;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.activity-inline-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--accent-2);
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+  max-width: 100%;
+  vertical-align: baseline;
+  margin: 0 2px;
+}
+
+.activity-see-more {
+  border: 0;
+  background: transparent;
+  color: #0b5fa7;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 0;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.activities-placeholder {
+  margin-top: 2px;
+}
+
+.activities-home-link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 #footer-logo {
@@ -695,7 +1001,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .agenda-separator {
   margin: 0 8px;
-  color: #4b5563;
+  color: #0b5fa7;
   font-weight: 500;
 }
 
@@ -770,7 +1076,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .testimony-text {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #4b5563;
+  color: #0b5fa7;
   letter-spacing: 0.01em;
 }
 
