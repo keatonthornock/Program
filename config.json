@@ -4,5 +4,6 @@
   "agenda_gid": "1110042208",
   "announcements_gid": "350316892",
   "leadership_gid": "527468007",
+  "calendar_gid": "960543151",
   "notes": "Fill the values within the quotation marks (do not remove beginning and end quote marks). admin_gid is the numeric gid for the Administrative tab (see README if you are lost)."
 }
