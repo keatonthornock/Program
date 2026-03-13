@@ -585,6 +585,50 @@ body.mobile-scrolled .mobile-scroll-strip {
   text-decoration: none;
 }
 
+
+.activities-filter-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.activities-filter-pill {
+  border: 1px solid #1d4ed8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.activities-filter-pill.is-active {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.activity-card-title-row {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.activity-calendar-pill {
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  color: #3f4754;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
 #activities-list {
   display: flex;
   flex-direction: column;

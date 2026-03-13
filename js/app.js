@@ -703,25 +703,63 @@ function asTruthy(value){
 function parseCalendarEvents(rows){
   if(!Array.isArray(rows) || !rows.length) return [];
 
+  const normalizedRows = rows.map(r => (Array.isArray(r) ? r : []));
+  const first = normalizedRows[0].map(c => (c || '').toString().trim().toLowerCase());
+  const hasHeaderRow = first.includes('event id') && first.includes('show on site');
+
   let startIndex = 0;
-  const first = rows[0].map(c => (c || '').toString().trim().toLowerCase());
-  if(first[0] === 'event id' && first[1] === 'show on site') startIndex = 1;
+  const index = {
+    eventId: 0,
+    showOnSite: 1,
+    calendarType: -1,
+    title: 2,
+    start: 3,
+    end: 4,
+    allDay: 5,
+    location: 6,
+    description: 7,
+    lastSynced: 8
+  };
+
+  if(hasHeaderRow){
+    startIndex = 1;
+    const findIndex = (...names) => first.findIndex(c => names.includes(c));
+    const mapped = {
+      eventId: findIndex('event id'),
+      showOnSite: findIndex('show on site'),
+      calendarType: findIndex('calendar'),
+      title: findIndex('title'),
+      start: findIndex('start'),
+      end: findIndex('end'),
+      allDay: findIndex('all day'),
+      location: findIndex('location'),
+      description: findIndex('description'),
+      lastSynced: findIndex('last synced')
+    };
+
+    Object.keys(mapped).forEach((key) => {
+      if(mapped[key] !== -1) index[key] = mapped[key];
+    });
+  }
 
   const out = [];
-  for(let i = startIndex; i < rows.length; i++){
-    const r = rows[i] || [];
-    const showOnSite = asTruthy(r[1]);
+  for(let i = startIndex; i < normalizedRows.length; i++){
+    const r = normalizedRows[i] || [];
+    const showOnSite = asTruthy(r[index.showOnSite]);
     if(!showOnSite) continue;
 
+    const eventCalendarType = (index.calendarType >= 0 ? (r[index.calendarType] || '') : '').toString().trim();
+
     const ev = {
-      eventId: (r[0] || '').toString().trim(),
-      title: (r[2] || '').toString().trim(),
-      start: (r[3] || '').toString().trim(),
-      end: (r[4] || '').toString().trim(),
-      allDay: asTruthy(r[5]),
-      location: (r[6] || '').toString().trim(),
-      description: (r[7] || '').toString().trim(),
-      lastSynced: (r[8] || '').toString().trim()
+      eventId: (r[index.eventId] || '').toString().trim(),
+      calendarType: eventCalendarType,
+      title: (r[index.title] || '').toString().trim(),
+      start: (r[index.start] || '').toString().trim(),
+      end: (r[index.end] || '').toString().trim(),
+      allDay: asTruthy(r[index.allDay]),
+      location: (r[index.location] || '').toString().trim(),
+      description: (r[index.description] || '').toString().trim(),
+      lastSynced: (r[index.lastSynced] || '').toString().trim()
     };
 
     if(ev.title || ev.start || ev.end || ev.location || ev.description) out.push(ev);
@@ -866,7 +904,10 @@ function createActivityCard(ev){
 
   card.innerHTML = `
     <div class="activity-card-header">
-      <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
+      <div class="activity-card-title-row">
+        <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
+        ${ev.calendarType ? `<span class="activity-calendar-pill">${escapeHtml(ev.calendarType)}</span>` : ''}
+      </div>
       <span class="activity-arrow-wrap" aria-hidden="true">
         <svg class="activity-arrow" viewBox="0 0 24 24"><path d="M12 17L4 9h16z"/></svg>
       </span>
@@ -928,11 +969,78 @@ function renderActivities(calendarRows){
   if(!list || !panel) return;
 
   list.innerHTML = '';
+  panel.querySelectorAll('.activities-filter-wrap').forEach(el => el.remove());
   panel.querySelectorAll('.activities-placeholder, .muted.small').forEach(el => el.remove());
 
   const events = parseCalendarEvents(calendarRows);
   if(events.length){
-    events.forEach(ev => list.appendChild(createActivityCard(ev)));
+    const calendarTypes = [...new Set(events.map(ev => (ev.calendarType || '').trim()).filter(Boolean))];
+    const activeFilters = new Set();
+    let showAll = true;
+
+    const renderEventList = () => {
+      list.innerHTML = '';
+      const visibleEvents = showAll
+        ? events
+        : events.filter(ev => activeFilters.has((ev.calendarType || '').trim()));
+
+      visibleEvents.forEach(ev => list.appendChild(createActivityCard(ev)));
+
+      if(!visibleEvents.length){
+        const empty = document.createElement('div');
+        empty.className = 'small activities-placeholder';
+        empty.textContent = 'No events found for selected calendar type.';
+        list.appendChild(empty);
+      }
+    };
+
+    if(calendarTypes.length){
+      const filterWrap = document.createElement('div');
+      filterWrap.className = 'activities-filter-wrap';
+
+      const renderFilterButtons = () => {
+        filterWrap.innerHTML = '';
+
+        const allBtn = document.createElement('button');
+        allBtn.type = 'button';
+        allBtn.className = `activities-filter-pill${showAll ? ' is-active' : ''}`;
+        allBtn.textContent = 'All';
+        allBtn.addEventListener('click', () => {
+          showAll = true;
+          activeFilters.clear();
+          renderFilterButtons();
+          renderEventList();
+        });
+        filterWrap.appendChild(allBtn);
+
+        calendarTypes.forEach((type) => {
+          const isActive = activeFilters.has(type);
+          const typeBtn = document.createElement('button');
+          typeBtn.type = 'button';
+          typeBtn.className = `activities-filter-pill${isActive ? ' is-active' : ''}`;
+          typeBtn.textContent = type;
+          typeBtn.addEventListener('click', () => {
+            if(activeFilters.has(type)) activeFilters.delete(type);
+            else activeFilters.add(type);
+
+            if(activeFilters.size === 0){
+              showAll = true;
+            } else {
+              showAll = false;
+            }
+
+            renderFilterButtons();
+            renderEventList();
+          });
+          filterWrap.appendChild(typeBtn);
+        });
+      };
+
+      renderFilterButtons();
+      panel.insertBefore(filterWrap, list);
+    }
+
+    renderEventList();
     return;
   }
 
