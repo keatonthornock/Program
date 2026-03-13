@@ -571,7 +571,7 @@ function renderAnnouncements(admRows){
   toggle.innerHTML = `
     <span>Announcements</span>
     <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-      <path fill="none" stroke="#fff" stroke-width="2" d="M6 9l6 6 6-6"/>
+      <path d="M12 17L4 9h16z"/>
     </svg>
   `;
   section.appendChild(toggle);
@@ -692,6 +692,261 @@ function renderAnnouncements(admRows){
   // IMPORTANT:
   // Do NOT attach a local click handler here for the toggle — the global wiring in run()
   // (document.querySelectorAll('.collapsible-toggle')...) will attach the handler.
+}
+
+/* ---------- Activities & Events (Calendar sheet) ---------- */
+function asTruthy(value){
+  const v = (value || '').toString().trim().toLowerCase();
+  return v === 'true' || v === 'yes' || v === 'y' || v === '1';
+}
+
+function parseCalendarEvents(rows){
+  if(!Array.isArray(rows) || !rows.length) return [];
+
+  let startIndex = 0;
+  const first = rows[0].map(c => (c || '').toString().trim().toLowerCase());
+  if(first[0] === 'event id' && first[1] === 'show on site') startIndex = 1;
+
+  const out = [];
+  for(let i = startIndex; i < rows.length; i++){
+    const r = rows[i] || [];
+    const showOnSite = asTruthy(r[1]);
+    if(!showOnSite) continue;
+
+    const ev = {
+      eventId: (r[0] || '').toString().trim(),
+      title: (r[2] || '').toString().trim(),
+      start: (r[3] || '').toString().trim(),
+      end: (r[4] || '').toString().trim(),
+      allDay: asTruthy(r[5]),
+      location: (r[6] || '').toString().trim(),
+      description: (r[7] || '').toString().trim(),
+      lastSynced: (r[8] || '').toString().trim()
+    };
+
+    if(ev.title || ev.start || ev.end || ev.location || ev.description) out.push(ev);
+  }
+
+  return out;
+}
+
+function formatEventDateRange(startRaw, endRaw, isAllDay){
+  const start = startRaw ? new Date(startRaw) : null;
+  const end = endRaw ? new Date(endRaw) : null;
+  const startValid = start && !Number.isNaN(start.getTime());
+  const endValid = end && !Number.isNaN(end.getTime());
+
+  if(!startValid && !endValid){
+    const fallback = [startRaw, endRaw].filter(Boolean).join(' - ').trim();
+    return fallback || 'Date/time unavailable';
+  }
+
+  const dateFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+
+  const startDate = startValid ? dateFmt.format(start) : '';
+  const endDate = endValid ? dateFmt.format(end) : '';
+  const sameDay = startValid && endValid && start.toDateString() === end.toDateString();
+
+  if(isAllDay){
+    if(sameDay || !endValid) return `${startDate} (All day)`;
+    return `${startDate} - ${endDate} (All day)`;
+  }
+
+  const startTime = startValid ? timeFmt.format(start) : '';
+  const endTime = endValid ? timeFmt.format(end) : '';
+  if(sameDay){
+    return `${startDate} · ${startTime}${endTime ? ` - ${endTime}` : ''}`;
+  }
+
+  const startText = startValid ? `${startDate}${startTime ? ` · ${startTime}` : ''}` : '';
+  const endText = endValid ? `${endDate}${endTime ? ` · ${endTime}` : ''}` : '';
+  return [startText, endText].filter(Boolean).join(' - ');
+}
+
+function extractUrls(text){
+  const src = (text || '').toString();
+  const urlRe = /((?:https?:\/\/|www\.)[^\s]+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/gi;
+  const urls = [];
+  const without = src.replace(urlRe, (m) => {
+    const clean = m.replace(/[),.;!?]+$/, '');
+    if(clean.includes('@')) return m;
+    urls.push(clean);
+    return '';
+  }).replace(/\s{2,}/g, ' ').trim();
+  return { text: without, urls };
+}
+
+function createDescriptionWithInlineLinks(rawText, options = {}){
+  const source = (rawText || '').toString();
+  if(!source.trim()) return '';
+
+  const buttonLinks = options.buttonLinks !== false;
+  const maxChars = Number.isFinite(options.maxChars) ? Math.max(0, options.maxChars) : Infinity;
+  const urlRe = /((?:https?:\/\/|www\.)[^\s]+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s]*)?)/gi;
+
+  let visibleCount = 0;
+  let cursor = 0;
+  let out = '';
+
+  const appendText = (txt) => {
+    if(!txt || visibleCount >= maxChars) return;
+    const remaining = maxChars - visibleCount;
+    const chunk = txt.slice(0, remaining);
+    out += escapeHtml(chunk);
+    visibleCount += chunk.length;
+  };
+
+  const appendEllipsis = () => {
+    if(Number.isFinite(maxChars) && visibleCount >= maxChars) out += '…';
+  };
+
+  for(const m of source.matchAll(urlRe)){
+    if(visibleCount >= maxChars) break;
+
+    const full = m[0] || '';
+    const matchIndex = m.index || 0;
+    const cleaned = full.replace(/[),.;!?]+$/, '');
+    const trailing = full.slice(cleaned.length);
+
+    appendText(source.slice(cursor, matchIndex));
+    if(visibleCount >= maxChars){
+      appendEllipsis();
+      break;
+    }
+
+    if(cleaned.includes('@')){
+      appendText(full);
+      if(visibleCount >= maxChars){
+        appendEllipsis();
+        break;
+      }
+    } else {
+      const normalized = normalizeHref(cleaned);
+      const label = getDisplayUrl(normalized, 34);
+      if(buttonLinks){
+        out += `<a class="activity-inline-link" href="${escapeHtml(normalized)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(normalized)}">${escapeHtml(label)}</a>`;
+      } else {
+        out += `<a class="activity-preview-link" href="${escapeHtml(normalized)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(normalized)}">${escapeHtml(label)}</a>`;
+      }
+      visibleCount += cleaned.length;
+      appendText(trailing);
+      if(visibleCount >= maxChars){
+        appendEllipsis();
+        break;
+      }
+    }
+
+    cursor = matchIndex + full.length;
+  }
+
+  if(visibleCount < maxChars){
+    appendText(source.slice(cursor));
+    if(Number.isFinite(maxChars) && source.length > maxChars) appendEllipsis();
+  }
+
+  return out;
+}
+
+function createActivityCard(ev){
+  const card = document.createElement('article');
+  card.className = 'activity-card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-expanded', 'false');
+
+  const parsedDescription = extractUrls(ev.description || '');
+  const descriptionText = parsedDescription.text;
+  const descriptionHtml = createDescriptionWithInlineLinks(ev.description || '', { buttonLinks: true });
+  const previewHtml = createDescriptionWithInlineLinks(ev.description || '', { buttonLinks: false, maxChars: 140 });
+  const preview = descriptionText.length > 140 ? `${descriptionText.slice(0, 140).trim()}…` : descriptionText;
+  const schedule = formatEventDateRange(ev.start, ev.end, ev.allDay);
+  const mapHref = ev.location ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}` : '';
+  const hasMore = (descriptionText && descriptionText.length > preview.length) || parsedDescription.urls.length > 0;
+
+  card.innerHTML = `
+    <div class="activity-card-header">
+      <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
+      <span class="activity-arrow-wrap" aria-hidden="true">
+        <svg class="activity-arrow" viewBox="0 0 24 24"><path d="M12 17L4 9h16z"/></svg>
+      </span>
+    </div>
+    <div class="activity-card-body">
+      <div class="activity-meta-line activity-card-time">
+        <img src="./icons/calendar.png" class="activity-meta-icon" alt="" aria-hidden="true">
+        <span>${escapeHtml(schedule)}</span>
+      </div>
+      ${ev.location ? `<a class="activity-meta-line activity-location-link" href="${mapHref}" target="_blank" rel="noopener"><img src="./icons/map.png" class="activity-meta-icon" alt="" aria-hidden="true"><span>${escapeHtml(ev.location)}</span></a>` : ''}
+      ${preview ? `<div class="activity-card-preview">${previewHtml}</div>` : ''}
+      <div class="activity-card-details" hidden>
+        ${descriptionHtml ? `<p class="activity-detail-line">${descriptionHtml}</p>` : ''}
+      </div>
+      ${hasMore ? `<button class="activity-see-more" type="button">See more</button>` : ''}
+    </div>
+  `;
+
+  const seeMore = card.querySelector('.activity-see-more');
+  const details = card.querySelector('.activity-card-details');
+
+  const setExpanded = (expanded) => {
+    card.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    if(details) details.hidden = !expanded;
+    if(seeMore) seeMore.textContent = expanded ? 'See less' : 'See more';
+  };
+
+  const onToggle = () => {
+    if(!details) return;
+    const expanded = card.getAttribute('aria-expanded') === 'true';
+    setExpanded(!expanded);
+  };
+
+  card.addEventListener('click', (e) => {
+    if(e.target.closest('a') || e.target.closest('.activity-see-more')) return;
+    onToggle();
+  });
+
+  card.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      onToggle();
+    }
+  });
+
+  if(seeMore){
+    seeMore.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onToggle();
+    });
+  }
+
+  return card;
+}
+
+function renderActivities(calendarRows){
+  const list = document.getElementById('activities-list');
+  const panel = document.getElementById('activities-panel');
+  if(!list || !panel) return;
+
+  list.innerHTML = '';
+  panel.querySelectorAll('.activities-placeholder, .muted.small').forEach(el => el.remove());
+
+  const events = parseCalendarEvents(calendarRows);
+  if(events.length){
+    events.forEach(ev => list.appendChild(createActivityCard(ev)));
+    return;
+  }
+
+  const wardHomepageEl = document.getElementById('side-ward-homepage');
+  const homepageHref = wardHomepageEl && !wardHomepageEl.hidden ? wardHomepageEl.getAttribute('href') : '';
+
+  const placeholder = document.createElement('div');
+  placeholder.className = 'small activities-placeholder';
+  if(homepageHref){
+    placeholder.innerHTML = `<a class="activities-home-link" href="${escapeHtml(homepageHref)}" target="_blank" rel="noopener">See ward homepage for calendar events</a>`;
+  } else {
+    placeholder.textContent = 'See ward homepage for calendar events';
+  }
+  panel.appendChild(placeholder);
 }
 
 /* ---------- Conference event parsing + rendering ---------- */
@@ -1262,7 +1517,8 @@ async function run(){
   let agendaCsvUrl = config.agenda_csv_url || (config.sheet_id && config.agenda_gid ? buildCsvUrl(config.sheet_id, config.agenda_gid) : null);
   let leadershipCsvUrl = config.leadership_csv_url || (config.sheet_id && config.leadership_gid ? buildCsvUrl(config.sheet_id, config.leadership_gid) : null);
   let announcementsCsvUrl = config.announcements_csv_url || (config.sheet_id && config.announcements_gid ? buildCsvUrl(config.sheet_id, config.announcements_gid) : null);
-
+  let calendarCsvUrl = config.calendar_csv_url || (config.sheet_id && config.calendar_gid ? buildCsvUrl(config.sheet_id, config.calendar_gid) : null);
+ 
   if(!adminCsvUrl){
     showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
     return;
@@ -1276,6 +1532,7 @@ async function run(){
     const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
     if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
     if (announcementsCsvUrl) fetches.push(fetch(announcementsCsvUrl));
+    if (calendarCsvUrl) fetches.push(fetch(calendarCsvUrl));
     const responses = await Promise.all(fetches);
 
     const admResp = responses[0];
@@ -1284,27 +1541,33 @@ async function run(){
     // derive indices for optional responses
     const hasLead = Boolean(leadershipCsvUrl);
     const hasAnn  = Boolean(announcementsCsvUrl);
+    const hasCal  = Boolean(calendarCsvUrl);
     const leadResp = hasLead ? responses[2] : null;
     const annResp  = hasAnn  ? responses[2 + (hasLead ? 1 : 0)] : null;
+    const calResp  = hasCal  ? responses[2 + (hasLead ? 1 : 0) + (hasAnn ? 1 : 0)] : null;
 
     if(!admResp.ok) throw new Error('Admin sheet fetch failed: ' + admResp.status);
     if(!agResp.ok) throw new Error('Agenda sheet fetch failed: ' + agResp.status);
     if(leadResp && !leadResp.ok) throw new Error('Leadership sheet fetch failed: ' + leadResp.status);
+    if(calResp && !calResp.ok) throw new Error('Calendar sheet fetch failed: ' + calResp.status);
 
     const admText = await admResp.text();
     const agText = await agResp.text();
     const leadText = leadResp ? await leadResp.text() : null;
     const annText  = annResp  ? await annResp.text()  : null;
+    const calText  = calResp  ? await calResp.text()  : null;
 
     if(/<html|doctype html/i.test(admText.slice(0,200))) { showError('Admin sheet returned HTML (not public)'); return; }
     if(/<html|doctype html/i.test(agText.slice(0,200))) { showError('Agenda sheet returned HTML (not public)'); return; }
     if(leadText && /<html|doctype html/i.test(leadText.slice(0,200))) { showError('Leadership sheet returned HTML (not public)'); return; }
     if(annText && /<html|doctype html/i.test(annText.slice(0,200))) { showError('Announcements sheet returned HTML (not public)'); return; }
+    if(calText && /<html|doctype html/i.test(calText.slice(0,200))) { showError('Calendar sheet returned HTML (not public)'); return; }
 
     const admRows = parseCSVtoRows(admText);
     const agRows = parseCSVtoRows(agText);
     const leadRows = leadText ? parseCSVtoRows(leadText) : null;
     const annRows  = annText  ? parseCSVtoRows(annText)  : null;
+    const calRows  = calText  ? parseCSVtoRows(calText)  : null;
 
     // build admin map
     const adminMap = {};
@@ -1508,6 +1771,9 @@ async function run(){
      // render announcements (top of the three sections)
     renderAnnouncements(annRows || admRows);
 
+    // render Activities & Events from Calendar tab
+    renderActivities(calRows || []);
+    
     initShare();
 
     clearError();
