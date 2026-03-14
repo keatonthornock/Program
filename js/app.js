@@ -428,6 +428,7 @@ function initShare(){
 function getAgendaIcon(type){
   if(type === "hymn") return `<img src="./icons/hymn.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "speaker") return `<img src="./icons/speaker.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
+  if(type === "testimony") return `<img src="./icons/testimony.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "prayer") return `<img src="./icons/prayer.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "music") return `<img src="./icons/musicnumber.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   return "";
@@ -497,6 +498,19 @@ function createRow(typeLabel, name, extra, iconType = 'default'){
     <div class="icon">${getAgendaIcon(iconType)}</div>
     <div class="content">
       ${createAgendaText(typeLabel, value)}
+    </div>
+    <div class="right"></div>
+  `;
+  return el;
+}
+
+function createSingleLineRow(text, iconType = 'default'){
+  const el = document.createElement('div');
+  el.className = 'agenda-item';
+  el.innerHTML = `
+    <div class="icon">${getAgendaIcon(iconType)}</div>
+    <div class="content">
+      <div class="agenda-textline"><span class="agenda-label">${text || ''}</span></div>
     </div>
     <div class="right"></div>
   `;
@@ -1728,11 +1742,9 @@ async function run(){
           previousRenderedKey = normalizeItemKey(item);
         }
         if(isTestimony){
-          const tb = document.createElement('div');
-          tb.className = 'testimony-banner';
-          tb.innerHTML = `<div class="testimony-text">Testimonies of the Congregation</div>`;
-          container.appendChild(tb);
+          container.appendChild(createSingleLineRow('Testimonies of the Congregation', 'testimony'));
           any = true;
+          previousRenderedKey = 'testimonies of the congregation';
         }
         continue;
       }
