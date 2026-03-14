@@ -68,7 +68,7 @@ Admins can still be added with edit access.
 
 ## 2. Copying the GitHub Repository
 
-1. Click **Use this template** at the top of this repository.
+1. Click **Use this template** at the top of this repository (green button).
 2. Select **Create a new repository**.
 
 Settings:
