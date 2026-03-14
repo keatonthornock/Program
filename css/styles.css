@@ -125,7 +125,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-bottom: 26px;
+  margin-bottom: 36px;
 }
 
 .side-menu-logo {
@@ -150,11 +150,11 @@ body.mobile-scrolled .mobile-scroll-strip {
   flex-direction: column;
   gap: 12px;
   flex: 1;
-  padding-top: 8px;
+  padding-top: 14px;
 }
 
 .side-menu-home-link {
-  margin-top: 20px;
+  margin-top: 30px;
   display: inline-block;
   color: #0b4a6a;
   text-decoration: none;
