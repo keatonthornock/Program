@@ -5,7 +5,7 @@ Create a simple Sunday Service program webpage for your ward. The administrator 
 
 ---
 
-# Quick Setup
+# Quick Setup Version - For The Common GitHub User
 1. Copy the Google Sheet template.
 2. Click **Use this template** on this repository.
 3. Paste your sheet ID into `config.json`.
