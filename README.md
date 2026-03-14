@@ -131,7 +131,7 @@ Any updates made in the Google Sheet will appear on the site after refreshing th
 
 You can automatically pull events from the ward calendar.
 
-If you skip this step, the calendar tab will simply link to your ward website.
+If you skip this step, the calendar tab will simply link to your ward website which often has calendar events on it anyways, but only if your ward creates the events and makes them "Public".
 
 ## Enable Calendar Sync
 
