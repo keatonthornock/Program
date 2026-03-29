@@ -20,6 +20,46 @@ function buildCsvUrl(sheetId, gid){
   return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
 }
 
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Fetch CSV with timeout + small retry budget to reduce transient first-load failures.
+// Uses no-store and a cache-busting param per attempt to avoid stale cached responses.
+async function fetchCsvText(url, label, { timeoutMs = 8000, retries = 2 } = {}){
+  let lastErr = null;
+  for(let attempt = 0; attempt <= retries; attempt++){
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const u = new URL(url, window.location.href);
+      u.searchParams.set('_cb', `${Date.now()}-${attempt}`);
+
+      const resp = await fetch(u.toString(), {
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if(!resp.ok) throw new Error(`${label} sheet fetch failed: HTTP ${resp.status}`);
+
+      const text = await resp.text();
+      if(/<html|doctype html/i.test((text || '').slice(0, 200))){
+        throw new Error(`${label} sheet returned HTML instead of CSV`);
+      }
+
+      clearTimeout(timeoutId);
+      return text;
+    } catch(err){
+      clearTimeout(timeoutId);
+      lastErr = err;
+      const isLastAttempt = attempt >= retries;
+      if(isLastAttempt) break;
+      await sleep(300 * (attempt + 1));
+    }
+  }
+
+  throw new Error(`${label} sheet failed after ${retries + 1} attempt(s): ${lastErr ? lastErr.message : 'Unknown error'}`);
+}
+
 // Helper: create a compact display string for a URL (origin + truncated path)
 function getDisplayUrl(rawUrl, maxLen = 48){
   try {
@@ -229,9 +269,23 @@ function updateAppointmentsInfoBox(exec){
 
 /* ---------- small UI helpers ---------- */
 function showError(msg){
-  const n = $('#notice'); if(n) { n.hidden = false; n.textContent = msg; } else console.warn(msg);
+  const n = $('#info-note');
+  if(n) {
+    n.hidden = false;
+    n.textContent = msg;
+    n.dataset.mode = 'error';
+  } else {
+    console.warn(msg);
+  }
 }
-function clearError(){ const n = $('#notice'); if(n) { n.hidden = true; n.textContent = ''; } }
+function clearError(){
+  const n = $('#info-note');
+  if(n && n.dataset.mode === 'error') {
+    n.hidden = true;
+    n.textContent = '';
+    delete n.dataset.mode;
+  }
+}
 
 function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
 
@@ -1654,39 +1708,35 @@ async function run(){
   }
 
   try {
-    const fetches = [ fetch(adminCsvUrl), fetch(agendaCsvUrl) ];
-    if (leadershipCsvUrl) fetches.push(fetch(leadershipCsvUrl));
-    if (announcementsCsvUrl) fetches.push(fetch(announcementsCsvUrl));
-    if (calendarCsvUrl) fetches.push(fetch(calendarCsvUrl));
-    const responses = await Promise.all(fetches);
+    // Required sheets: fail startup if either one cannot be loaded.
+    const [admText, agText] = await Promise.all([
+      fetchCsvText(adminCsvUrl, 'Admin'),
+      fetchCsvText(agendaCsvUrl, 'Agenda')
+    ]);
 
-    const admResp = responses[0];
-    const agResp = responses[1];
+    // Optional sheets: startup continues even if one fails.
+    const optionalJobs = [];
+    if (leadershipCsvUrl) optionalJobs.push({ key: 'leadership', label: 'Leadership', url: leadershipCsvUrl });
+    if (announcementsCsvUrl) optionalJobs.push({ key: 'announcements', label: 'Announcements', url: announcementsCsvUrl });
+    if (calendarCsvUrl) optionalJobs.push({ key: 'calendar', label: 'Calendar', url: calendarCsvUrl });
 
-    // derive indices for optional responses
-    const hasLead = Boolean(leadershipCsvUrl);
-    const hasAnn  = Boolean(announcementsCsvUrl);
-    const hasCal  = Boolean(calendarCsvUrl);
-    const leadResp = hasLead ? responses[2] : null;
-    const annResp  = hasAnn  ? responses[2 + (hasLead ? 1 : 0)] : null;
-    const calResp  = hasCal  ? responses[2 + (hasLead ? 1 : 0) + (hasAnn ? 1 : 0)] : null;
+    const optionalResults = await Promise.allSettled(
+      optionalJobs.map(job => fetchCsvText(job.url, job.label))
+    );
 
-    if(!admResp.ok) throw new Error('Admin sheet fetch failed: ' + admResp.status);
-    if(!agResp.ok) throw new Error('Agenda sheet fetch failed: ' + agResp.status);
-    if(leadResp && !leadResp.ok) throw new Error('Leadership sheet fetch failed: ' + leadResp.status);
-    if(calResp && !calResp.ok) throw new Error('Calendar sheet fetch failed: ' + calResp.status);
-
-    const admText = await admResp.text();
-    const agText = await agResp.text();
-    const leadText = leadResp ? await leadResp.text() : null;
-    const annText  = annResp  ? await annResp.text()  : null;
-    const calText  = calResp  ? await calResp.text()  : null;
-
-    if(/<html|doctype html/i.test(admText.slice(0,200))) { showError('Admin sheet returned HTML (not public)'); return; }
-    if(/<html|doctype html/i.test(agText.slice(0,200))) { showError('Agenda sheet returned HTML (not public)'); return; }
-    if(leadText && /<html|doctype html/i.test(leadText.slice(0,200))) { showError('Leadership sheet returned HTML (not public)'); return; }
-    if(annText && /<html|doctype html/i.test(annText.slice(0,200))) { showError('Announcements sheet returned HTML (not public)'); return; }
-    if(calText && /<html|doctype html/i.test(calText.slice(0,200))) { showError('Calendar sheet returned HTML (not public)'); return; }
+    let leadText = null;
+    let annText = null;
+    let calText = null;
+    optionalResults.forEach((result, idx) => {
+      const job = optionalJobs[idx];
+      if(result.status === 'fulfilled'){
+        if(job.key === 'leadership') leadText = result.value;
+        if(job.key === 'announcements') annText = result.value;
+        if(job.key === 'calendar') calText = result.value;
+      } else {
+        console.warn(`[app] Optional ${job.label} sheet failed to load:`, result.reason);
+      }
+    });
 
     const admRows = parseCSVtoRows(admText);
     const agRows = parseCSVtoRows(agText);
