@@ -12,7 +12,7 @@
   <title>Sacrament Meeting — Ward Program</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -24,7 +24,7 @@
   <div class="menu-overlay" id="menu-overlay" hidden>
     <aside class="side-menu" id="side-menu" aria-label="Navigation menu">
       <div class="side-menu-header">
-        <img src="icons/logo.png" alt="Site logo" class="side-menu-logo" onerror="this.style.display='none'">
+        <div id="side-ward-logo" class="ward-text-logo ward-text-logo--side" aria-label="Ward logo"></div>
         <button id="menu-close" class="menu-close" type="button" aria-label="Close menu">✕</button>
       </div>
       <nav class="side-menu-nav" aria-label="Section shortcuts">
@@ -52,7 +52,7 @@
     <button id="menu-scrim" class="menu-scrim" type="button" aria-label="Close menu"></button>
   </div>
 
-  <img id="church-logo" src="icons/logo.png" alt="Site logo" onerror="this.style.display='none'">
+  <div id="church-logo" class="ward-text-logo ward-text-logo--top" aria-label="Ward logo"></div>
 
   <main id="app" class="app">
     <!-- Top hero / header -->

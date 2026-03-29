@@ -128,10 +128,45 @@ body.mobile-scrolled .mobile-scroll-strip {
   margin-bottom: 36px;
 }
 
-.side-menu-logo {
-  width: 168px;
-  height: auto;
-  filter: brightness(0) saturate(100%);
+.ward-text-logo {
+  font-family: "Cinzel", "Times New Roman", Georgia, serif;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.08;
+  max-width: 100%;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+.ward-text-logo__main {
+  font-size: clamp(1rem, 3.4vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-wrap: balance;
+}
+
+.ward-text-logo__sub {
+  margin-top: 4px;
+  font-size: clamp(0.58rem, 1.9vw, 0.78rem);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.ward-text-logo--side {
+  width: min(200px, calc(100% - 40px));
+  color: #111827;
+}
+
+.ward-text-logo--side .ward-text-logo__main {
+  font-size: clamp(0.95rem, 4.2vw, 1.22rem);
+}
+
+.ward-text-logo--side .ward-text-logo__sub {
+  font-size: clamp(0.55rem, 2.4vw, 0.76rem);
 }
 
 .menu-close {
@@ -255,13 +290,24 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 #church-logo {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
   left: 50%;
   transform: translateX(-50%);
-  width: 128px;
-  height: auto;
+  width: min(240px, calc(100vw - 130px));
+  min-height: 46px;
   z-index: 101;
   pointer-events: none;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  padding: 2px 10px;
+}
+
+#church-logo .ward-text-logo__main {
+  font-size: clamp(0.9rem, 3.2vw, 1.15rem);
+}
+
+#church-logo .ward-text-logo__sub {
+  font-size: clamp(0.54rem, 1.9vw, 0.72rem);
 }
 
 .meeting-heading {
@@ -864,8 +910,8 @@ body.mobile-scrolled .mobile-scroll-strip {
     height: min(72vh, 820px);
   }
   #church-logo {
-    width: 152px;
-    top: 16px;
+    width: min(320px, calc(100vw - 220px));
+    top: 12px;
   }
 
   .menu-open,

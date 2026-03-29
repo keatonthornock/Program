@@ -316,6 +316,59 @@ function updateFooterWardWebsite(wardName, wardWebsiteRaw){
     sideSiteEl.textContent = `${(wardName || 'Ward').toString().trim() || 'Ward'} Homepage`;
   }
 }
+
+
+function parseWardLogoName(wardName){
+  const normalized = (wardName || '').toString().replace(/\s+/g, ' ').trim();
+  if(!normalized) return { mainLine: '', subLine: '' };
+
+  const suffixPatterns = [
+    /\b(\d{1,2}(?:st|nd|rd|th)\s+ward)$/i,
+    /\b(YSA\s+Ward)$/i,
+    /\b(YSA\s+Branch)$/i,
+    /\b(Ward)$/i,
+    /\b(Branch)$/i
+  ];
+
+  for(const pattern of suffixPatterns){
+    const match = normalized.match(pattern);
+    if(!match) continue;
+
+    const subLine = match[1].replace(/\s+/g, ' ').trim();
+    const mainLine = normalized.slice(0, match.index).trim();
+    if(mainLine.length >= 2){
+      return { mainLine, subLine };
+    }
+  }
+
+  return { mainLine: normalized, subLine: '' };
+}
+
+function renderWardTextLogo(container, wardName){
+  if(!container) return;
+
+  const { mainLine, subLine } = parseWardLogoName(wardName);
+  const fallbackMain = mainLine || (wardName || '').toString().trim() || 'Ward Program';
+
+  container.innerHTML = '';
+
+  const mainEl = document.createElement('span');
+  mainEl.className = 'ward-text-logo__main';
+  mainEl.textContent = fallbackMain;
+  container.appendChild(mainEl);
+
+  if(subLine){
+    const subEl = document.createElement('span');
+    subEl.className = 'ward-text-logo__sub';
+    subEl.textContent = subLine;
+    container.appendChild(subEl);
+  }
+}
+
+function renderWardTextLogos(wardName){
+  renderWardTextLogo(document.getElementById('church-logo'), wardName);
+  renderWardTextLogo(document.getElementById('side-ward-logo'), wardName);
+}
 function shouldRenderAgendaItem(key, meetingType){
 
   const isTestimony = meetingType.includes('testimony');
@@ -1543,6 +1596,7 @@ function renderHeaderFromAdmin(map, admRows){
   }
 
   updateFooterWardWebsite(ward, wardWebsite);
+  renderWardTextLogos(ward);
 
   // --- new: Meeting Time line (from Admin "Meeting Time" key) ---
   const meetingTime = (map['meeting time'] || '').toString().trim();
