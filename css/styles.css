@@ -1,6 +1,6 @@
 :root {
   --page-bg: #ede9d8;
-  --scroll-strip: #0290b6;
+  --scroll-strip: #1d6a93;
   --text-dark: #1f2937;
   --card-bg: #ffffff;
   --border-soft: rgba(0, 0, 0, 0.08);
@@ -478,7 +478,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   border-radius: 12px;
   padding: 12px 14px;
   color: #fff;
-  background: #0a7fa0;
+  background: #1d6a93;
   font-weight: 700;
   font-size: 0.92rem;
   display: flex;
@@ -535,7 +535,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-card-header {
   background: #004267;
-  border-bottom: 1px solid #003454;
+  border-bottom: 1px solid #053F5E;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -683,10 +683,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #004267;
+  border: 1px solid #022E45;
   border-radius: 999px;
   background: #ffffff;
-  color: #004267;
+  color: #022E45;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -695,7 +695,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #004267;
+  background: #022E45;
   color: #ffffff;
 }
 
@@ -709,7 +709,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: #003454;
+  background: #022E45;
   border: 1px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-size: 0.72rem;
@@ -741,7 +741,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #004267;
+  background: #022E45;
   border-bottom: 1px solid #003454;
   display: flex;
   align-items: center;
