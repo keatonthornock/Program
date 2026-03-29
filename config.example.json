@@ -1,0 +1,9 @@
+{
+  "sheet_id": "YOUR_GOOGLE_SHEET_ID",
+  "admin_gid": "0",
+  "agenda_gid": "YOUR_AGENDA_GID",
+  "announcements_gid": "YOUR_ANNOUNCEMENTS_GID",
+  "leadership_gid": "YOUR_LEADERSHIP_GID",
+  "calendar_gid": "YOUR_CALENDAR_GID",
+  "notes": "Copy this file to config.local.json and replace placeholders with your own Google Sheets values."
+}
