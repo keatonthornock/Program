@@ -1,18 +1,17 @@
 // js/app.js
 // Enhanced: load Administrative + Agenda CSVs, render agenda items, and handle conference events
 const $ = s => document.querySelector(s);
-const cfgPath = './config.local.json';
-const cfgExamplePath = './config.example.json';
+const cfgPath = './config.json';
 
 async function loadConfig(){
   try {
     const r = await fetch(cfgPath);
-    if(!r.ok) throw new Error(`Missing ${cfgPath}. Copy ${cfgExamplePath} to ${cfgPath} and fill in your Google Sheets settings.`);
+    if(!r.ok) throw new Error(`Missing ${cfgPath}. Edit this file in your repository and add your Google Sheets settings.`);
     const cfg = await r.json();
     console.log('[app] config', cfg);
     return cfg;
   } catch(e){
-    showError('Cannot load local backend config. ' + e.message);
+    showError('Cannot load config.json. ' + e.message);
     throw e;
   }
 }
@@ -1754,11 +1753,11 @@ async function run(){
   let calendarCsvUrl = config.calendar_csv_url || (config.sheet_id && config.calendar_gid ? buildCsvUrl(config.sheet_id, config.calendar_gid) : null);
  
   if(!adminCsvUrl){
-    showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.local.json');
+    showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
     return;
   }
   if(!agendaCsvUrl){
-    showError('No agenda CSV URL available. Set agenda_gid or agenda_csv_url in config.local.json');
+    showError('No agenda CSV URL available. Set agenda_gid or agenda_csv_url in config.json');
     return;
   }
 

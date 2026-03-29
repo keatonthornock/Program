@@ -1,1 +1,1 @@
-config.local.json
+# Intentionally left minimal: template users edit and commit config.json in-repo.
