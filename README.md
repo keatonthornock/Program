@@ -79,14 +79,6 @@ You can automatically pull events from the ward calendar.
 
 ---
 
-## Potential issues
-
-### Page stuck on "Loading"
-- Refresh the page.
-- If it still fails, verify that `config.local.json` exists and contains your actual backend values.
-
----
-
 ## Bonus: Install as a phone app
 
 1. Open the website in your browser.
