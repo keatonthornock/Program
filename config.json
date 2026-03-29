@@ -1,9 +1,9 @@
 {
-  "sheet_id": "YOUR_GOOGLE_SHEET_ID",
+  "sheet_id": "1ikcvDXMuxrl56Z61rqZfQ_KSR-WbZGsnedTQ4VDeC2A",
   "admin_gid": "0",
-  "agenda_gid": "YOUR_AGENDA_GID",
-  "announcements_gid": "YOUR_ANNOUNCEMENTS_GID",
-  "leadership_gid": "YOUR_LEADERSHIP_GID",
-  "calendar_gid": "YOUR_CALENDAR_GID",
-  "notes": "Replace placeholders with your own Google Sheets values."
+  "agenda_gid": "1110042208",
+  "announcements_gid": "350316892",
+  "leadership_gid": "527468007",
+  "calendar_gid": "960543151",
+  "notes": "Fill the values within the quotation marks (do not remove beginning and end quote marks). admin_gid is the numeric gid for the Administrative tab (see README if you are lost)."
 }
