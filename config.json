@@ -5,5 +5,5 @@
   "announcements_gid": "YOUR_ANNOUNCEMENTS_GID",
   "leadership_gid": "YOUR_LEADERSHIP_GID",
   "calendar_gid": "YOUR_CALENDAR_GID",
-  "notes": "Optional reference file showing expected config keys. The app reads config.json."
+  "notes": "Replace placeholders with your own Google Sheets values."
 }

@@ -1,38 +1,42 @@
 *Original Repository at https://github.com/keatonthornock/Program*
 
 # Sunday Service Program Website
+Version: 1.0.0
+
 This repository is intended to be used as a **GitHub template** for ward-specific Sunday service program websites.
 
-Each new ward repo should keep its own backend settings in a local, ignored config file so future upstream updates are easier to merge.
+## Quick setup (GitHub website only)
 
----
+You can set up your site entirely in the browser—no terminal required.
 
-## Getting started
+1. In this repository, click **Use this template**.
+2. Create your new repository.
+3. In your new repository, open **`config.json`**.
+4. Click the **pencil (Edit this file)** icon.
+5. Replace `sheet_id` with your Google Sheet ID.
+6. Update the tab `gid` values if needed (`admin_gid`, `agenda_gid`, etc.).
+7. Commit the file changes.
+8. Go to **Settings → Pages** and enable GitHub Pages (deploy from your main branch).
 
-1. On GitHub, click **Use this template** from this repository and create a new repository.
-2. Clone your new repository:
-   ```bash
-   git clone https://github.com/<your-user-or-org>/<your-repo>.git
-   cd <your-repo>
-   ```
-3. Create your local backend config file from the example:
-   ```bash
-   cp config.example.json config.local.json
-   ```
-4. Edit `config.local.json` and fill in your own Google Sheets backend values.
-5. Run/publish the site as usual (for GitHub Pages, use your `main` branch in repository Settings → Pages).
+Once Pages is enabled, your site will use your committed `config.json` values.
 
----
+## How to find your Google Sheet ID
 
-## Config setup
+Given a sheet URL like:
 
-- `config.example.json` is committed to the repository and documents the expected config schema.
-- `config.local.json` is **for your ward-specific values** (sheet ID, tab gids, etc.).
-- `config.local.json` is intentionally gitignored and should not be committed.
+`https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890/edit#gid=0`
 
-If the local config is missing, the app will fail with an explicit message telling you to copy the example file first.
+The **sheet ID** is the part between `/d/` and `/edit`:
 
----
+`1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890`
+
+Paste that value into `config.json` as `sheet_id`.
+
+## Config file notes
+
+- `config.json` is the main editable config file for template users.
+- `config.example.json` is optional reference documentation for the expected keys.
+- If `config.json` is missing or invalid JSON, the app will show a clear error.
 
 ## Setting up the backend Google Sheet
 
@@ -50,21 +54,11 @@ If the local config is missing, the app will fail with an explicit message telli
    - Hymn Directory
 6. In **File → Share → Share**, set General access to **Anyone with the link → Viewer**.
 
----
+## Updating your site later
 
-## Pulling future updates from upstream
-
-After creating your own repo from this template, add the original project as `upstream`:
-
-```bash
-git remote add upstream https://github.com/keatonthornock/Program.git
-git fetch upstream
-git merge upstream/main
-```
-
-Because your personal backend settings are in `config.local.json` (ignored by git), upstream merges are less likely to conflict with your local backend configuration.
-
----
+- This template now uses a manually edited, committed `config.json`.
+- When new template versions are released, compare your README version and files with the latest template version.
+- Copy in updated template files as needed, but avoid overwriting your own `config.json` values.
 
 ## Calendar set up (optional)
 
@@ -76,8 +70,6 @@ You can automatically pull events from the ward calendar.
 4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL.
 5. Paste the ICS link into `CalendarConfig!B1`.
 6. Run **Calendar Sync → Sync Calendar Now**.
-
----
 
 ## Bonus: Install as a phone app
 
