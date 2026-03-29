@@ -824,8 +824,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 #footer-logo {
-  max-width: 150px;
-  width: min(150px, 50%);
+  max-width: 300px;
+  width: min(300px, 50%);
   display: block;
   margin: 0 auto;
   filter: drop-shadow(0 3px 8px rgba(8, 47, 73, 0.22));
