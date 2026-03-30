@@ -246,11 +246,17 @@ function getFallbackHymnUrl({ collection, hymnId, title, safeSlug }){
   }
 
   if(collection === 'hymns'){
-    return 'https://www.churchofjesuschrist.org/study/manual/hymns?lang=eng';
+    if(searchQuery){
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(`${searchQuery} hymns`)}`;
+    }
+    return 'https://www.churchofjesuschrist.org/study/music?lang=eng';
   }
 
   if(collection === 'hymns_for_home_and_church'){
-    return 'https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng';
+    if(searchQuery){
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(`${searchQuery} hymns for home and church`)}`;
+    }
+    return 'https://www.churchofjesuschrist.org/study/music?lang=eng';
   }
 
   if(searchQuery){
@@ -269,9 +275,6 @@ function normalizeHref(href){
 }
 
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
-  const collection = normalizeHymnCollection(extraInfo);
-  const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
-  const normalizedTitle = normalizeHymnTitle(title);
   const rawOverride = (slugOverride || '').toString().trim();
 
   // If column D contains a fully-qualified URL, trust and use it directly.
@@ -287,6 +290,10 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     console.log('[hymn-links] Using relative URL override from sheet:', { title, hymnNumber, extraInfo, relativeUrl });
     return relativeUrl;
   }
+
+  const collection = normalizeHymnCollection(extraInfo);
+  const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
+  const normalizedTitle = normalizeHymnTitle(title);
 
   // Non-URL override values are still allowed as explicit slug hints for fallback behavior.
   const safeSlug = rawOverride ? slugify(rawOverride) : slugify(title);
@@ -313,6 +320,34 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
       console.log('[hymn-links] Matched lookup by slug:', { collection: lookupCollection, safeSlug, url });
       return url;
     }
+  }
+
+  // Hybrid fallback behavior: after lookup misses, prefer old direct hymn routes.
+  if(safeSlug){
+    if(collection === 'childrens_songbook'){
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
+    }
+    if(collection === 'hymns_for_home_and_church'){
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
+    }
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
+  }
+
+  const numericPartMatch = hymnId.match(/[0-9]{1,4}/);
+  const numericPart = numericPartMatch ? parseInt(numericPartMatch[0], 10) : NaN;
+  const hasValidHymnId = /^[0-9]{1,4}[a-z]?$/.test(hymnId);
+
+  // Preserve Children's Songbook direct id behavior (including values like 26b).
+  if(collection === 'childrens_songbook' && hasValidHymnId){
+    return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${hymnId}?lang=eng`;
+  }
+
+  if(Number.isFinite(numericPart) && numericPart > 0 && numericPart <= 341){
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${numericPart}?lang=eng`;
+  }
+
+  if(collection === 'hymns_for_home_and_church' && Number.isFinite(numericPart) && numericPart >= 1000){
+    return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng#${numericPart}`;
   }
 
   const fallbackUrl = getFallbackHymnUrl({
