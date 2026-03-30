@@ -40,15 +40,22 @@ Paste that value into `config.json` as `sheet_id`.
 
 ## Hymn link resolution
 
-- Hymn links are resolved dynamically at runtime from hymn collection + hymn number/title.
-- Supported collections:
+- Hymn links use a **lookup-first** strategy from `data/hymn-links.json`.
+- The runtime lookup index supports exact matching by:
+  - hymn `id`
+  - normalized hymn `title`
+  - hymn `slug`
+- Supported lookup collections:
   - `hymns`
   - `childrens_songbook`
   - `hymns_for_home_and_church`
-- Column D in the Agenda sheet is an override escape hatch:
-  - full URL (used directly),
-  - site-relative path (expanded to `https://www.churchofjesuschrist.org/...`),
-  - slug override (used instead of generated slug).
+- Column D in the Agenda sheet is an explicit override and takes priority over lookup/fallback:
+  - full URL (used directly)
+  - site-relative path (expanded to `https://www.churchofjesuschrist.org/...`)
+  - slug override text (used as a fallback slug hint when no exact lookup match exists)
+- Resolution behavior by collection:
+  - `hymns` and `hymns_for_home_and_church` prefer exact lookup matches, then fall back conservatively to collection pages.
+  - `childrens_songbook` keeps dynamic fallback support (including alphanumeric hymn numbers such as `26b`).
 
 ## Setting up the backend Google Sheet
 

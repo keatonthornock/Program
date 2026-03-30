@@ -1,0 +1,17 @@
+{
+  "hymns": [
+    {
+      "id": "1",
+      "title": "The Morning Breaks",
+      "url": "https://www.churchofjesuschrist.org/study/manual/hymns/the-morning-breaks?lang=eng"
+    }
+  ],
+  "childrens_songbook": [
+    {
+      "id": "26b",
+      "title": "Book of Mormon Stories",
+      "url": "https://www.churchofjesuschrist.org/study/manual/childrens-songbook/book-of-mormon-stories?lang=eng"
+    }
+  ],
+  "hymns_for_home_and_church": []
+}
