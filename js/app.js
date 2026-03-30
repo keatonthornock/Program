@@ -135,17 +135,36 @@ function normalizeHref(href){
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const extra = (extraInfo || '').toString().toLowerCase();
   const t = (title || '').toString().trim();
-  const titleSlug = slugOverride ? String(slugOverride).trim() : slugify(t);
+  const rawOverride = (slugOverride || '').toString().trim();
+  const titleSlug = rawOverride ? rawOverride : slugify(t);
   const n = Number((hymnNumber !== undefined && hymnNumber !== null) ? String(hymnNumber).replace(/[^\d]/g,'') : NaN);
+  const lcSlug = titleSlug.toLowerCase();
 
-  if(titleSlug) {
+  // If column D contains a fully-qualified URL, trust and use it directly.
+  if(/^(https?:)?\/\//i.test(titleSlug)) return normalizeHref(titleSlug);
+
+  // If column D contains a site-relative path, normalize it to a full URL.
+  if(titleSlug.startsWith('/')){
+    return `https://www.churchofjesuschrist.org${titleSlug}`;
+  }
+
+  // If the override contains extra punctuation/spaces, convert it to a safe slug.
+  const safeSlug = /^[a-z0-9-]+$/i.test(titleSlug) ? titleSlug : slugify(titleSlug);
+
+  if(safeSlug) {
     if(extra.includes('child') || extra.includes('songbook')) {
-      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
     }
     if(extra.includes('hymns for home') || extra.includes('home and church')) {
-      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
     }
-    return `https://www.churchofjesuschrist.org/study/manual/hymns/${titleSlug}?lang=eng`;
+    if(lcSlug.includes('hymns-for-home-and-church')) {
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug.replace(/^hymns-for-home-and-church-?/i, '')}?lang=eng`;
+    }
+    if(lcSlug.includes('childrens-songbook')) {
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug.replace(/^childrens-songbook-?/i, '')}?lang=eng`;
+    }
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
   }
 
   if(!isNaN(n) && n > 0){
