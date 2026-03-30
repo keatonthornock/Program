@@ -38,14 +38,17 @@ Paste that value into `config.json` as `sheet_id`.
 - `config.example.json` is optional reference documentation for the expected keys.
 - If `config.json` is missing or invalid JSON, the app will show a clear error.
 
-## Hymn link lookup file
+## Hymn link resolution
 
-- `data/hymn-links.json` is an optional static lookup used for exact hymn deep links.
-- Collections currently supported:
+- Hymn links are resolved dynamically at runtime from hymn collection + hymn number/title.
+- Supported collections:
   - `hymns`
   - `childrens_songbook`
   - `hymns_for_home_and_church`
-- Add entries with `id`, `title`, and `url` to make a hymn card resolve to an exact destination instead of a fallback guess.
+- Column D in the Agenda sheet is an override escape hatch:
+  - full URL (used directly),
+  - site-relative path (expanded to `https://www.churchofjesuschrist.org/...`),
+  - slug override (used instead of generated slug).
 
 ## Setting up the backend Google Sheet
 
