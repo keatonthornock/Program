@@ -246,11 +246,11 @@ function getFallbackHymnUrl({ collection, hymnId, title, safeSlug }){
   }
 
   if(collection === 'hymns'){
-    if(safeSlug){
-      return `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
-    }
     if(hasValidHymnId){
       return `https://www.churchofjesuschrist.org/study/manual/hymns/${id}?lang=eng`;
+    }
+    if(safeSlug){
+      return `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
     }
     if(searchQuery){
       return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(`${searchQuery} hymns`)}`;
@@ -259,6 +259,9 @@ function getFallbackHymnUrl({ collection, hymnId, title, safeSlug }){
   }
 
   if(collection === 'hymns_for_home_and_church'){
+    if(hasValidHymnId){
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${id}?lang=eng`;
+    }
     if(safeSlug){
       return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
     }
