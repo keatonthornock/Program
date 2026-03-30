@@ -145,9 +145,11 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     extra.includes('hymns for home and church') ||
     extra.includes('hymns for homes and church');
   const t = (title || '').toString().trim();
+  const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
   const rawOverride = (slugOverride || '').toString().trim();
   const titleSlug = rawOverride ? rawOverride : slugify(t);
   const n = Number((hymnNumber !== undefined && hymnNumber !== null) ? String(hymnNumber).replace(/[^\d]/g,'') : NaN);
+  const hasValidHymnId = /^[0-9]{1,4}[a-z]?$/.test(hymnId);
   const lcSlug = titleSlug.toLowerCase();
 
   // If column D contains a fully-qualified URL, trust and use it directly.
@@ -160,6 +162,18 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
 
   // If the override contains extra punctuation/spaces, convert it to a safe slug.
   const safeSlug = /^[a-z0-9-]+$/i.test(titleSlug) ? titleSlug : slugify(titleSlug);
+
+  // Prefer direct number-based routes when possible. These are more reliable than
+  // generated title slugs and avoid sending users to a collection landing page.
+  if(hasValidHymnId){
+    if(isChildrenSongbook || /[a-z]$/.test(hymnId)){
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${hymnId}?lang=eng`;
+    }
+    if(isHomeAndChurch || n >= 1000){
+      return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${hymnId}?lang=eng`;
+    }
+    return `https://www.churchofjesuschrist.org/study/manual/hymns/${hymnId}?lang=eng`;
+  }
 
   if(safeSlug) {
     if(isChildrenSongbook) {
