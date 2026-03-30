@@ -2,6 +2,7 @@
 // Enhanced: load Administrative + Agenda CSVs, render agenda items, and handle conference events
 const $ = s => document.querySelector(s);
 const cfgPath = './config.json';
+const hymnLinksPath = './data/hymn-links.json';
 
 async function loadConfig(){
   try {
@@ -123,6 +124,17 @@ function slugify(text){
     .replace(/^-|-$/g,'');
 }
 
+function normalizeHymnTitle(title){
+  return (title || '')
+    .toString()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[’']/g, "'")
+    .replace(/[^a-z0-9'\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function normalizeHymnCollection(extraInfo){
   const raw = (extraInfo || '').toString();
   const normalized = raw
@@ -160,35 +172,91 @@ function normalizeHymnCollection(extraInfo){
   return null;
 }
 
-function buildHymnUrl({ collection, hymnId, title, slugOverride }){
+let hymnLookupPromise = null;
+let hymnLookupIndex = null;
+
+function buildHymnLookupIndex(raw){
+  const collections = ['hymns', 'childrens_songbook', 'hymns_for_home_and_church'];
+  const index = {};
+
+  collections.forEach((collection) => {
+    const rows = Array.isArray(raw?.[collection]) ? raw[collection] : [];
+    const byId = {};
+    const byTitle = {};
+    const bySlug = {};
+
+    rows.forEach((entry) => {
+      if(!entry || !entry.url) return;
+      const url = entry.url.toString().trim();
+      if(!url) return;
+
+      const id = (entry.id || '').toString().trim().toLowerCase();
+      const titleKey = normalizeHymnTitle(entry.title);
+      const slugKey = slugify(entry.slug || entry.title || '');
+
+      if(id) byId[id] = url;
+      if(titleKey) byTitle[titleKey] = url;
+      if(slugKey) bySlug[slugKey] = url;
+    });
+
+    index[collection] = { byId, byTitle, bySlug };
+  });
+
+  return index;
+}
+
+async function ensureHymnLookupLoaded(){
+  if(hymnLookupIndex) return hymnLookupIndex;
+  if(!hymnLookupPromise){
+    hymnLookupPromise = fetch(hymnLinksPath, { cache: 'no-store' })
+      .then((resp) => {
+        if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp.json();
+      })
+      .then((json) => {
+        hymnLookupIndex = buildHymnLookupIndex(json || {});
+        return hymnLookupIndex;
+      })
+      .catch((err) => {
+        console.warn('[hymn-links] lookup file unavailable, using conservative fallback resolution:', err);
+        hymnLookupIndex = buildHymnLookupIndex({});
+        return hymnLookupIndex;
+      });
+  }
+  return hymnLookupPromise;
+}
+
+function getFallbackHymnUrl({ collection, hymnId, title, safeSlug }){
   const id = (hymnId || '').toString().trim().toLowerCase();
-  const preferredSlug = (slugOverride || '').toString().trim();
-  const generatedSlug = slugify(title || '');
-  const safeSlug = slugify(preferredSlug || generatedSlug);
-  const baseByCollection = {
-    hymns: 'https://www.churchofjesuschrist.org/study/manual/hymns',
-    childrens_songbook: 'https://www.churchofjesuschrist.org/study/manual/childrens-songbook',
-    hymns_for_home_and_church: 'https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church'
-  };
+  const hasValidHymnId = /^[0-9]{1,4}[a-z]?$/.test(id);
+  const t = (title || '').toString().trim();
+  const searchQuery = `${id ? `${id} ` : ''}${t}`.trim();
 
-  if(!collection || !baseByCollection[collection]){
-    console.warn('[hymn-links] Collection could not be classified for dynamic resolution:', { collection, hymnId, title });
-    return null;
+  if(collection === 'childrens_songbook'){
+    if(hasValidHymnId){
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${id}?lang=eng`;
+    }
+    if(safeSlug){
+      return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
+    }
+    if(searchQuery){
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(`${searchQuery} childrens songbook`)}`;
+    }
+    return 'https://www.churchofjesuschrist.org/study/manual/childrens-songbook?lang=eng';
   }
 
-  if(preferredSlug){
-    console.log('[hymn-links] Using slug override from sheet:', { collection, hymnId, title, slugOverride: preferredSlug });
+  if(collection === 'hymns'){
+    return 'https://www.churchofjesuschrist.org/study/manual/hymns?lang=eng';
   }
 
-  if(safeSlug){
-    const url = `${baseByCollection[collection]}/${safeSlug}?lang=eng`;
-    console.log('[hymn-links] Built dynamic hymn URL:', { collection, hymnId: id, title, url });
-    return url;
+  if(collection === 'hymns_for_home_and_church'){
+    return 'https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng';
   }
 
-  const weakFallback = `${baseByCollection[collection]}?lang=eng`;
-  console.warn('[hymn-links] Weak fallback to collection landing page (missing slug):', { collection, hymnId: id, title, weakFallback });
-  return weakFallback;
+  if(searchQuery){
+    return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(searchQuery)}`;
+  }
+  return 'https://www.churchofjesuschrist.org/study/music?lang=eng';
 }
 
 /* ---------- ensure external links have a scheme so the browser doesn't treat them as relative ---------- */
@@ -202,7 +270,8 @@ function normalizeHref(href){
 
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const collection = normalizeHymnCollection(extraInfo);
-  const hymnId = (hymnNumber || '').toString().trim();
+  const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
+  const normalizedTitle = normalizeHymnTitle(title);
   const rawOverride = (slugOverride || '').toString().trim();
 
   // If column D contains a fully-qualified URL, trust and use it directly.
@@ -219,27 +288,46 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     return relativeUrl;
   }
 
+  // Non-URL override values are still allowed as explicit slug hints for fallback behavior.
+  const safeSlug = rawOverride ? slugify(rawOverride) : slugify(title);
+  const lookupCollection = collection || 'hymns';
+  const lookup = hymnLookupIndex?.[lookupCollection];
+
   if(!collection){
     console.warn('[hymn-links] Could not confidently classify hymn collection:', { title, hymnNumber, extraInfo });
   }
 
-  const resolvedUrl = buildHymnUrl({
+  if(lookup){
+    if(hymnId && lookup.byId[hymnId]){
+      const url = normalizeHref(lookup.byId[hymnId]);
+      console.log('[hymn-links] Matched lookup by id:', { collection: lookupCollection, hymnId, url });
+      return url;
+    }
+    if(normalizedTitle && lookup.byTitle[normalizedTitle]){
+      const url = normalizeHref(lookup.byTitle[normalizedTitle]);
+      console.log('[hymn-links] Matched lookup by title:', { collection: lookupCollection, normalizedTitle, url });
+      return url;
+    }
+    if(safeSlug && lookup.bySlug[safeSlug]){
+      const url = normalizeHref(lookup.bySlug[safeSlug]);
+      console.log('[hymn-links] Matched lookup by slug:', { collection: lookupCollection, safeSlug, url });
+      return url;
+    }
+  }
+
+  const fallbackUrl = getFallbackHymnUrl({
     collection,
     hymnId,
     title,
-    slugOverride: rawOverride
+    safeSlug
   });
-
-  if(resolvedUrl) return resolvedUrl;
-
-  const weakFallback = 'https://www.churchofjesuschrist.org/study/music?lang=eng';
-  console.warn('[hymn-links] Weak fallback to top-level music page (unclassified collection):', {
+  console.warn('[hymn-links] Using conservative fallback URL (no lookup match):', {
     collection: collection || 'unknown',
     hymnId,
     title,
-    weakFallback
+    fallbackUrl
   });
-  return weakFallback;
+  return fallbackUrl;
 }
 
 function parseHymnName(name){
@@ -1845,6 +1933,8 @@ async function run(){
   }
 
   try {
+    await ensureHymnLookupLoaded();
+
     // Required sheets: fail startup if either one cannot be loaded.
     const [admText, agText] = await Promise.all([
       fetchCsvText(adminCsvUrl, 'Admin'),
