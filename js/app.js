@@ -133,7 +133,17 @@ function normalizeHref(href){
 }
 
 function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
-  const extra = (extraInfo || '').toString().toLowerCase();
+  const extraRaw = (extraInfo || '').toString().toLowerCase();
+  const extra = extraRaw
+    .replace(/[—–-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const isChildrenSongbook = extra.includes('child') || extra.includes('songbook');
+  const isHomeAndChurch =
+    extra.includes('home and church') ||
+    extra.includes('homes and church') ||
+    extra.includes('hymns for home and church') ||
+    extra.includes('hymns for homes and church');
   const t = (title || '').toString().trim();
   const rawOverride = (slugOverride || '').toString().trim();
   const titleSlug = rawOverride ? rawOverride : slugify(t);
@@ -152,10 +162,10 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const safeSlug = /^[a-z0-9-]+$/i.test(titleSlug) ? titleSlug : slugify(titleSlug);
 
   if(safeSlug) {
-    if(extra.includes('child') || extra.includes('songbook')) {
+    if(isChildrenSongbook) {
       return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
     }
-    if(extra.includes('hymns for home') || extra.includes('home and church')) {
+    if(isHomeAndChurch) {
       return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
     }
     if(lcSlug.includes('hymns-for-home-and-church')) {
@@ -177,15 +187,25 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(String(n))}`;
   }
 
-  if(extra.includes('child') || extra.includes('songbook')){
+  if(isChildrenSongbook){
     if(titleSlug) return `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${titleSlug}?lang=eng`;
   }
-  if(extra.includes('hymns for home') || extra.includes('home and church')){
+  if(isHomeAndChurch){
     if(titleSlug) return `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${titleSlug}?lang=eng`;
   }
 
   if(t) return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(t)}`;
   return null;
+}
+
+function parseHymnName(name){
+  const raw = (name || '').toString().trim();
+  const match = raw.match(/^([0-9]{1,4}[a-zA-Z]?)\s*\.\s*(.+)$/);
+  if(!match) return null;
+  return {
+    hymnNumber: match[1],
+    hymnTitle: (match[2] || '').trim()
+  };
 }
 
 // small html-escape helper for safe insertion of text
@@ -1880,7 +1900,7 @@ async function run(){
         continue;
       }
 
-      const hymnWithoutCard = key.includes('hymn') && !/\d+\s*\./.test(name);
+      const hymnWithoutCard = key.includes('hymn') && !parseHymnName(name);
 
       if(!hymnWithoutCard && shouldInsertLineDivider(key, previousRenderedKey)){
         container.appendChild(createLineDivider());
@@ -1889,21 +1909,16 @@ async function run(){
 
       // hymn handling
       if(key.includes('hymn')){
-        const hasNumberAndPeriod = /\d+\s*\./.test(name);
-        if(!hasNumberAndPeriod){
+        const parsedHymn = parseHymnName(name);
+        if(!parsedHymn){
           container.appendChild(createRow(item, name, '', 'music'));
           any = true;
           previousRenderedKey = key;
           continue;
         }
 
-        let hymnNumber = null;
-        let hymnTitle = name;
-        const m = name.match(/([0-9]{1,4})\s*\.\s*(.+)$/);
-        if (m) {
-          hymnNumber = m[1];
-          hymnTitle = m[2] || '';
-        }
+        const hymnNumber = parsedHymn.hymnNumber;
+        const hymnTitle = parsedHymn.hymnTitle;
         const hymnUrl = getHymnUrl(hymnTitle, hymnNumber, extra, slugOverride);
         container.appendChild(createHymnCard(hymnTitle, hymnNumber, item, hymnUrl, extra));
         any = true;
