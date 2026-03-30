@@ -246,6 +246,15 @@ function getFallbackHymnUrl({ collection, hymnId, title, safeSlug }){
   }
 
   if(collection === 'hymns'){
+    if(hasValidHymnId){
+      return `https://www.churchofjesuschrist.org/study/manual/hymns/${id}?lang=eng`;
+    }
+    if(safeSlug){
+      return `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
+    }
+    if(searchQuery){
+      return `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(`${searchQuery} hymns`)}`;
+    }
     return 'https://www.churchofjesuschrist.org/study/manual/hymns?lang=eng';
   }
 
