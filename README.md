@@ -32,31 +32,6 @@ The **sheet ID** is the part between `/d/` and `/edit`:
 
 Paste that value into `config.json` as `sheet_id`.
 
-## Config file notes
-
-- `config.json` is the main editable config file for template users.
-- `config.example.json` is optional reference documentation for the expected keys.
-- If `config.json` is missing or invalid JSON, the app will show a clear error.
-
-## Hymn link resolution
-
-- Hymn links use a **lookup-first** strategy from `data/hymn-links.json`.
-- The runtime lookup index supports exact matching by:
-  - hymn `id`
-  - normalized hymn `title`
-  - hymn `slug`
-- Supported lookup collections:
-  - `hymns`
-  - `childrens_songbook`
-  - `hymns_for_home_and_church`
-- Column D in the Agenda sheet is an explicit override and takes priority over lookup/fallback:
-  - full URL (used directly)
-  - site-relative path (expanded to `https://www.churchofjesuschrist.org/...`)
-  - slug override text (used as a fallback slug hint when no exact lookup match exists)
-- Resolution behavior by collection:
-  - `hymns` and `hymns_for_home_and_church` prefer exact lookup matches, then fall back conservatively to collection pages.
-  - `childrens_songbook` keeps dynamic fallback support (including alphanumeric hymn numbers such as `26b`).
-
 ## Setting up the backend Google Sheet
 
 1. Create a copy of the template sheet into your Google Drive:  
