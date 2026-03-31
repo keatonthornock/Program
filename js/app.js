@@ -420,6 +420,15 @@ function shouldSkipAgendaItemForSpecialMeeting(key){
   return false;
 }
 
+function isSpecialMeetingResumeItem(key){
+  if(!key) return false;
+  return (
+    key.includes('closing hymn') ||
+    key.includes('closing prayer') ||
+    key.includes('benediction')
+  );
+}
+
 
 function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   const footerSiteEl = document.getElementById('footer-ward-site');
@@ -1961,6 +1970,7 @@ async function run(){
     const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting' || isSpecialMeeting;
 
     let previousRenderedKey = '';
+    let suppressSpecialMeetingMiddleSection = false;
     for (let i = 0; i < agRows.length; i++) {
       const r = agRows[i];
       if (!r || !r[0]) continue;
@@ -2001,6 +2011,7 @@ async function run(){
               container.appendChild(specialMeetingBlock);
               any = true;
             }
+            suppressSpecialMeetingMiddleSection = true;
           }
         }
         if(isTestimony){
@@ -2014,6 +2025,13 @@ async function run(){
       if(!name) continue;
 
       const key = itemKey;
+
+      if(isSpecialMeeting && suppressSpecialMeetingMiddleSection){
+        if(!isSpecialMeetingResumeItem(key)){
+          continue;
+        }
+        suppressSpecialMeetingMiddleSection = false;
+      }
 
       if(isSpecialMeeting && shouldSkipAgendaItemForSpecialMeeting(key)){
         continue;
