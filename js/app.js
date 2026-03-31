@@ -788,8 +788,8 @@ function createSpecialMeetingTitleBlock(title){
   if(!safeTitle) return null;
 
   const el = document.createElement('div');
-  el.className = 'special-meeting-block';
-  el.innerHTML = `<div class="special-meeting-title">${escapeHtml(safeTitle)}</div>`;
+  el.className = 'agenda-divider agenda-divider--special-event special-meeting-block';
+  el.innerHTML = `<div class="divider-text special-meeting-title">${escapeHtml(safeTitle)}</div>`;
   return el;
 }
 
