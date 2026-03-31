@@ -477,20 +477,18 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .collapsible-toggle {
   width: 100%;
-  border: 1px solid rgba(7, 41, 71, 0.72);
+  border: 0;
   border-radius: 12px;
   padding: 11px 16px;
   color: #fff;
-  background: linear-gradient(135deg, #28739c 0%, #125377 100%);
+  background: var(--scroll-strip);
   font-weight: 700;
   font-size: 1.05rem;
   letter-spacing: 0.01em;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 2px 6px rgba(12, 36, 64, 0.24);
+  box-shadow: none;
 }
 
 .collapsible-toggle .chev {
@@ -549,8 +547,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #004267;
-  border-bottom: 1px solid #053F5E;
+  background: #165f88;
+  border-bottom: 1px solid #125274;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -698,10 +696,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #022E45;
+  border: 1px solid #165f88;
   border-radius: 999px;
   background: #ffffff;
-  color: #022E45;
+  color: #165f88;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -710,7 +708,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #022E45;
+  background: #165f88;
   color: #ffffff;
 }
 
@@ -724,7 +722,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: #022E45;
+  background: #165f88;
   border: 1px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-size: 0.72rem;
@@ -751,13 +749,12 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card:focus-visible {
-  outline: 2px solid #0b5fa7;
-  outline-offset: 2px;
+  outline: none;
 }
 
 .activity-card-header {
-  background: #022E45;
-  border-bottom: 1px solid #003454;
+  background: #165f88;
+  border-bottom: 1px solid #125274;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -826,12 +823,12 @@ body.mobile-scrolled .mobile-scroll-strip {
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: transform .2s ease;
-  transform: rotate(180deg);
+  transform: rotate(0deg);
   filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
 }
 
 .activity-card[aria-expanded='true'] .activity-arrow {
-  transform: rotate(0deg);
+  transform: rotate(90deg);
 }
 
 .activity-card[aria-expanded='true'] .activity-card-preview {
@@ -1267,23 +1264,42 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .leadership-table {
   width: 100%;
-  border-collapse: collapse;
-  border: 1px solid rgba(17, 24, 39, 0.18);
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid rgba(29, 106, 147, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
   font-size: 0.95rem;
+  background: #fff;
 }
 
 .leadership-table th,
 .leadership-table td {
-  border: 1px solid rgba(17, 24, 39, 0.15);
-  padding: 10px 8px;
+  border: 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.32);
+  padding: 11px 12px;
   text-align: left;
   vertical-align: top;
 }
 
 .leadership-table th {
-  background: #f3f4f6;
-  color: #111827;
+  background: #e7f1f7;
+  color: #0f3f5d;
   font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.leadership-table tbody tr:nth-child(even) {
+  background: #f8fbfd;
+}
+
+.leadership-table tbody tr:hover {
+  background: #edf6fb;
+}
+
+.leadership-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .lead-col-contact,
