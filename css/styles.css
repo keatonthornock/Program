@@ -696,10 +696,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #124f74;
+  border: 1px solid #0f4463;
   border-radius: 999px;
   background: #ffffff;
-  color: #124f74;
+  color: #0f4463;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -708,7 +708,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #124f74;
+  background: #0f4463;
   color: #ffffff;
 }
 
@@ -722,7 +722,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: #124f74;
+  background: #0f4463;
   border: 1px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-size: 0.72rem;
@@ -753,8 +753,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #124f74;
-  border-bottom: 1px solid #0f4566;
+  background: #0f4463;
+  border-bottom: 1px solid #0c3851;
   display: flex;
   align-items: center;
   justify-content: space-between;
