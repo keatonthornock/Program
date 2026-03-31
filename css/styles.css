@@ -696,10 +696,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill {
-  border: 1px solid #165f88;
+  border: 1px solid #124f74;
   border-radius: 999px;
   background: #ffffff;
-  color: #165f88;
+  color: #124f74;
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -708,7 +708,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activities-filter-pill.is-active {
-  background: #165f88;
+  background: #124f74;
   color: #ffffff;
 }
 
@@ -722,7 +722,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: #165f88;
+  background: #124f74;
   border: 1px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-size: 0.72rem;
@@ -753,8 +753,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .activity-card-header {
-  background: #165f88;
-  border-bottom: 1px solid #125274;
+  background: #124f74;
+  border-bottom: 1px solid #0f4566;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1295,7 +1295,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .leadership-table tbody tr:hover {
-  background: #edf6fb;
+  background: inherit;
+}
+
+.leadership-table tbody tr {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .leadership-table tbody tr:last-child td {
