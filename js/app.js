@@ -768,7 +768,10 @@ function createSingleLineRow(text, iconType = 'default'){
 function createDivider(label){
   const el = document.createElement('div');
   const isSacramentDivider = /administration of the sacrament/i.test(label || '');
-  el.className = `agenda-divider${isSacramentDivider ? ' agenda-divider--sacrament' : ''}`;
+  const sacramentDividerClasses = isSacramentDivider
+    ? ' agenda-divider--sacrament agenda-divider--administration'
+    : '';
+  el.className = `agenda-divider${sacramentDividerClasses}`;
   el.innerHTML = `<div class="divider-text">${label}</div>`;
   return el;
 }

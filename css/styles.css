@@ -1225,6 +1225,20 @@ body.mobile-scrolled .mobile-scroll-strip {
   transform: translateY(1px);
 }
 
+
+.agenda-divider--administration {
+  display: block;
+}
+
+.agenda-divider--administration::before,
+.agenda-divider--administration::after {
+  content: none;
+}
+
+.agenda-divider--administration .divider-text {
+  font-size: 1.2rem;
+}
+
 .conference-title {
   margin-top: 6px;
   margin-bottom: 14px;
@@ -1264,14 +1278,14 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .special-meeting-block {
-  margin: 18px 0 22px;
-  text-align: center;
+  margin: 8px 0 12px 56px;
+  text-align: left;
 }
 
 .special-meeting-title {
-  font-size: 1.35rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #6b7280;
+  color: #1f2937;
 }
 
 .announcement-item .muted {
