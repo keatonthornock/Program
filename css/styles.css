@@ -427,7 +427,10 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .bottom-content-zone {
   margin: 20px 0 0;
-  padding: 0;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 18px;
 }
 
 .footer-brand-zone {
@@ -513,7 +516,11 @@ body.mobile-scrolled .mobile-scroll-strip {
   border: 0;
   background: transparent;
   box-shadow: none;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
+}
+
+.bottom-content-zone .card.collapsible:last-of-type {
+  margin-bottom: 0;
 }
 
 .collapsible-panel {
