@@ -392,12 +392,31 @@ function getSpecialMeetingTitleFromAgenda(agRows){
   return '';
 }
 
-function shouldSuppressSpecialMeetingMiddleItem(key){
+function shouldSkipAgendaItemForSpecialMeeting(key){
   if(!key) return false;
+
+  // Always keep core opening/sacrament/closing structure.
+  if(
+    key.includes('opening hymn') ||
+    key.includes('invocation') ||
+    key.includes('opening prayer') ||
+    key.includes('sacrament hymn') ||
+    key.includes('administration of the sacrament') ||
+    key.includes('closing hymn') ||
+    key.includes('closing prayer') ||
+    key.includes('benediction')
+  ){
+    return false;
+  }
+
+  // Suppress middle-program/body items by normalized type, regardless of data in other columns.
   if(/^speaker(\s+\d+)?$/.test(key) || key.startsWith('speaker')) return true;
-  if(/intermediate hymn/.test(key)) return true;
-  if(/musical/.test(key)) return true;
+  if(key.includes('musical')) return true;
+  if(key.includes('intermediate hymn')) return true;
   if(key === 'testimony' || key.includes('testimon')) return true;
+  if(key.includes('ward business') || key.includes('business')) return true;
+  if(key.includes('release') || key.includes('sustain')) return true;
+
   return false;
 }
 
@@ -1996,7 +2015,7 @@ async function run(){
 
       const key = itemKey;
 
-      if(isSpecialMeeting && shouldSuppressSpecialMeetingMiddleItem(key)){
+      if(isSpecialMeeting && shouldSkipAgendaItemForSpecialMeeting(key)){
         continue;
       }
 
