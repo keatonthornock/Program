@@ -1227,20 +1227,24 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 
 .agenda-divider--administration {
-  display: block;
-  margin: 24px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .agenda-divider--administration::before,
 .agenda-divider--administration::after {
-  content: none;
+  content: "";
+  flex: 0 1 64px;
+  border-top: 1px solid rgba(31, 41, 55, 0.2);
 }
 
 .agenda-divider--administration .divider-text {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.03rem;
+  font-weight: 600;
   letter-spacing: 0.01em;
-  color: #243041;
+  color: #334155;
 }
 
 .conference-title {
@@ -1286,23 +1290,19 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .agenda-divider--special-event {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  display: block;
+  margin: 24px 0 8px;
 }
 
 .agenda-divider--special-event::before,
 .agenda-divider--special-event::after {
-  content: "";
-  flex: 0 1 64px;
-  border-top: 1px solid rgba(31, 41, 55, 0.2);
+  content: none;
 }
 
 .special-meeting-title {
-  font-size: 1.03rem;
-  font-weight: 600;
-  color: #334155;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #243041;
   letter-spacing: 0.01em;
 }
 
