@@ -1740,7 +1740,10 @@ function renderHeaderFromAdmin(map, admRows){
   const wardDetails = [ward, stake].filter(Boolean).join(' · ');
   const wardWebsite = map['ward website (optional)'] || '';
 
-  $('#meeting-heading').textContent = meetingType || 'Sacrament Meeting';
+  const headingMeetingType = normalizeItemKey(meetingTypeRaw) === 'special meeting'
+    ? 'Sacrament Meeting'
+    : (meetingType || 'Sacrament Meeting');
+  $('#meeting-heading').textContent = headingMeetingType;
   $('#meeting-date').textContent = dateRaw ? new Date(dateRaw).toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '';
 
   const wardDetailsEl = document.getElementById('ward-details');
