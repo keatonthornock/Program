@@ -381,6 +381,26 @@ function clearError(){
 
 function normalizeItemKey(s){ return (s||'').toString().trim().toLowerCase(); }
 
+function getSpecialMeetingTitleFromAgenda(agRows){
+  if(!Array.isArray(agRows)) return '';
+  for(const r of agRows){
+    if(!r || !r[0]) continue;
+    const itemKey = normalizeItemKey(r[0]);
+    if(itemKey !== 'special meeting') continue;
+    return (r[1] || '').toString().trim();
+  }
+  return '';
+}
+
+function shouldSuppressSpecialMeetingMiddleItem(key){
+  if(!key) return false;
+  if(/^speaker(\s+\d+)?$/.test(key) || key.startsWith('speaker')) return true;
+  if(/intermediate hymn/.test(key)) return true;
+  if(/musical/.test(key)) return true;
+  if(key === 'testimony' || key.includes('testimon')) return true;
+  return false;
+}
+
 
 function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   const footerSiteEl = document.getElementById('footer-ward-site');
@@ -464,7 +484,8 @@ function renderWardTextLogos(wardName){
 function shouldRenderAgendaItem(key, meetingType){
 
   const isTestimony = meetingType.includes('testimony');
-  const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
+  const isSpecialMeeting = meetingType === 'special meeting';
+  const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting' || isSpecialMeeting;
 
   // If it's neither sacrament nor testimony, agenda items are not rendered
   if(!isSacrament && !isTestimony){
@@ -728,6 +749,16 @@ function createLineDivider(){
   const el = document.createElement('div');
   el.className = 'agenda-divider agenda-divider--line';
   el.innerHTML = '<div class="divider-text" aria-hidden="true"></div>';
+  return el;
+}
+
+function createSpecialMeetingTitleBlock(title){
+  const safeTitle = (title || '').toString().trim();
+  if(!safeTitle) return null;
+
+  const el = document.createElement('div');
+  el.className = 'special-meeting-block';
+  el.innerHTML = `<div class="special-meeting-title">${escapeHtml(safeTitle)}</div>`;
   return el;
 }
 
@@ -1904,9 +1935,11 @@ async function run(){
     container.innerHTML = '';
     let any = false;
 
-    const meetingType = (adminMap['meeting type'] || '').toString().toLowerCase();
+    const meetingType = normalizeItemKey(adminMap['meeting type']);
+    const isSpecialMeeting = meetingType === 'special meeting';
+    const specialMeetingTitle = getSpecialMeetingTitleFromAgenda(agRows);
     const isTestimony = meetingType.includes('testimony');
-    const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting';
+    const isSacrament = meetingType.includes('sacrament') || meetingType === '' || meetingType === 'sacrament meeting' || isSpecialMeeting;
 
     let previousRenderedKey = '';
     for (let i = 0; i < agRows.length; i++) {
@@ -1929,13 +1962,27 @@ async function run(){
       const name = colB;
       const extra = colC;
       const slugOverride = colD;
+      const itemKey = normalizeItemKey(item);
+
+      // Control/content row: never render as a standard agenda item.
+      if(itemKey === 'special meeting'){
+        continue;
+      }
 
       // Administration divider special
-      if(item.toLowerCase().includes('administration of the sacrament')){
+      if(itemKey.includes('administration of the sacrament')){
         if(isSacrament || isTestimony){
           container.appendChild(createDivider(item));
           any = true;
-          previousRenderedKey = normalizeItemKey(item);
+          previousRenderedKey = itemKey;
+
+          if(isSpecialMeeting){
+            const specialMeetingBlock = createSpecialMeetingTitleBlock(specialMeetingTitle);
+            if(specialMeetingBlock){
+              container.appendChild(specialMeetingBlock);
+              any = true;
+            }
+          }
         }
         if(isTestimony){
           container.appendChild(createSingleLineRow('Testimonies of the Congregation', 'testimony'));
@@ -1947,7 +1994,11 @@ async function run(){
 
       if(!name) continue;
 
-      const key = normalizeItemKey(item);
+      const key = itemKey;
+
+      if(isSpecialMeeting && shouldSuppressSpecialMeetingMiddleItem(key)){
+        continue;
+      }
 
       if(!shouldRenderAgendaItem(key, meetingType)){
         continue;
