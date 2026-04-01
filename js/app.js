@@ -1367,7 +1367,7 @@ function parseConferenceEvents(admRows){
 
 function createEventCard(ev){
   const el = document.createElement('div');
-  el.className = 'event-card conference-card';
+  el.className = 'event-card conference-card hymn-button';
   const mapHref = ev.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.address)}` : '';
   const locationInfo = [
     ev.location,
@@ -1376,7 +1376,9 @@ function createEventCard(ev){
 
   el.innerHTML = `
     <div class="gc-card-left">
-      <img src="./icons/map.png" class="event-icon" alt="" aria-hidden="true">
+      <div class="icon">
+        <img src="./icons/map.png" class="event-icon" alt="" aria-hidden="true">
+      </div>
       <div class="gc-card-text">
         <div class="event-title">${ev.event || ''}</div>
         ${locationInfo ? `<div class="agenda-textline conference-subtext">${locationInfo}</div>` : ''}
@@ -1549,11 +1551,6 @@ function renderGeneralConference(adminMap, admRows){
 
   const wrapper = document.createElement('div');
   wrapper.className = 'stake-wrapper gc-wrapper';
-
-  // Title (match "Administration of the Sacrament" muted/bold/centered treatment)
-  const titleDivider = createDivider('General Conference');
-  titleDivider.classList.add('conference-title', 'agenda-divider--sacrament');
-  wrapper.appendChild(titleDivider);
   
   const { satDate, sunDate } = getConferenceWeekendDates(adminMap, 'general');
 
@@ -1660,12 +1657,15 @@ function renderGeneralConference(adminMap, admRows){
 
   platforms.forEach(p => {
     const el = document.createElement('div');
-    el.className = 'event-card';
+    el.className = 'event-card hymn-button';
     el.style.cursor = 'pointer';
     el.style.alignItems = 'center';
 
     const left = document.createElement('div');
     left.className = 'gc-card-left';
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'icon';
 
     const img = document.createElement('img');
     try{
@@ -1681,7 +1681,8 @@ function renderGeneralConference(adminMap, admRows){
     img.style.background = '#fff';
     img.style.padding = '6px';
     img.style.objectFit = 'contain';
-    left.appendChild(img);
+    left.appendChild(iconWrap);
+    iconWrap.appendChild(img);
 
     const txt = document.createElement('div');
     txt.className = 'gc-card-text';
@@ -2115,11 +2116,6 @@ async function run(){
           // wrapper that contains the title and the events (keeps them inside the same card)
           const stakeWrapper = document.createElement('div');
           stakeWrapper.className = 'stake-wrapper';
-    
-          // Title (match General Conference title styling)
-          const titleDiv = createDivider((adminMap['meeting type']||'Stake Conference').toString());
-          titleDiv.classList.add('conference-title', 'agenda-divider--sacrament');
-          stakeWrapper.appendChild(titleDiv);
     
           // events container (cards will be appended here)
           const eventsContainer = document.createElement('div');
