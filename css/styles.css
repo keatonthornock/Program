@@ -1034,9 +1034,9 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .hymn-button {
-  border: 1px solid rgba(107, 114, 128, 0.28);
+  border: 1px solid #d8dee7;
   border-radius: 14px;
-  background: linear-gradient(180deg, #f1f3f6 0%, #e3e7ed 100%);
+  background: #f4f5f8;
   padding: 14px 16px;
   margin: 10px 0;
   cursor: pointer;
@@ -1105,7 +1105,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #d9dee6;
+  background: #e4e8f0;
 }
 
 
@@ -1138,7 +1138,11 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #d9dee6;
+  background: #e4e8f0;
+}
+
+.hymn-card .agenda-icon--image {
+  filter: brightness(0) saturate(100%) opacity(0.95);
 }
 
 .agenda-textline {
