@@ -1034,9 +1034,9 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .hymn-button {
-  border: 1px solid rgba(17, 24, 39, 0.13);
+  border: 1px solid rgba(34, 94, 55, 0.2);
   border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(180deg, #f8fcf8 0%, #eef7ef 100%);
   padding: 14px 16px;
   margin: 10px 0;
   cursor: pointer;
@@ -1046,7 +1046,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .hymn-button:hover,
 .hymn-button:focus-visible {
-  border-color: rgba(11, 74, 106, 0.3);
+  border-color: rgba(34, 94, 55, 0.34);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
 }
 
@@ -1105,7 +1105,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #e8edf3;
+  background: #e3f1e5;
 }
 
 
@@ -1138,7 +1138,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #e8edf3;
+  background: #e3f1e5;
 }
 
 .agenda-textline {
