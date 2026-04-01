@@ -971,11 +971,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 12px 14px;
-  border: 2px solid #b8c4d2;
-  border-radius: 14px;
-  background: #fcfdff;
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+  text-align: left;
 }
 
 .conference-events-body {
@@ -985,12 +981,11 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .event-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: #fff;
-  padding: 6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
   object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(24%) sepia(21%) saturate(923%) hue-rotate(160deg) brightness(92%) contrast(94%);
 }
 
 .event-right {
@@ -1083,11 +1078,6 @@ body.mobile-scrolled .mobile-scroll-strip {
   color: #0f1724;
 }
 
-.conference-card {
-  text-align: left;
-  width: 100%;
-}
-
 .conference-card .agenda-textline {
   display: flex;
   flex-wrap: wrap;
@@ -1109,6 +1099,13 @@ body.mobile-scrolled .mobile-scroll-strip {
 .event-card .conference-subtext,
 .event-card .conference-subtext a {
   margin-top: 2px;
+}
+
+.event-card.hymn-button .icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e8edf3;
 }
 
 
