@@ -677,6 +677,7 @@ function getAgendaIcon(type){
   if(type === "hymn") return `<img src="./icons/hymn.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "speaker") return `<img src="./icons/speaker.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "testimony") return `<img src="./icons/testimony.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
+  if(type === "special") return `<img src="./icons/special.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "prayer") return `<img src="./icons/prayer.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   if(type === "music") return `<img src="./icons/musicnumber.png" class="agenda-icon agenda-icon--image" alt="" aria-hidden="true">`;
   return "";
@@ -780,16 +781,6 @@ function createLineDivider(){
   const el = document.createElement('div');
   el.className = 'agenda-divider agenda-divider--line';
   el.innerHTML = '<div class="divider-text" aria-hidden="true"></div>';
-  return el;
-}
-
-function createSpecialMeetingTitleBlock(title){
-  const safeTitle = (title || '').toString().trim();
-  if(!safeTitle) return null;
-
-  const el = document.createElement('div');
-  el.className = 'agenda-divider agenda-divider--special-event special-meeting-block';
-  el.innerHTML = `<div class="divider-text special-meeting-title">${escapeHtml(safeTitle)}</div>`;
   return el;
 }
 
@@ -2013,10 +2004,11 @@ async function run(){
           previousRenderedKey = itemKey;
 
           if(isSpecialMeeting){
-            const specialMeetingBlock = createSpecialMeetingTitleBlock(specialMeetingTitle);
-            if(specialMeetingBlock){
-              container.appendChild(specialMeetingBlock);
+            const specialMeetingLabel = (specialMeetingTitle || '').toString().trim();
+            if(specialMeetingLabel){
+              container.appendChild(createSingleLineRow(escapeHtml(specialMeetingLabel), 'special'));
               any = true;
+              previousRenderedKey = 'special meeting';
             }
             suppressSpecialMeetingMiddleSection = true;
           }
