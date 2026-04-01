@@ -1116,6 +1116,13 @@ body.mobile-scrolled .mobile-scroll-strip {
   justify-content: center;
 }
 
+.agenda-item:not(.hymn-card) .icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #f1f3f8;
+}
+
 .agenda-icon {
   color: #111;
   font-size: 20px;
@@ -1138,7 +1145,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #e4e8f0;
+  background: #dbe8ff;
 }
 
 .hymn-card .agenda-icon--image {
