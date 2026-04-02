@@ -218,7 +218,7 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
       return exceptionUrl;
     }
     if(safeSlug){
-      const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/hymns/${safeSlug}?lang=eng`;
+      const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
       console.log('[hymn-links] using direct slug-generated route', { collection, url });
       return url;
     }
