@@ -177,11 +177,21 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const rawOverride = (slugOverride || '').toString().trim();
   const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
   const t = (title || '').toString().trim();
+  const idMatch = hymnId.match(/^([0-9]{1,4})([a-z]?)$/i);
+  const numericPart = idMatch ? parseInt(idMatch[1], 10) : null;
+  const hasLetterSuffix = idMatch ? Boolean(idMatch[2]) : false;
   const collection = normalizeHymnCollection(extraInfo);
+  let resolvedCollection = collection;
+  if(typeof numericPart === 'number' && numericPart >= 1000){
+    resolvedCollection = 'hymns_for_home_and_church';
+  }
   const resolveBranch = (branchName, payload = {}) => {
     console.log('[hymn-links] resolver', {
+      hymnId,
+      numericPart,
       extraInfoRaw: (extraInfo || '').toString(),
       normalizedCollection: collection,
+      resolvedCollection,
       branch: branchName,
       ...payload
     });
@@ -193,12 +203,12 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     '177': 'https://www.churchofjesuschrist.org/media/music/songs/tis-sweet-to-sing-the-matchless-love-hancock?crumbs=hymns&lang=eng'
   };
   const shouldUseDuplicateTitleException = (collection === 'hymns' || !collection);
-  const exceptionUrl = shouldUseDuplicateTitleException ? (duplicateTitleExceptionUrlMap[hymnId] || null) : null;
+  const shouldTreatAsStandardHymns = (resolvedCollection === 'hymns' || !resolvedCollection);
+  const exceptionUrl = (shouldUseDuplicateTitleException && shouldTreatAsStandardHymns)
+    ? (duplicateTitleExceptionUrlMap[hymnId] || null)
+    : null;
   const safeSlug = rawOverride ? slugify(rawOverride) : slugify(title);
   const searchQuery = `${hymnId ? `${hymnId} ` : ''}${t}`.trim();
-  const idMatch = hymnId.match(/^([0-9]{1,4})([a-z]?)$/i);
-  const numericPart = idMatch ? parseInt(idMatch[1], 10) : null;
-  const hasLetterSuffix = idMatch ? Boolean(idMatch[2]) : false;
 
   if(/^(https?:)?\/\//i.test(rawOverride)){
     const fullUrl = normalizeHref(rawOverride);
@@ -212,7 +222,7 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     return relativeUrl;
   }
 
-  if(collection === 'childrens_songbook'){
+  if(resolvedCollection === 'childrens_songbook'){
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
       resolveBranch('childrens_songbook_slug', { url });
@@ -225,7 +235,7 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     }
   }
 
-  if(collection === 'hymns_for_home_and_church'){
+  if(resolvedCollection === 'hymns_for_home_and_church'){
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/media/music/songs/${safeSlug}?crumbs=hymns-for-home-and-church&lang=eng`;
       resolveBranch('hfhc_media_songs_slug', { url });
@@ -238,19 +248,19 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     }
   }
 
-  if(collection === 'hymns' || !collection){
+  if(shouldTreatAsStandardHymns){
     if(exceptionUrl){
-      resolveBranch('standard_hymn_duplicate_exception', { hymnId, exceptionUrl, collection: collection || 'hymns' });
+      resolveBranch('standard_hymn_duplicate_exception', { hymnId, exceptionUrl, collection: resolvedCollection || 'hymns' });
       return exceptionUrl;
     }
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
-      resolveBranch('standard_hymn_slug', { url, collection: collection || 'hymns' });
+      resolveBranch('standard_hymn_slug', { url, collection: resolvedCollection || 'hymns' });
       return url;
     }
     if(typeof numericPart === 'number' && numericPart <= 341 && !hasLetterSuffix){
       const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${numericPart}?lang=eng`;
-      resolveBranch('standard_hymn_number_fallback', { hymnId, url, collection: collection || 'hymns' });
+      resolveBranch('standard_hymn_number_fallback', { hymnId, url, collection: resolvedCollection || 'hymns' });
       return url;
     }
   }
