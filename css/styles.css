@@ -351,7 +351,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   position: absolute;
   right: 16px;
   bottom: 188px;
-  z-index: 4;
+  z-index: 110;
   width: 40px;
   height: 40px;
   border: 0;
@@ -373,7 +373,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   position: absolute;
   right: 16px;
   bottom: 194px;
-  z-index: 6;
+  z-index: 111;
   display: none;
   flex-direction: column;
   gap: 4px;

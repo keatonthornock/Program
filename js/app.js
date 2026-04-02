@@ -148,7 +148,10 @@ function normalizeHymnCollection(extraInfo){
   if(
     normalized.includes('hymns for home and church') ||
     normalized.includes('hymns for homes and church') ||
-    normalized.includes('for home and church')
+    normalized.includes('for home and church') ||
+    normalized.includes('hymns for home and family') ||
+    normalized.includes('hymns for homes and families') ||
+    (normalized.includes('home') && normalized.includes('family') && normalized.includes('hymn'))
   ){
     return 'hymns_for_home_and_church';
   }
@@ -218,7 +221,7 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
       return exceptionUrl;
     }
     if(safeSlug){
-      const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/hymns/${safeSlug}?lang=eng`;
+      const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
       console.log('[hymn-links] using direct slug-generated route', { collection, url });
       return url;
     }
@@ -234,14 +237,14 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
       console.log('[hymn-links] using duplicate-title exception URL', { collection: collection || 'hymns', hymnId, exceptionUrl });
       return exceptionUrl;
     }
+    if(typeof numericPart === 'number' && numericPart <= 341 && !hasLetterSuffix){
+      const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${numericPart}?lang=eng`;
+      console.log('[hymn-links] using number-based direct route', { collection: collection || 'hymns', hymnId, url });
+      return url;
+    }
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
       console.log('[hymn-links] using direct slug-generated route', { collection: collection || 'hymns', url });
-      return url;
-    }
-    if(typeof numericPart === 'number' && numericPart <= 341 && !hasLetterSuffix){
-      const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${numericPart}?lang=eng`;
-      console.log('[hymn-links] using number-based fallback', { collection: collection || 'hymns', hymnId, url });
       return url;
     }
   }
