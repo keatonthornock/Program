@@ -130,6 +130,7 @@ function normalizeHymnCollection(extraInfo){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[—–-]/g, ' ')
     .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -148,7 +149,10 @@ function normalizeHymnCollection(extraInfo){
   if(
     normalized.includes('hymns for home and church') ||
     normalized.includes('hymns for homes and church') ||
-    normalized.includes('for home and church')
+    normalized.includes('for home and church') ||
+    normalized.includes('home and church') ||
+    normalized.includes('hfhc') ||
+    (normalized.includes('hymns') && normalized.includes('home') && normalized.includes('church'))
   ){
     return 'hymns_for_home_and_church';
   }
@@ -174,6 +178,14 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   const hymnId = (hymnNumber || '').toString().trim().toLowerCase();
   const t = (title || '').toString().trim();
   const collection = normalizeHymnCollection(extraInfo);
+  const resolveBranch = (branchName, payload = {}) => {
+    console.log('[hymn-links] resolver', {
+      extraInfoRaw: (extraInfo || '').toString(),
+      normalizedCollection: collection,
+      branch: branchName,
+      ...payload
+    });
+  };
   const duplicateTitleExceptionUrlMap = {
     '173': 'https://www.churchofjesuschrist.org/media/music/songs/while-of-these-emblems-we-partake-saul?crumbs=hymns&lang=eng',
     '174': 'https://www.churchofjesuschrist.org/media/music/songs/while-of-these-emblems-we-partake-aeolian?crumbs=hymns&lang=eng',
@@ -190,25 +202,25 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
 
   if(/^(https?:)?\/\//i.test(rawOverride)){
     const fullUrl = normalizeHref(rawOverride);
-    console.log('[hymn-links] using full URL override', { fullUrl });
+    resolveBranch('full_url_override', { fullUrl });
     return fullUrl;
   }
 
   if(rawOverride.startsWith('/')){
     const relativeUrl = `https://www.churchofjesuschrist.org${rawOverride}`;
-    console.log('[hymn-links] using relative URL override', { relativeUrl });
+    resolveBranch('relative_url_override', { relativeUrl });
     return relativeUrl;
   }
 
   if(collection === 'childrens_songbook'){
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${safeSlug}?lang=eng`;
-      console.log('[hymn-links] using direct slug-generated route', { collection, url });
+      resolveBranch('childrens_songbook_slug', { url });
       return url;
     }
     if(idMatch){
       const url = `https://www.churchofjesuschrist.org/study/manual/childrens-songbook/${hymnId}?lang=eng`;
-      console.log('[hymn-links] using number-based fallback', { collection, hymnId, url });
+      resolveBranch('childrens_songbook_number_fallback', { hymnId, url });
       return url;
     }
   }
@@ -216,40 +228,40 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   if(collection === 'hymns_for_home_and_church'){
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/media/music/songs/${safeSlug}?crumbs=hymns-for-home-and-church&lang=eng`;
-      console.log('[hymn-links] using direct slug-generated route', { collection, url });
+      resolveBranch('hfhc_media_songs_slug', { url });
       return url;
     }
     if(typeof numericPart === 'number' && numericPart >= 1000){
       const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church?lang=eng#${numericPart}`;
-      console.log('[hymn-links] using number-based fallback', { collection, hymnId, url });
+      resolveBranch('hfhc_number_fallback', { hymnId, url });
       return url;
     }
   }
 
   if(collection === 'hymns' || !collection){
     if(exceptionUrl){
-      console.log('[hymn-links] using duplicate-title exception URL', { collection: collection || 'hymns', hymnId, exceptionUrl });
+      resolveBranch('standard_hymn_duplicate_exception', { hymnId, exceptionUrl, collection: collection || 'hymns' });
       return exceptionUrl;
     }
     if(safeSlug){
       const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${safeSlug}?lang=eng`;
-      console.log('[hymn-links] using direct slug-generated route', { collection: collection || 'hymns', url });
+      resolveBranch('standard_hymn_slug', { url, collection: collection || 'hymns' });
       return url;
     }
     if(typeof numericPart === 'number' && numericPart <= 341 && !hasLetterSuffix){
       const url = `https://www.churchofjesuschrist.org/study/manual/hymns/${numericPart}?lang=eng`;
-      console.log('[hymn-links] using number-based fallback', { collection: collection || 'hymns', hymnId, url });
+      resolveBranch('standard_hymn_number_fallback', { hymnId, url, collection: collection || 'hymns' });
       return url;
     }
   }
 
   if(searchQuery){
     const searchUrl = `https://www.churchofjesuschrist.org/search?q=${encodeURIComponent(searchQuery)}`;
-    console.log('[hymn-links] using search fallback', { searchUrl });
+    resolveBranch('search_fallback', { searchUrl });
     return searchUrl;
   }
 
-  console.log('[hymn-links] unable to generate hymn URL', { title, hymnNumber, extraInfo });
+  resolveBranch('unable_to_generate', { title, hymnNumber });
   return null;
 }
 function parseHymnName(name){
