@@ -180,7 +180,8 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
     '176': 'https://www.churchofjesuschrist.org/media/music/songs/tis-sweet-to-sing-the-matchless-love-meredith?crumbs=hymns&lang=eng',
     '177': 'https://www.churchofjesuschrist.org/media/music/songs/tis-sweet-to-sing-the-matchless-love-hancock?crumbs=hymns&lang=eng'
   };
-  const exceptionUrl = duplicateTitleExceptionUrlMap[hymnId] || null;
+  const shouldUseDuplicateTitleException = (collection === 'hymns' || !collection);
+  const exceptionUrl = shouldUseDuplicateTitleException ? (duplicateTitleExceptionUrlMap[hymnId] || null) : null;
   const safeSlug = rawOverride ? slugify(rawOverride) : slugify(title);
   const searchQuery = `${hymnId ? `${hymnId} ` : ''}${t}`.trim();
   const idMatch = hymnId.match(/^([0-9]{1,4})([a-z]?)$/i);
@@ -213,12 +214,8 @@ function getHymnUrl(title, hymnNumber, extraInfo, slugOverride){
   }
 
   if(collection === 'hymns_for_home_and_church'){
-    if(exceptionUrl){
-      console.log('[hymn-links] using duplicate-title exception URL', { collection, hymnId, exceptionUrl });
-      return exceptionUrl;
-    }
     if(safeSlug){
-      const url = `https://www.churchofjesuschrist.org/study/music/hymns-for-home-and-church/${safeSlug}?lang=eng`;
+      const url = `https://www.churchofjesuschrist.org/media/music/songs/${safeSlug}?crumbs=hymns-for-home-and-church&lang=eng`;
       console.log('[hymn-links] using direct slug-generated route', { collection, url });
       return url;
     }
