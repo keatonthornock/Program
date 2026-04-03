@@ -1344,8 +1344,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .leadership-table th {
-  background: var(--blue-light);
-  color: var(--blue-dark);
+  background: var(--blue-dark);
+  color: var(--blue-light);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
