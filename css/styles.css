@@ -3,7 +3,7 @@
   --blue-dark: #005175;
   --blue-mid: #007da5;
   --blue-light: #d5eefc;
-  --blue-light-tint: #e8eefc;
+  --blue-light-tint: #f0f6ff;
   --scroll-strip: var(--blue-mid);
   --text-dark: #1f2937;
   --card-bg: #ffffff;
@@ -1149,7 +1149,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--blue-light-tint);
+  background: var(--blue-light);
 }
 
 .hymn-card .agenda-icon--image {
