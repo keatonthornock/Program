@@ -1360,7 +1360,7 @@ body[data-theme='lent'] .footer-brand-zone {
 
 .leadership-table th {
   background: var(--color-dark);
-  color: var(--color-light);
+  color: #ffffff;
   font-weight: 700;
   letter-spacing: 0.01em;
 }
