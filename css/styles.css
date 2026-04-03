@@ -1,7 +1,7 @@
 :root {
   --page-bg: #ede9d8;
-  --blue-dark: #003057;
-  --blue-mid: #006184;
+  --blue-dark: #005175;
+  --blue-mid: #01B6D1;
   --blue-light: #d5eefc;
   --blue-light-tint: #b0eefc;
   --scroll-strip: var(--blue-mid);
@@ -471,7 +471,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .bottom-content-zone .small,
 .bottom-content-zone .list,
 .bottom-content-zone .notice a {
-  color: var(--blue-mid);
+  color: var(--blue-dark);
 }
 
 .meta-line,
@@ -1173,7 +1173,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 
 .agenda-separator {
   margin: 0 8px;
-  color: var(--blue-mid);
+  color: var(--blue-dark);
   font-weight: 500;
 }
 
@@ -1351,11 +1351,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .leadership-table tbody tr:nth-child(even) {
-  background: var(--blue-light);
-}
-
-.leadership-table tbody tr:hover {
-  background: inherit;
+  background: var(--blue-light-tint);
 }
 
 .leadership-table tbody tr {
