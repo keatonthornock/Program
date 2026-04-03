@@ -4,18 +4,14 @@
   --color-mid: #007da5;
   --color-light: #d5eefc;
   --color-light-tint: #f4fbff;
-  --blue-dark: var(--color-dark);
-  --blue-mid: var(--color-mid);
-  --blue-light: var(--color-light);
-  --blue-light-tint: var(--color-light-tint);
   --scroll-strip: var(--color-mid);
   --text-dark: #1f2937;
   --card-bg: #ffffff;
   --border-soft: rgba(0, 0, 0, 0.08);
-  --accent: var(--blue-dark);
-  --accent-2: var(--blue-light-tint);
-  --hymn-outline: rgba(0, 48, 87, 0.26);
-  --hymn-outline-soft: rgba(0, 48, 87, 0.1);
+  --accent: var(--color-dark);
+  --accent-2: var(--color-light-tint);
+  --hymn-outline: color-mix(in srgb, var(--color-dark) 26%, transparent);
+  --hymn-outline-soft: color-mix(in srgb, var(--color-dark) 10%, transparent);
   --max-width: 960px;
 }
 
@@ -39,6 +35,9 @@ body[data-theme='lent'] {
   --color-mid: #A16FAF;
   --color-light: #f6ddfd;
   --color-light-tint: #fbf1fe;
+  --scroll-strip: var(--color-mid);
+  --accent: var(--color-dark);
+  --accent-2: var(--color-light-tint);
 }
 
 .app {
@@ -206,7 +205,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .side-menu-home-link {
   margin-top: 30px;
   display: inline-block;
-  color: var(--blue-dark);
+  color: var(--color-dark);
   text-decoration: none;
   font-weight: 700;
 }
@@ -215,7 +214,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   margin-top: auto;
   border: 0;
   border-radius: 10px;
-  background: var(--blue-dark);
+  background: var(--color-dark);
   color: #fff;
   font-weight: 700;
   font-size: 0.95rem;
@@ -487,7 +486,7 @@ body[data-theme='lent'] .footer-brand-zone {
 .bottom-content-zone .small,
 .bottom-content-zone .list,
 .bottom-content-zone .notice a {
-  color: var(--blue-dark);
+  color: var(--color-dark);
 }
 
 .meta-line,
@@ -564,13 +563,13 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-card:focus-visible {
-  outline: 2px solid var(--blue-mid);
+  outline: 2px solid var(--color-mid);
   outline-offset: 2px;
 }
 
 .activity-card-header {
-  background: var(--blue-mid);
-  border-bottom: 1px solid var(--blue-dark);
+  background: var(--color-mid);
+  border-bottom: 1px solid var(--color-dark);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -617,13 +616,13 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-location-link {
-  color: var(--blue-mid);
+  color: var(--color-mid);
   text-decoration: none;
 }
 
 .activity-location-link:hover,
 .activity-location-link:focus-visible {
-  color: var(--blue-mid);
+  color: var(--color-mid);
 }
 
 .activity-card-preview {
@@ -633,7 +632,7 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-preview-link {
-  color: var(--blue-mid);
+  color: var(--color-mid);
   text-decoration: none;
   font-weight: 600;
 }
@@ -691,7 +690,7 @@ body[data-theme='lent'] .footer-brand-zone {
 .activity-see-more {
   border: 0;
   background: transparent;
-  color: var(--blue-mid);
+  color: var(--color-mid);
   font-weight: 700;
   font-size: 0.86rem;
   padding: 0;
@@ -704,7 +703,7 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activities-home-link {
-  color: var(--blue-dark);
+  color: var(--color-dark);
   font-weight: 600;
   text-decoration: none;
 }
@@ -718,10 +717,10 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activities-filter-pill {
-  border: 1px solid var(--blue-dark);
+  border: 1px solid var(--color-dark);
   border-radius: 999px;
   background: #ffffff;
-  color: var(--blue-dark);
+  color: var(--color-dark);
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -730,7 +729,7 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activities-filter-pill.is-active {
-  background: var(--blue-dark);
+  background: var(--color-dark);
   color: #ffffff;
 }
 
@@ -744,7 +743,7 @@ body[data-theme='lent'] .footer-brand-zone {
 
 .activity-calendar-pill {
   border-radius: 999px;
-  background: var(--blue-dark);
+  background: var(--color-dark);
   border: 1px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-size: 0.72rem;
@@ -775,8 +774,8 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-card-header {
-  background: var(--blue-dark);
-  border-bottom: 1px solid var(--blue-dark);
+  background: var(--color-dark);
+  border-bottom: 1px solid var(--color-dark);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -811,13 +810,13 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-location-link {
-  color: var(--blue-mid);
+  color: var(--color-mid);
   text-decoration: none;
 }
 
 .activity-location-link:hover,
 .activity-location-link:focus-visible {
-  color: var(--blue-mid);
+  color: var(--color-mid);
 }
 
 .activity-card-preview {
@@ -827,7 +826,7 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activity-preview-link {
-  color: var(--blue-mid);
+  color: var(--color-mid);
   text-decoration: none;
   font-weight: 600;
 }
@@ -885,7 +884,7 @@ body[data-theme='lent'] .footer-brand-zone {
 .activity-see-more {
   border: 0;
   background: transparent;
-  color: var(--blue-mid);
+  color: var(--color-mid);
   font-weight: 700;
   font-size: 0.86rem;
   padding: 0;
@@ -898,7 +897,7 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .activities-home-link {
-  color: var(--blue-dark);
+  color: var(--color-dark);
   font-weight: 600;
   text-decoration: none;
 }
@@ -908,7 +907,7 @@ body[data-theme='lent'] .footer-brand-zone {
   width: min(300px, 50%);
   display: block;
   margin: 0 auto;
-  filter: drop-shadow(0 3px 8px rgba(0, 48, 87, 0.22));
+  filter: drop-shadow(0 3px 8px color-mix(in srgb, var(--color-dark) 22%, transparent));
 }
 
 .footer-ward-site {
@@ -1189,7 +1188,7 @@ body[data-theme='lent'] .footer-brand-zone {
 
 .agenda-separator {
   margin: 0 8px;
-  color: var(--blue-dark);
+  color: var(--color-dark);
   font-weight: 500;
 }
 
@@ -1301,7 +1300,7 @@ body[data-theme='lent'] .footer-brand-zone {
 .testimony-text {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--blue-mid);
+  color: var(--color-mid);
   letter-spacing: 0.01em;
 }
 
@@ -1342,7 +1341,7 @@ body[data-theme='lent'] .footer-brand-zone {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid rgba(0, 97, 132, 0.2);
+  border: 1px solid color-mix(in srgb, var(--color-mid) 20%, transparent);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
@@ -1360,8 +1359,8 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .leadership-table th {
-  background: var(--blue-dark);
-  color: var(--blue-light);
+  background: var(--color-dark);
+  color: var(--color-light);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
