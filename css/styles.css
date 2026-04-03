@@ -1351,7 +1351,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 }
 
 .leadership-table tbody tr:nth-child(even) {
-  background: var(--blue-light-tint);
+  background: #f0f0f0;
 }
 
 .leadership-table tbody tr {
