@@ -1476,6 +1476,83 @@ function formatContactLink(contact){
 /* ---------- Header rendering + conference logic ---------- */
 /* ---------- Header rendering + conference logic (replace previous renderHeaderFromAdmin) ---------- */
 
+
+function parseAdminDateToDateOnly(value){
+  // Parse a sheet date into a local date-only object (midnight local) to avoid timezone drift.
+  if(value instanceof Date && !isNaN(value)){
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+
+  const raw = (value || '').toString().trim();
+  if(!raw) return null;
+
+  // Supports ISO forms like YYYY-MM-DD or YYYY/MM/DD.
+  let match = raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if(match){
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const d = new Date(year, month - 1, day);
+    return (d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day) ? d : null;
+  }
+
+  // Supports U.S. forms like M/D/YYYY.
+  match = raw.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if(match){
+    const month = Number(match[1]);
+    const day = Number(match[2]);
+    const year = Number(match[3]);
+    const d = new Date(year, month - 1, day);
+    return (d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day) ? d : null;
+  }
+
+  // Fallback: let Date parse, then normalize to date-only.
+  const parsed = new Date(raw);
+  if(isNaN(parsed)) return null;
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+function getEasterSundayForYear(year){
+  // Anonymous Gregorian algorithm.
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31); // 3=March, 4=April
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(year, month - 1, day);
+}
+
+function isDateWithinLentWindow(dateOnly){
+  if(!(dateOnly instanceof Date) || isNaN(dateOnly)) return false;
+
+  const easterSunday = getEasterSundayForYear(dateOnly.getFullYear());
+  const lentStart = new Date(easterSunday);
+  lentStart.setDate(lentStart.getDate() - 46);
+
+  const time = dateOnly.getTime();
+  return time >= lentStart.getTime() && time <= easterSunday.getTime();
+}
+
+function applySeasonalThemeFromAdminDate(adminMap){
+  const body = document.body;
+  if(!body) return;
+
+  const adminDateRaw = adminMap && (adminMap['upcoming sunday date'] || adminMap['upcoming sunday']);
+  const currentDate = parseAdminDateToDateOnly(adminDateRaw);
+  const useLentTheme = currentDate ? isDateWithinLentWindow(currentDate) : false;
+
+  body.dataset.theme = useLentTheme ? 'lent' : 'default';
+}
+
 function findUtcForTimeZoneLocal(year, month, day, hour, minute = 0, timeZone = 'America/Denver'){
   // Return a Date object (UTC instant) that maps to the requested wall-clock in the given timeZone.
   function partsFor(date, tz){
@@ -1978,6 +2055,9 @@ async function run(){
       if(!r[0]) continue;
       adminMap[(r[0]||'').toString().trim().toLowerCase()] = (r[1]||'').toString().trim();
     }
+
+    // Seasonal theme is keyed to the sheet's upcoming Sunday date, not the system clock.
+    applySeasonalThemeFromAdminDate(adminMap);
 
     // parse and render agenda rows in order
     const container = $('#program-content');
