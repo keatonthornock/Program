@@ -3,7 +3,7 @@
   --blue-dark: #005175;
   --blue-mid: #007da5;
   --blue-light: #d5eefc;
-  --blue-light-tint: #b0eefc;
+  --blue-light-tint: #e8eefc;
   --scroll-strip: var(--blue-mid);
   --text-dark: #1f2937;
   --card-bg: #ffffff;
@@ -343,7 +343,7 @@ body.mobile-scrolled .mobile-scroll-strip {
 .meeting-time {
   margin: 0;
   font-weight: 600;
-  background: var(--blue-light);
+  background: var(--blue-light-tint);
   border: 1px solid rgba(0, 48, 87, 0.16);
   border-radius: 999px;
   padding: 6px 12px;
@@ -1149,7 +1149,7 @@ body.mobile-scrolled .mobile-scroll-strip {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--blue-light);
+  background: var(--blue-light-tint);
 }
 
 .hymn-card .agenda-icon--image {
