@@ -343,8 +343,8 @@ body.mobile-scrolled .mobile-scroll-strip {
 .meeting-time {
   margin: 0;
   font-weight: 600;
-  background: var(--blue-light-tint);
-  border: 1px solid rgba(0, 48, 87, 0.16);
+  background: #f0f0f0;
+  border: 1px solid #D0D3D3;
   border-radius: 999px;
   padding: 6px 12px;
 }
