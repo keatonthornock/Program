@@ -955,12 +955,12 @@ body.mobile-scrolled .mobile-scroll-strip {
   border: 0;
 }
 
-.program-content > .agenda-item,
+.program-content > .agenda-item:not(.hymn-button),
 .program-content > .agenda-divider {
   border-top: 1px solid rgba(17, 24, 39, 0.12);
 }
 
-.program-content > .agenda-item:first-child,
+.program-content > .agenda-item:not(.hymn-button):first-child,
 .program-content > .agenda-divider:first-child {
   border-top: 0;
 }
