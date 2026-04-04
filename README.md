@@ -39,7 +39,7 @@ Paste that value into `config.json` as `sheet_id`.
 ## Setting up the backend Google Sheet
 
 1. Create a copy of the template sheet into your Google Drive:  
-   https://docs.google.com/spreadsheets/d/1I_Mj-ZoW57cR5PpBoMoBa2tVqpkfrlXOZd4WK99HsD4/edit
+   https://docs.google.com/spreadsheets/d/144P85pf3sp6_yxGTZIALg1nFahk8BgX-oxdM-LUPTV8/edit?gid=0#gid=0
 2. In Google Sheets, go to **File → Share → Publish to web**.
 3. Publish the **Administrative** tab.
 4. In published content settings, also publish:
