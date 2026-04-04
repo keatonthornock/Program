@@ -39,7 +39,7 @@ You can set up your site entirely in the browser—no terminal required.
 7. The tab ID values do not need to be updated.
 8. Commit the file changes.
 9. From the top ribbon select **Settings → Pages** and enable GitHub Pages (deploy from your main branch) by changing the dropdown under *Branch* from **None → main → Save**.
-10. Wait for a minute or a few, then refresh the browser and you will see a box appear near the top of the GitHub Pages settings menu telling you *Your site is live at...". This is your permanent free link that should always stay live and will be where your service program is hosted.
+10. Wait for a minute or a few, then refresh the browser and you will see a box appear near the top of the GitHub Pages settings menu telling you *Your site is live at...". This is your permanent free link where your service program is now hosted.
 
 Once Pages is enabled, your site will use your committed `config.json` values and ingest the backend Google Sheet data we set up.
 
