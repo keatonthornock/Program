@@ -52,12 +52,6 @@ Paste that value into `config.json` as `sheet_id`.
    - Hymn Directory
 6. In **File → Share → Share**, set General access to **Anyone with the link → Viewer**.
 
-## Updating your site later
-
-- This template now uses a manually edited, committed `config.json`.
-- When new template versions are released, compare your README version and files with the latest template version.
-- Copy in updated template files as needed, but avoid overwriting your own `config.json` values.
-
 ## Calendar set up (optional)
 
 You can automatically pull events from the ward calendar.
@@ -68,6 +62,12 @@ You can automatically pull events from the ward calendar.
 4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL.
 5. Paste the ICS link into `CalendarConfig!B1`.
 6. Run **Calendar Sync → Sync Calendar Now**.
+
+## Updating your site later if a new version releases
+
+- This template now uses a manually edited, committed `config.json`.
+- When new template versions are released, compare your README version and files with the latest template version.
+- Copy in updated template files as needed, but avoid overwriting your own `config.json` values.
 
 ## Bonus: Install as a phone app
 
