@@ -57,7 +57,8 @@ You can automatically pull events from the ward calendar.
 6. Run **Calendar Sync → Sync Calendar Now**.
 7. For auto-syncing, click **Calendar Sync → Set Trigger: Every [x] Hour(s)**.
 8. If you wish to stop this auto-syncing in the future, click **Calendar Sync → Stop Frequency Trigger**.
-9. Important: The only value you need to worry about on the Calendar tab is the checkboxes in "Show On Site". When checked, these calendars will get created as cards on the website and will not reset when a Google Sheet sync occurs. All other values will get reset upon a sync. Users should update calendar info at the source, which is the ward calendar, or their changes in the Google Sheet will get overwritten.
+9. You can hide the `CalendarConfig` tab if you don't intend on editing it often.
+10. Important: The only value you need to worry about on the Calendar tab is the checkboxes in "Show On Site". When checked, these calendars will get created as cards on the website and will not reset when a Google Sheet sync occurs. All other values will get reset upon a sync. Users should update calendar info at the source, which is the ward calendar, or their changes in the Google Sheet will get overwritten.
 
 ## How to find your Google Sheet ID
 
