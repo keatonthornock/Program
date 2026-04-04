@@ -1,6 +1,6 @@
 *Original code Repository at https://github.com/keatonthornock/program*
 
-*NOTE: if opening the example below on a desktop browser you can still view how it appears on mobile. Right click after opening the site → Inspect → Toggle Device Emulation (in the tool bar of dev tools).*
+*NOTE: if opening the example below on a desktop browser you can still view how it appears on mobile. Right click after opening the site → Inspect → Toggle device emulation (in the tool bar of dev tools).*
 
 Example (live demo site): https://keatonthornock.github.io/program
 
