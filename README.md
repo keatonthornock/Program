@@ -79,4 +79,4 @@ You can automatically pull events from the ward calendar.
 1. Open the website in your phone browser.
 2. Select **Share**
 3. Select **Add to Home Screen** *(may be burried in the options or under 'more').*
-4. Choose **Web App**.
+4. Ensure it's installed as a **Web App**.
