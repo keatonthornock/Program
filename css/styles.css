@@ -512,16 +512,21 @@ body[data-theme='lent'] .footer-brand-zone {
   box-shadow: none;
 }
 
-.collapsible-toggle .chev {
+.collapsible-toggle .chev,
+.activity-arrow {
   width: 18px;
   height: 18px;
   display: block;
-  color: #ffffff;
-  fill: currentColor;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: none;
   transform: rotate(0deg);
   transform-origin: center;
   backface-visibility: hidden;
-  transition: transform .16s ease;
+  transition: transform 0.16s ease;
 }
 
 .collapsible-toggle[aria-expanded='true'] .chev {
@@ -640,17 +645,6 @@ body[data-theme='lent'] .footer-brand-zone {
   flex: 0 0 auto;
 }
 
-.activity-arrow {
-  width: 18px;
-  height: 18px;
-  display: block;
-  color: #ffffff;
-  fill: currentColor;
-  transition: transform .16s ease;
-  transform: rotate(0deg);
-  transform-origin: center;
-  backface-visibility: hidden;
-}
 
 .activity-card[aria-expanded='true'] .activity-arrow {
   transform: rotate(90deg);
@@ -833,17 +827,6 @@ body[data-theme='lent'] .footer-brand-zone {
   flex: 0 0 auto;
 }
 
-.activity-arrow {
-  width: 18px;
-  height: 18px;
-  display: block;
-  color: #ffffff;
-  fill: currentColor;
-  transition: transform .16s ease;
-  transform: rotate(0deg);
-  transform-origin: center;
-  backface-visibility: hidden;
-}
 
 .activity-card[aria-expanded='true'] .activity-arrow {
   transform: rotate(90deg);
