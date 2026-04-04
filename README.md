@@ -13,7 +13,7 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
 
 ## Quick setup (backend Google Sheet)
 
-1. Create a copy of the template sheet into your Google Drive (a ward Google account is recommended so it stays within ward control):  
+1. Create a copy of the template sheet into your Google Drive, go to **File → Make a copy → Change Name → Make a copy** *(a ward specific Google account is recommended so it stays within ward control)*:  
    https://docs.google.com/spreadsheets/d/144P85pf3sp6_yxGTZIALg1nFahk8BgX-oxdM-LUPTV8/edit?gid=0#gid=0
 2. In Google Sheets, go to **File → Share → Publish to web**.
 3. Publish the **Administrative** tab.
