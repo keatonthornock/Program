@@ -16,7 +16,7 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
 You can set up your site entirely in the browser—no terminal required.
 
 1. In this repository, click **Use this template**.
-2. Create your new repository.
+2. Create your new repository and keep it public. **Important:** Your repository name will be the URL extension.
 3. In your new repository, open **`config.json`**.
 4. Click the **pencil (Edit this file)** icon.
 5. Replace `sheet_id` with your Google Sheet ID.
