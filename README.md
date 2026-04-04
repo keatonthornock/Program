@@ -67,7 +67,7 @@ You can automatically pull events from the ward calendar.
 
 ## Updating your site later if a new version releases
 
-- This template uses a manually edited, committed `config.json`.
+- When bugs are disovered and fixed, or features are potentially added, this Repository will recieve an update. This README will notate the current version at the top. Since you have already copied the template into your own account, you can compare your README version with the one listed here to verify if an update has occured.
 - When new template versions are released you have two options from simplest to most intensive:
 1. **Recommended**: Delete your respository but not the Google Sheet Back-end. Copy the newest Git Repository version as a new repository on your account, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the same QR code you had before will still be functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
 2. Compare your README version and files with the latest template version. Then copy in updated template files as needed, but avoid overwriting your own `config.json` values.
