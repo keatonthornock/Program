@@ -15,7 +15,7 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
 
 You can set up your site entirely in the browser—no terminal required.
 
-1. Before beginning, it is recommended to create a ward account and name it per your ward name. This way if you relocate it stays with ward management as well as the URL name will contain the wards name instead of your personal accounts name.
+1. Before beginning, it is recommended to create a ward account and name it according to your ward name. This way if you relocate it stays with ward management as well as the URL name will contain the wards name instead of your personal accounts name.
 2. In this repository, click **Use this template**.
 3. Create your new repository and keep it public. **Important:** Your repository name will be the URL directory in the address and your account name will be the URL name.
 4. In your new repository, open **`config.json`**.
