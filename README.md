@@ -4,7 +4,7 @@
 
 Example (live demo site): https://keatonthornock.github.io/program
 
-# Unoffiical Church of Jesus Christ of Latter-day Saints Sunday Service Program Website
+# Unofficial Church of Jesus Christ of Latter-day Saints Sunday Service Program Website
 *I'm just compelled to make my local wards communication a bit more centralized, I am **NOT** affiliated with the official Church in a professional capacity, nor is this project affiliated with the Church.*
 
 `Version: 1.0.0`
@@ -47,16 +47,17 @@ Once Pages is enabled, your site will use your committed `config.json` values an
 
 You can automatically pull events from the ward calendar.
 
-1. Open the Google Sheet on desktop.
+1. Open the Google Sheet on a desktop, not mobile.
 2. Click **Calendar Sync → Show Calendar Sheets**.
 3. Authorize the script: Click **OK → Advanced → Go to Ward Calendar Event Pull (unsafe) → Select all → Continue → OK**.
-4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL: Login and then click **Settings (icon) → Sync**. From here you can copy the URL for the Auto-synced Calendars, or create a Custom Synced Calendar Group. If there are too many unsused or redundant calendars, it is recommended to do the custom option so that the Google Sheet receives your curated calendar selection.
+4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL: Login and then click **Settings (icon) → Sync**. From here you can copy the URL for the Auto-synced Calendars, or create a Custom Synced Calendar Group. If there are too many unused or redundant calendars, it is recommended to do the custom option so that the Google Sheet receives your curated calendar selection.
 5. Paste the ICS link into `ICS_URL` in `CalendarConfig!B1`.
-   - `LOOKAHEAD_DAYS` is the length of days in the future from the current date the ward calendar will pull events for.
-   - `INCLUDE_PAST_DAYS` is the length of days the calendar will display back to. If a calendar event is older than the specified number in days it will auto-remove in a Google Sheet sync.
+   - `LOOKAHEAD_DAYS` is the length of days in the future from the current date the ward calendar will display. This will be the criteria when a Google Sheet Sync occurs.
+   - `INCLUDE_PAST_DAYS` is the length of days the calendar will display back to. This will be the criteria when a Google Sheet Sync occurs.
 6. Run **Calendar Sync → Sync Calendar Now**.
 7. For auto-syncing, click **Calendar Sync → Set Trigger: Every [x] Hour(s)**.
 8. If you wish to stop this auto-syncing in the future, click **Calendar Sync → Stop Frequency Trigger**.
+9. Important: The only value you need to worry about on the Calendar tab is the checkboxes in "Show On Site". When checked, these calendars will get created as cards on the website and will not reset when a Google Sheet sync occurs. All other values will get reset upon a sync. Users should update calendar info at the source, which is the ward calendar, or their changes in the Google Sheet will get overwritten.
 
 ## How to find your Google Sheet ID
 
@@ -72,9 +73,9 @@ Paste that value into `config.json` as `sheet_id`.
 
 ## Updating your site later if a new version releases
 
-- When bugs are disovered and fixed, or features are potentially added, this Repository will recieve an update. This README will notate the current version at the top. Since you have already copied the template into your own account, you can compare your README version with the one listed here to verify if an update has occured.
+- When bugs are discovered and fixed, or features are potentially added, this Repository will receive an update. This README will notate the current version at the top. Since you have already copied the template into your own account, you can compare your README version with the one listed here to verify if an update has occurred.
 - When new template versions are released you have two options from simplest to most intensive:
-1. **Recommended**: Delete your respository but not the Google Sheet backend. Copy the newest Git Repository version as a new repository on your account, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the same QR code you had before will still be functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
+1. **Recommended**: Delete your repository but not the Google Sheet backend. Copy the newest Git Repository version as a new repository on your account, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the same QR code you had before will still be functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
 2. Compare your README version and files with the latest template version. Then copy in updated template files as needed, but avoid overwriting your own `config.json` values.
 
 ## Bonus: Install as a phone app
