@@ -17,6 +17,7 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
    https://docs.google.com/spreadsheets/d/144P85pf3sp6_yxGTZIALg1nFahk8BgX-oxdM-LUPTV8/edit?gid=0#gid=0
 2. In Google Sheets, go to **File → Share → Share with others**, set General Access to **Anyone with the link → Viewer**. You can also add additional editors now if you wish.
 3. Now go to **File → Share → Publish to the web**, expand **Published content & settings → Entire document** and then *uncheck* **Entire document** and *check* the following to enable publishing for them:
+   - Administrative
    - Agenda
    - Announcements
    - Calendar
