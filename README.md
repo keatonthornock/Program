@@ -15,14 +15,15 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
 
 You can set up your site entirely in the browser—no terminal required.
 
-1. In this repository, click **Use this template**.
-2. Create your new repository and keep it public. **Important:** Your repository name will be the URL directory in the address.
-3. In your new repository, open **`config.json`**.
-4. Click the **pencil (Edit this file)** icon.
-5. Replace `sheet_id` with your Google Sheet ID.
-6. Update the tab `gid` values if needed (`admin_gid`, `agenda_gid`, etc.).
-7. Commit the file changes.
-8. Go to **Settings → Pages** and enable GitHub Pages (deploy from your main branch).
+1. Before beginning, it is recommended to create a ward account and name it per your ward name. This way if you relocate it stays with ward management as well as the URL name will contain the wards name instead of your personal accounts name.
+2. In this repository, click **Use this template**.
+3. Create your new repository and keep it public. **Important:** Your repository name will be the URL directory in the address and your account name will be the URL name.
+4. In your new repository, open **`config.json`**.
+5. Click the **pencil (Edit this file)** icon.
+6. Replace `sheet_id` with your Google Sheet ID.
+7. Update the tab `gid` values if needed (`admin_gid`, `agenda_gid`, etc.).
+8. Commit the file changes.
+9. Go to **Settings → Pages** and enable GitHub Pages (deploy from your main branch).
 
 Once Pages is enabled, your site will use your committed `config.json` values.
 
