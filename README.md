@@ -1,6 +1,7 @@
 *Original Repository at https://github.com/keatonthornock/Program*
 
 *NOTE: if opening the example below on a desktop browser you can still view how it appears on mobile. Right click after opening the site → Inspect → Toggle Device Emulation (in the tool bar of dev tools).*
+
 Example: https://keatonthornock.github.io/Program
 
 # Sunday Service Program Website
