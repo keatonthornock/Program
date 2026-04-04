@@ -36,7 +36,7 @@ You can set up your site entirely in the browser—no terminal required.
 4. In your new repository, open **`config.json`**.
 5. Click the **pencil (Edit this file)** icon.
 6. Replace `sheet_id` with your Google Sheet ID between the quotation marks
-7. The tab ID values should not need to be updated, but if after publishing the information is not ingesting properly you can check the json file `gid` values (`admin_gid`, `agenda_gid`, etc.) against your copied Google Sheet tab ID's to confirm.
+7. The tab ID values should not need to be updated, but if the information is not ingesting properly after publishing in the later step you can come back and check the json file `gid` values (`admin_gid`, `agenda_gid`, etc.) against your copied Google Sheet tab ID's to confirm.
 8. Commit the file changes.
 9. Go to **Settings → Pages** and enable GitHub Pages (deploy from your main branch).
 
