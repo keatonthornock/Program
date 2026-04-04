@@ -1,5 +1,7 @@
 *Original Repository at https://github.com/keatonthornock/Program*
 
+Example: keatonthornock.github.io/program
+
 # Sunday Service Program Website
 Version: 1.0.0
 
