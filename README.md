@@ -62,12 +62,15 @@ You can automatically pull events from the ward calendar.
 4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL.
 5. Paste the ICS link into `CalendarConfig!B1`.
 6. Run **Calendar Sync → Sync Calendar Now**.
+7. For auto-syncing, click **Calendar Sync → Set Trigger: Every [x] Hour(s)**.
+8. If you wish to stop this auto-syncing in the future, click **Calendar Sync → Stop Frequency Trigger**.
 
 ## Updating your site later if a new version releases
 
-- This template now uses a manually edited, committed `config.json`.
-- When new template versions are released, compare your README version and files with the latest template version.
-- Copy in updated template files as needed, but avoid overwriting your own `config.json` values.
+- This template uses a manually edited, committed `config.json`.
+- When new template versions are released you have two options from simplest to most intensive:
+1. **Recommended**: Delete your respository but not the Google Sheet Back-end. Copy the newest version as a new repository, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the QR code will still being functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
+2. Compare your README version and files with the latest template version. Then copy in updated template files as needed, but avoid overwriting your own `config.json` values.
 
 ## Bonus: Install as a phone app
 
