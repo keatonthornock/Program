@@ -860,7 +860,7 @@ function renderAnnouncements(admRows){
   toggle.innerHTML = `
     <span>Announcements</span>
     <svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-      <path d="M7 10l5 5 5-5"/>
+      <path d="M8 6L16 12L8 18Z"/>
     </svg>
   `;
   section.appendChild(toggle);
@@ -1199,7 +1199,7 @@ function createActivityCard(ev){
       <div class="activity-card-title-row">
         <div class="activity-card-title">${escapeHtml(ev.title || 'Untitled event')}</div>
       </div>
-      ${hasMore ? `<span class="activity-arrow-wrap" aria-hidden="true"><svg class="activity-arrow" viewBox="0 0 24 24"><path d="M9 7l5 5-5 5"/></svg></span>` : ''}
+      ${hasMore ? `<span class="activity-arrow-wrap" aria-hidden="true"><svg class="activity-arrow" viewBox="0 0 24 24" width="18" height="18"><path d="M8 6L16 12L8 18Z"/></svg></span>` : ''}
     </div>
     <div class="activity-card-body">
       <div class="activity-meta-line activity-card-time">
