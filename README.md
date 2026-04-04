@@ -50,7 +50,7 @@ You can automatically pull events from the ward calendar.
 1. Open the Google Sheet on desktop.
 2. Click **Calendar Sync → Show Calendar Sheets**.
 3. Authorize the script: Click **OK → Advanced → Go to Ward Calendar Event Pull (unsafe) → Select all → Continue → OK**.
-4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL.
+4. Go to https://www.churchofjesuschrist.org/calendar and copy a sync URL: Login and then click **Settings (icon) → Sync**. From here you can copy the URL for the Auto-synced Calendars, or create a Custom Synced Calendar Group. If there are too many unsused or redundant calendars, it is recommended to do the custom option so that the Google Sheet receives your curated calendar selection.
 5. Paste the ICS link into `CalendarConfig!B1`.
 6. Run **Calendar Sync → Sync Calendar Now**.
 7. For auto-syncing, click **Calendar Sync → Set Trigger: Every [x] Hour(s)**.
