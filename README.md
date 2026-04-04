@@ -15,17 +15,15 @@ This repository is intended to be used as a **GitHub template** for ward-specifi
 
 1. Create a copy of the template sheet into your Google Drive, go to **File → Make a copy → Change Name → Make a copy** *(a ward specific Google account is recommended so it stays within ward control)*:  
    https://docs.google.com/spreadsheets/d/144P85pf3sp6_yxGTZIALg1nFahk8BgX-oxdM-LUPTV8/edit?gid=0#gid=0
-2. In Google Sheets, go to **File → Share → Publish to web**.
-3. Publish the **Administrative** tab.
-4. In published content settings, also publish:
+2. In Google Sheets, go to **File → Share → Share with others**, set General Access to **Anyone with the link → Viewer**. You can also add additional editors now if you wish.
+3. Now go to **File → Share → Publish to the web**, expand **Published content & settings → Entire document** and then *uncheck* **Entire document** and *check* the following to enable publishing for them:
    - Agenda
    - Announcements
    - Calendar
    - Ward Leadership
-5. Do **not** publish:
+6. Do **not** publish:
    - CalendarConfig
    - Hymn Directory
-6. In **File → Share → Share**, set General access to **Anyone with the link → Viewer**.
 
 ## Quick setup (GitHub website)
 
