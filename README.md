@@ -69,7 +69,7 @@ You can automatically pull events from the ward calendar.
 
 - This template uses a manually edited, committed `config.json`.
 - When new template versions are released you have two options from simplest to most intensive:
-1. **Recommended**: Delete your respository but not the Google Sheet Back-end. Copy the newest version as a new repository, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the QR code will still being functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
+1. **Recommended**: Delete your respository but not the Google Sheet Back-end. Copy the newest Git Repository version as a new repository on your account, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the QR code will still being functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
 2. Compare your README version and files with the latest template version. Then copy in updated template files as needed, but avoid overwriting your own `config.json` values.
 
 ## Bonus: Install as a phone app
