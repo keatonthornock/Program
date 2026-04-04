@@ -5,9 +5,9 @@
 Example (live demo site): https://keatonthornock.github.io/program
 
 # Unofficial Church of Jesus Christ of Latter-day Saints Sunday Service Program Website
-*I'm just compelled to make my local wards communication a bit more centralized, I am **NOT** affiliated with the official Church in a professional capacity, nor is this project affiliated with the Church.*
-
 `Version: 1.0.0`
+
+*I'm just compelled to make my local wards communication a bit more centralized, I am **NOT** affiliated with the official Church in a professional capacity, nor is this project affiliated with the Church.*
 
 This repository is intended to be used as a **GitHub template** for ward-specific Sunday service program websites.
 
