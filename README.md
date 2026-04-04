@@ -43,18 +43,6 @@ You can set up your site entirely in the browser—no terminal required.
 
 Once Pages is enabled, your site will use your committed `config.json` values and ingest the backend Google Sheet data we set up.
 
-## How to find your Google Sheet ID
-
-Given a sheet URL like:
-
-`https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890/edit#gid=0`
-
-The **sheet ID** is the part between `/d/` and `/edit`:
-
-`1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890`
-
-Paste that value into `config.json` as `sheet_id`.
-
 ## Calendar set up (optional)
 
 You can automatically pull events from the ward calendar.
@@ -67,6 +55,18 @@ You can automatically pull events from the ward calendar.
 6. Run **Calendar Sync → Sync Calendar Now**.
 7. For auto-syncing, click **Calendar Sync → Set Trigger: Every [x] Hour(s)**.
 8. If you wish to stop this auto-syncing in the future, click **Calendar Sync → Stop Frequency Trigger**.
+
+## How to find your Google Sheet ID
+
+Given a sheet URL like:
+
+`https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890/edit#gid=0`
+
+The **sheet ID** is the part between `/d/` and `/edit`:
+
+`1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890`
+
+Paste that value into `config.json` as `sheet_id`.
 
 ## Updating your site later if a new version releases
 
