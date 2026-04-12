@@ -138,6 +138,8 @@ function normalizeHymnCollection(extraInfo){
 
   if(
     normalized.includes("children's songbook") ||
+    normalized.includes('children s songbook') ||
+    normalized.includes('children s song book') ||
     normalized.includes('childrens songbook') ||
     normalized.includes('children songbook') ||
     normalized.includes('children song book') ||
