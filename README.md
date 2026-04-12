@@ -5,7 +5,7 @@
 Example (live demo site): https://keatonthornock.github.io/program
 
 # Unofficial Church of Jesus Christ of Latter-day Saints Sunday Service Program Website
-`Version: 1.0.0`
+`Version: 1.0.1`
 
 *I'm just compelled to make my local wards communication a bit more centralized, I am **NOT** affiliated with the official Church in a professional capacity, nor is this project affiliated with the Church.*
 
@@ -74,7 +74,7 @@ Paste that value into `config.json` as `sheet_id`.
 
 ## Updating your site later if a new version releases
 
-- When bugs are discovered and fixed, or features are potentially added, this Repository will receive an update. This README will notate the current version at the top. Since you have already copied the template into your own account, you can compare your README version with the one listed here to verify if an update has occurred.
+- When bugs are discovered and fixed, or features are potentially added, this Repository will receive an update. This README will notate the current version at the top and you can see the latest release verison with patch notes on the right hand side in the `Releases` section. Since you have already copied the repository template into your own account, you can compare your README version with the one listed here to verify if an update has occurred. If the Google Sheet Template has an update it will cause this Git to roll into a new version as well, so it may be possible for the Repository Code to receive an update separately, or the Google Sheet to receive and update separately, or both may have been changed, but in any case the version will be documented here. 
 - When new template versions are released you have two options from simplest to most intensive:
 1. **Recommended**: Delete your repository but not the Google Sheet backend. Copy the newest Git Repository version as a new repository on your account, and give it the same exact name you did before. This will result in your link being the same link it had prior, which means the same QR code you had before will still be functional (in case you had those printed off you needn't worry). Then all you will need to do is replace the single line in the `config.json` file again and publish the newly copied repository. This way you won't need to dig through every file to see what was changed.
 2. Compare your README version and files with the latest template version. Then copy in updated template files as needed, but avoid overwriting your own `config.json` values.
