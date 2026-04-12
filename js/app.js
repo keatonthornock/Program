@@ -382,6 +382,33 @@ function updateAppointmentsInfoBox(exec){
   }
 }
 
+let loadFailurePromptInitialized = false;
+
+function showLoadFailurePrompt(message){
+  const prompt = document.getElementById('load-failure-prompt');
+  const messageEl = document.getElementById('load-failure-message');
+  if(!prompt) return;
+  if(messageEl && message) messageEl.textContent = message;
+  prompt.hidden = false;
+}
+
+function hideLoadFailurePrompt(){
+  const prompt = document.getElementById('load-failure-prompt');
+  if(prompt) prompt.hidden = true;
+}
+
+function initLoadFailurePrompt(){
+  if(loadFailurePromptInitialized) return;
+  const refreshBtn = document.getElementById('load-failure-refresh');
+  if(refreshBtn){
+    refreshBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+  }
+  hideLoadFailurePrompt();
+  loadFailurePromptInitialized = true;
+}
+
 /* ---------- small UI helpers ---------- */
 function showError(msg){
   const n = $('#info-note');
@@ -1992,8 +2019,14 @@ function renderHeaderFromAdmin(map, admRows){
 /* ---------- main run flow ---------- */
 async function run(){
   clearError();
+  hideLoadFailurePrompt();
   let config;
-  try { config = await loadConfig(); } catch(e){ return; }
+  try {
+    config = await loadConfig();
+  } catch(e){
+    showLoadFailurePrompt('The page was unable to finish loading. Please refresh and try again.');
+    return;
+  }
 
   let adminCsvUrl = config.admin_csv_url || (config.sheet_id && config.admin_gid ? buildCsvUrl(config.sheet_id, config.admin_gid) : null);
   let agendaCsvUrl = config.agenda_csv_url || (config.sheet_id && config.agenda_gid ? buildCsvUrl(config.sheet_id, config.agenda_gid) : null);
@@ -2003,10 +2036,12 @@ async function run(){
  
   if(!adminCsvUrl){
     showError('No admin CSV URL available. Set admin_gid or admin_csv_url in config.json');
+    showLoadFailurePrompt('The page was unable to finish loading. Please refresh and try again.');
     return;
   }
   if(!agendaCsvUrl){
     showError('No agenda CSV URL available. Set agenda_gid or agenda_csv_url in config.json');
+    showLoadFailurePrompt('The page was unable to finish loading. Please refresh and try again.');
     return;
   }
 
@@ -2281,10 +2316,12 @@ async function run(){
     initCollapsibles();
     initSideMenu();
     initPwaInstall();
+    hideLoadFailurePrompt();
 
   } catch(err){
     console.error('[app] error', err);
     showError('Failed to fetch sheets: ' + err.message);
+    showLoadFailurePrompt('The page was unable to finish loading. Please refresh and try again.');
   }
 }
 
@@ -2476,4 +2513,5 @@ function initMobileScrollStrip(){
 
 
 initMobileScrollStrip();
+initLoadFailurePrompt();
 run();
