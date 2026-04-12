@@ -891,22 +891,24 @@ body[data-theme='lent'] .footer-brand-zone {
 }
 
 .footer-ward-site {
-  margin: 4px 0 0;
+  margin: 12px 0 0;
   font-size: 0.78rem;
-  line-height: 1.3;
+  line-height: 1.75;
   color: rgba(255, 255, 255, 0.88);
   text-align: center;
 }
 
 .footer-ward-site a {
+  display: inline-block;
+  padding: 3px 0;
   color: inherit;
-  text-decoration: underline;
-  border-bottom: 1px solid transparent;
+  text-decoration: none;
 }
 
 .footer-ward-site a:hover,
 .footer-ward-site a:focus-visible {
-  border-bottom-color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  opacity: 0.9;
 }
 
 @media (min-width: 900px) {
