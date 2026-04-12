@@ -486,9 +486,16 @@ function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   if(!footerSiteEl) return;
 
   const website = (wardWebsiteRaw || '').toString().trim();
+  const githubHref = 'https://github.com/keatonthornock/program';
+  const setupLinkText = 'Set up your own digital ward program';
+  const footerLinks = [];
+
   if(!website){
-    footerSiteEl.hidden = true;
-    footerSiteEl.innerHTML = '';
+    footerSiteEl.hidden = false;
+    footerLinks.push(
+      `<a href="${githubHref}" target="_blank" rel="noopener">${setupLinkText}</a>`
+    );
+    footerSiteEl.innerHTML = footerLinks.join('<br>');
     if(sideSiteEl){
       sideSiteEl.hidden = true;
       sideSiteEl.removeAttribute('href');
@@ -499,7 +506,11 @@ function updateFooterWardWebsite(wardName, wardWebsiteRaw){
   const safeWardName = escapeHtml((wardName || 'Ward').toString().trim() || 'Ward');
   const href = normalizeHref(website);
   footerSiteEl.hidden = false;
-  footerSiteEl.innerHTML = `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${safeWardName} Homepage</a>`;
+  footerLinks.push(
+    `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${safeWardName} Homepage</a>`,
+    `<a href="${githubHref}" target="_blank" rel="noopener">${setupLinkText}</a>`
+  );
+  footerSiteEl.innerHTML = footerLinks.join('<br>');
   if(sideSiteEl){
     sideSiteEl.hidden = false;
     sideSiteEl.href = href;
