@@ -1362,6 +1362,58 @@ body[data-theme='lent'] .footer-brand-zone {
   white-space: nowrap;
 }
 
+.load-failure-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.load-failure-prompt[hidden] {
+  display: none;
+}
+
+.load-failure-prompt__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.load-failure-prompt__dialog {
+  position: relative;
+  width: min(420px, calc(100vw - 40px));
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.3);
+  padding: 18px 16px 14px;
+  text-align: center;
+}
+
+.load-failure-prompt__dialog h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.1rem;
+}
+
+.load-failure-prompt__dialog p {
+  margin: 10px 0 16px;
+  color: #334155;
+}
+
+.load-failure-prompt__refresh-btn {
+  border: 0;
+  border-radius: 10px;
+  min-width: 120px;
+  padding: 10px 14px;
+  background: var(--color-dark);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (min-width: 900px) {
   .bottom-content-zone {
     margin-left: 0;

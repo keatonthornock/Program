@@ -167,6 +167,15 @@
     
   </main>
 
+  <div id="load-failure-prompt" class="load-failure-prompt" hidden>
+    <div class="load-failure-prompt__backdrop"></div>
+    <div class="load-failure-prompt__dialog" role="alertdialog" aria-modal="true" aria-labelledby="load-failure-title" aria-describedby="load-failure-message">
+      <h2 id="load-failure-title">Could not load</h2>
+      <p id="load-failure-message">The page was unable to finish loading. Please refresh and try again.</p>
+      <button id="load-failure-refresh" class="load-failure-prompt__refresh-btn" type="button">Refresh</button>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
 </body>
 </html>
