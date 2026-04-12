@@ -409,6 +409,32 @@ function initLoadFailurePrompt(){
   loadFailurePromptInitialized = true;
 }
 
+function enforceAnchorExternalBehavior(anchor){
+  if(!anchor || !(anchor instanceof HTMLAnchorElement)) return;
+  const href = (anchor.getAttribute('href') || '').trim();
+  if(!href || href.toLowerCase().startsWith('javascript:')) return;
+  anchor.target = '_blank';
+  const relTokens = new Set((anchor.getAttribute('rel') || '').split(/\s+/).filter(Boolean));
+  relTokens.add('noopener');
+  relTokens.add('noreferrer');
+  anchor.setAttribute('rel', Array.from(relTokens).join(' '));
+}
+
+function initExternalLinkBehavior(){
+  document.querySelectorAll('a[href]').forEach(enforceAnchorExternalBehavior);
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if(!(node instanceof Element)) return;
+        if(node.matches('a[href]')) enforceAnchorExternalBehavior(node);
+        node.querySelectorAll?.('a[href]').forEach(enforceAnchorExternalBehavior);
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 /* ---------- small UI helpers ---------- */
 function showError(msg){
   const n = $('#info-note');
@@ -2525,4 +2551,5 @@ function initMobileScrollStrip(){
 
 initMobileScrollStrip();
 initLoadFailurePrompt();
+initExternalLinkBehavior();
 run();
